@@ -1,5 +1,5 @@
 [v3.2.1] (24/01/2021)
-* Melhoria: Garante a criação de boletos e inclusão dos dados nos emailos das faturas recém criadas ao rodar o cron;
+* Melhoria: Garante a criação de boletos e inclusão dos dados nos emails das faturas recém criadas ao rodar o cron;
 * Melhoria: Corrige formatação de itens de linha dos Boletos gerados por faturas mescladas, de acordo com as exigências da API Gerencianet;
 * Melhoria: Corrige formatação de itens de linha dos Boletos gerados por faturas referentes a upgrades;
 
