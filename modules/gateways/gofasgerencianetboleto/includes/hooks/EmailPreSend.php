@@ -6,7 +6,7 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.2.1
+ * @version		3.3.0
  */
 use WHMCS\Database\Capsule;
 add_hook('EmailPreSend',1, function($vars){

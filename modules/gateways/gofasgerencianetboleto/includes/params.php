@@ -6,148 +6,127 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.2.1
+ * @version		3.3.0
  */
 
-//if(!defined('WHMCS')){ die('Esse arquivo não pode ser acessado diretamente'); }
+if(!defined('WHMCS')){ die('Esse arquivo não pode ser acessado diretamente'); }
 use WHMCS\Database\Capsule;
 // Parâmetros do sistema
-$companyName				= $params['companyname'];
+$companyName = $params['companyname'];
 foreach( Capsule::table('tblconfiguration') -> where('setting', '=', 'ggnbwhmcsurl') -> get( array( 'value','created_at') ) as $ggnbwhmcsurl_ ){
-	$ggnbwhmcsurl					= $ggnbwhmcsurl_->value;
+	$ggnbwhmcsurl = $ggnbwhmcsurl_->value;
 }
-$system_url					= $ggnbwhmcsurl;
-$returnUrl					= $system_url.'modules/gateways/gofasgerencianetboleto/includes/callback.php';
-$langPayNow					= $params['langpaynow'];
-$moduleDisplayName			= $params['name'];
-$moduleName					= $params['paymentmethod'];
-
+$system_url = $ggnbwhmcsurl;
+$returnUrl = $system_url.'modules/gateways/gofasgerencianetboleto/includes/callback.php';
+$langPayNow = $params['langpaynow'];
+$moduleDisplayName = $params['name'];
+$moduleName = $params['paymentmethod'];
 // Parâmetros do Módulo
-$module_version	= '3.2.1';
-$sandbox		= $params['sandbox'];
-
+$module_version = '3.3.0';
+$sandbox = $params['sandbox'];
 if( $sandbox ){
-	$client_id				= $params['clientidsandbox'];
-	$client_secret			= $params['clientsecretsandbox'];
-	$api_mode				= 'sandbox';
-	$api_url				= 'https://sandbox.gerencianet.com.br/v1/';
+	$client_id = $params['clientidsandbox'];
+	$client_secret = $params['clientsecretsandbox'];
+	$api_mode = 'sandbox';
+	$api_url = 'https://sandbox.gerencianet.com.br/v1/';
 	
 } elseif(!$sandbox){
-	$client_id				= $params['clientid'];
-	$client_secret			= $params['clientsecret'];
-	$api_mode				= 'live';
-	$api_url				= 'https://api.gerencianet.com.br/v1/';
+	$client_id = $params['clientid'];
+	$client_secret = $params['clientsecret'];
+	$api_mode = 'live';
+	$api_url = 'https://api.gerencianet.com.br/v1/';
 }
-
 if( stripos($_SERVER['REQUEST_URI'], 'viewinvoice.php') ){ // Verifica se a página é uma fatura
-	$isInvoice	= true;
-	$debug		= $params['debug'];
+	$isInvoice = true;
+	$debug = $params['debug'];
 	
 } else {
-	$isInvoice	= false;
-	$debug		= false;
+	$isInvoice = false;
+	$debug = false;
 }
-
 if($isInvoice and $params['debug']){
-	$debug	= true;
+	$debug = true;
 } else {
-	$debug	= false;
+	$debug = false;
 }
-
 if(!$debug and !$_REQUEST['redirectToBillet']){
-	$redirectToBillet	= $params['redirecttobillet'];
+	$redirectToBillet = $params['redirecttobillet'];
 }
 if(!$debug and $_REQUEST['redirectToBillet'] === "true"){
-	$redirectToBillet	= true;
+	$redirectToBillet = true;
 }
 if( $debug and $_REQUEST['redirectToBillet'] === "true"){
-	$redirectToBillet	= true;
+	$redirectToBillet = true;
 	$debug = false;
 }
 if($_REQUEST['redirectToBillet'] === "false"){
-	$redirectToBillet	= false;
+	$redirectToBillet = false;
 }
 $log = $params['log'];
-
-if($debug || $log){
-	$log_result = array();
-	$debug_or_log = true;
-}
-if($debug){
-			echo '<pre style="height:300px;max-width: 850px;margin: 20px auto;padding: 5px 15px 5px 15px;" class="debug" onfocus="select_all_and_copy(this)" onclick="select_all_and_copy(this)">';
-			echo '<h4 style="text-align:center;line-height: 1.4;border-bottom: 1px solid black;padding: 0px 0px 12px 0px;margin: 11px 0px 20px 0px;">Você está vendo essas informações na tela por quê a opção "debug" do módulo<br><b>Gofas Gerencianet Boleto v'.$module_version.'</b> está ativa.</h4>';
-			echo '<p>Operações bem sucedidas possuem títulos <span class="ok">verdes</span> e erros são destacados em <span class="erro">vermelho</span></p>';
-			echo '<p>Saiba mais sobre como diagnosticar erros e coletar informações para suporte <a target="_blank" href="https://gofas.net/?p=7899&rf=ggnbfatura">neste link</a></p>';
-			echo '<h4>Suporte:</h4>';
-			echo '<p>Veja várias soluções para dificuldades comuns no <a href="https://gofas.net/forums/forum/whmcs/modulo-gerencianet-boleto-para-whmcs/?rf=ggnbfatura" target="_blank">fórum de suporte do módulo</a>.</p>';
-			echo'<p  onfocus="select_all_and_copy(debugDiv)" onclick="select_all_and_copy(debugDiv)"">1) <span style="cursor:copy;text-decoration: underline; ">Clique aqui para copiar as informações de diagnóstico (debug)</span>.</p>';
-			echo'<p>2) <a target="_blank" tyle="cursor:alias;" href="https://gofas.net/forums/forum/whmcs/modulo-gerencianet-boleto-para-whmcs/?rf=ggnbfatura">Clique aqui para publicar no fórum do módulo as informações de diagnósico</a>.</p>';
-}
-$emailonError				= $params['emailonerror'];
-$showDueDate				= $params['showduedate'];
-$showBarCode				= $params['showbarcode'];
-$requireCNPJandCPF			= $params['requirecnpjandcpf'];
-$cancelBillet				= $params['cancelbillet'];
-$customfCPF					= $params['customfieldcpf'];
-$customfCNPJ				= $params['customfieldcnpj'];
-$fine						= $params['multa'] * 100;
-$interest					= $params['juros'] * 1000;
-$fee						= $params['fee'];
-
+$emailonError = $params['emailonerror'];
+$showDueDate = $params['showduedate'];
+$showBarCode = $params['showbarcode'];
+$requireCNPJandCPF = $params['requirecnpjandcpf'];
+$cancelBillet = $params['cancelbillet'];
+$customfCPF = $params['customfieldcpf'];
+$customfCNPJ = $params['customfieldcnpj'];
+$fine = $params['multa'] * 100;
+$interest = $params['juros'] * 1000;
+$fee = $params['fee'];
 // Dias adicionais à Data de vencimento
 if( $params['diasparavencimento'] ){
-	$diasParaVencimento		= '+'.$params['diasparavencimento'].' days';
+	$diasParaVencimento = '+'.$params['diasparavencimento'].' days';
 
 } elseif( $params['diasparavencimento'] == '0'){
-	$diasParaVencimento		= 'zero';
+	$diasParaVencimento = 'zero';
 }
 
 elseif( !$params['diasparavencimento'] ){
-	$diasParaVencimento		= '+1 day';
+	$diasParaVencimento = '+1 day';
 }
 else {
-	$diasParaVencimento		= false;
+	$diasParaVencimento = false;
 }
 
 if($params['message']){ $message = $params['message'];
 }
 elseif(!$params['message'] || empty($params['message'])){
-	$message				= 'Acesse '.$ggnbwhmcsurl.' para gerar 2ª via.';
+	$message = 'Acesse '.$ggnbwhmcsurl.' para gerar 2ª via.';
 }
 
 if( $params['minimunamount'] ){
-	$minimunAmount			= $params['minimunamount'];
+	$minimunAmount = $params['minimunamount'];
 }
 elseif( !$params['minimunamount'] || $params['minimunamount'] < 5 ){
-	$minimunAmount			= '5.00' ;
+	$minimunAmount = '5.00' ;
 }
 
 if($params['paybutton']){
-	$payButton				= '<img alt="Visualizar Boleto" src="'.$params['paybutton'].'">';
+	$payButton = '<img alt="Visualizar Boleto" src="'.$params['paybutton'].'">';
 }elseif(!$params['paybutton']){
-	$payButton				= 'Visualizar Boleto';
+	$payButton = 'Visualizar Boleto';
 }
 
 // Instruções
 if($params['instruction1']){
-	$instruction1			= $params['instruction1'];
+	$instruction1 = $params['instruction1'];
 }elseif(!$instruction1){
-	$instruction1			= 'Sr. Caixa, após vencimento aceitar somente no banco emissor.';
+	$instruction1 = 'Sr. Caixa, após vencimento aceitar somente no banco emissor.';
 }
 if($params['instruction2']){
-	$instruction2			= $params['instruction2'];
+	$instruction2 = $params['instruction2'];
 }elseif(!$instruction2){
-	$instruction2			= 'Sr. Caixa, não cobrar juros após o vencimento.';
+	$instruction2 = 'Sr. Caixa, não cobrar juros após o vencimento.';
 }
 if($params['instruction3']){
-	$instruction3			= $params['instruction3'];
+	$instruction3 = $params['instruction3'];
 }elseif(!$instruction3){
-	$instruction3			= 'Sr. Caixa, não cobrar multa após o vencimento.';
+	$instruction3 = 'Sr. Caixa, não cobrar multa após o vencimento.';
 }
 if($params['instruction4']){
-	$instruction4			= $params['instruction4'];
+	$instruction4 = $params['instruction4'];
 }elseif(!$instruction4){
-	$instruction4			= 'Sr. Caixa, aceitar apenas pagamento em dinheiro.';
+	$instruction4 = 'Sr. Caixa, aceitar apenas pagamento em dinheiro.';
 }
 
 // Instruções ao caixa
@@ -179,69 +158,69 @@ if( $fine and $interest){
 
 
 // Parâmetros da fatura
-$invoice_id					= $params['invoiceid'];
-$getinvoiceid['invoiceid']	= $invoice_id;
-$GetInvoiceResults			= localAPI('getinvoice',$getinvoiceid,$params['admin']);
+$invoice_id = $params['invoiceid'];
+$getinvoiceid['invoiceid'] = $invoice_id;
+$GetInvoiceResults = localAPI('getinvoice',$getinvoiceid,$params['admin']);
 
-$invoice_duedate				= $GetInvoiceResults['duedate']; // Data de vencimento da fatura
+$invoice_duedate = $GetInvoiceResults['duedate']; // Data de vencimento da fatura
 
 if( $invoice_duedate > date('Y-m-d') ){
-	$billet_duedate			= $invoice_duedate;
+	$billet_duedate = $invoice_duedate;
 	
 }
 elseif( $invoice_duedate === date('Y-m-d') ){
-	$billet_duedate			= date('Y-m-d', strtotime('+1 day'));
+	$billet_duedate = date('Y-m-d', strtotime('+1 day'));
 
 }
 elseif( $invoice_duedate < date('Y-m-d') and !$diasParaVencimento ){
-	$billet_duedate			= date('Y-m-d', strtotime('+1 day')); // Se fatura já venceu, data de vencimento do boleto = Hoje + 1 dia
+	$billet_duedate = date('Y-m-d', strtotime('+1 day')); // Se fatura já venceu, data de vencimento do boleto = Hoje + 1 dia
 	
 }
 elseif( $invoice_duedate < date('Y-m-d') and $diasParaVencimento and $diasParaVencimento !== 'zero'){
-	$billet_duedate			= date('Y-m-d', strtotime( $diasParaVencimento )); // Se fatura já venceu, data de vencimento do boleto = Hoje + X dia(s)
+	$billet_duedate = date('Y-m-d', strtotime( $diasParaVencimento )); // Se fatura já venceu, data de vencimento do boleto = Hoje + X dia(s)
 
 }
 elseif( $invoice_duedate < date('Y-m-d') and $diasParaVencimento and $diasParaVencimento === 'zero'){
-	$billet_duedate			= date('Y-m-d', strtotime('+1 day')); // Se fatura já venceu, data de vencimento do boleto = Hoje
+	$billet_duedate = date('Y-m-d', strtotime('+1 day')); // Se fatura já venceu, data de vencimento do boleto = Hoje
 }
 
-$invoiceTotal	=	$GetInvoiceResults['total'];
-$invoiceCredit	=	(int)($GetInvoiceResults['credit'] * 100);
+$invoiceTotal =	$GetInvoiceResults['total'];
+$invoiceCredit =	(int)($GetInvoiceResults['credit'] * 100);
 
 // Parâmetros das transações associadas à Fatura
-$trans_idendA				= $GetInvoiceResults['transactions'];
+$trans_idendA = $GetInvoiceResults['transactions'];
 if($trans_idendA){
-	$trans_idend				= $trans_idendA['transaction'];
+	$trans_idend = $trans_idendA['transaction'];
 }
 if($trans_idend){
-	$trans_idp				= end( $trans_idend );
-	$trans_id_				= $trans_idp['transid'];
+	$trans_idp = end( $trans_idend );
+	$trans_id_ = $trans_idp['transid'];
 	
 	// Verifica se a transação pertence ao módulo
 	if( strpos( $trans_id_, 'ggnb') !== false and (strpos( $trans_id_, 'unpaid') !== false or strpos( $trans_id_, 'waiting') !== false ) and strpos( $trans_id_, $api_mode) ){
-		$trans_id					= (int)preg_replace('/[^0-9]/', '', $trans_id_ ); // ggnb_waiting_213630
+		$trans_id = (int)preg_replace('/[^0-9]/', '', $trans_id_ ); // ggnb_waiting_213630
 	}
 	else {
-		$trans_id				= false;
+		$trans_id = false;
 	}
 }
 else {
-	$trans_id				= false;
+	$trans_id = false;
 }
 // Serviços/produtos relacionados à fatura
-$invoiceItemsItem	= $GetInvoiceResults['items']['item'];
+$invoiceItemsItem = $GetInvoiceResults['items']['item'];
 
 // Parametros do Cliente
-$user_id					= $params['clientdetails']['id'];
-$firstname					= $params['clientdetails']['firstname'];
-$lastname					= $params['clientdetails']['lastname'];
-//$phone						= preg_replace('/[^0-9]/', '', $params['clientdetails']['phonenumber']);
-$phone						= preg_replace('/[^\da-z]/i', '', $params['clientdetails']['phonenumber']);
+$user_id = $params['clientdetails']['id'];
+$firstname = $params['clientdetails']['firstname'];
+$lastname = $params['clientdetails']['lastname'];
+//$phone = preg_replace('/[^0-9]/', '', $params['clientdetails']['phonenumber']);
+$phone = preg_replace('/[^\da-z]/i', '', $params['clientdetails']['phonenumber']);
 
 if( $params['clientdetails']['companyname'] ){
-	$corporateName			= $params['clientdetails']['companyname'];
+	$corporateName = $params['clientdetails']['companyname'];
 } elseif(!$params['clientdetails']['companyname']){
-	$corporateName			= $firstname . ' ' . $lastname;
+	$corporateName = $firstname . ' ' . $lastname;
 }
 
 /**
@@ -251,8 +230,8 @@ if( $params['clientdetails']['companyname'] ){
  */
 //$customfields = array();
 foreach( Capsule::table('tblcustomfields') -> where( 'type', '=', 'client')  -> get( array( 'fieldname', 'id') ) as $customfield ){
-	$customfield_id					= $customfield->id;
-	$customfield_name				= ' '.strtolower( $customfield->fieldname );
+	$customfield_id = $customfield->id;
+	$customfield_name = ' '.strtolower( $customfield->fieldname );
 	// cpf
 	if( strpos( $customfield_name, 'cpf') and !strpos( $customfield_name, 'cnpj') ){
 		foreach( Capsule::table('tblcustomfieldsvalues') -> where( 'fieldid', '=', $customfield_id ) -> where( 'relid', '=', $user_id ) -> get( array( 'value') ) as $customfieldvalue ){
@@ -408,8 +387,8 @@ elseif(strlen($cpf_customfield_value) === 13){
 	
 }
 elseif(strlen($cpf_customfield_value) === 14){
-	$cpf 				= false;
-	$cnpj				= $cpf_customfield_value;
+	$cpf  = false;
+	$cnpj = $cpf_customfield_value;
 	$juridical_data = array(
   			'corporate_name' => $corporateName,
   			'cnpj' => $cnpj,
@@ -489,7 +468,7 @@ $customer_pf = array(
 
 // Verify if generate billet
 // CSS da fatura
-$css		= '<style type="text/css">a, a:hover {cursor: pointer;}.ggnbp {font-size:12px;margin: 0;}.ggnbspan{font-size:12px;}span.ggnberror {color: red;}';
+$css = '<style type="text/css">a, a:hover {cursor: pointer;}.ggnbp {font-size:12px;margin: 0;}.ggnbspan{font-size:12px;}span.ggnberror {color: red;}';
 $css		.= '
 	.debug {
 		padding:5px;
@@ -555,28 +534,23 @@ foreach( Capsule::table('tblcustomfieldsvalues') -> where( 'fieldid', '=', $para
 	$custom_discount_value = $customfieldvalue->value;	
 }
 
-if($debug_or_log){
-	$log_result['custom_discount_type']		= $params['custom_discount_type'] . ' - ' . $custom_discount_type;
-	$log_result['custom_discount_value']	=  $params['custom_discount_value']. ' - ' . $custom_discount_value;
-}
-
 // Define desconto personalizado 
 if( $custom_discount_value and $custom_discount_type ){
-	$discount_tax			= 1;
-	$discount_tax_value		= $custom_discount_value;
+	$discount_tax = 1;
+	$discount_tax_value = $custom_discount_value;
 	
 	if( strpos( $custom_discount_type, '%') !== false ){
-		$discount_tax_type		= 1;
+		$discount_tax_type = 1;
 	}
 	
 	if( strpos( $custom_discount_type, '$') !== false ){
-		$discount_tax_type		= 2;
+		$discount_tax_type = 2;
 	}
 }
 else {
-	$discount_tax				= (int)$params['descontooutaxa']; // Define se é desconto ou taxa: 1 = desconto | 2 = taxa
-	$discount_tax_type			= (int)$params['tipodescontooutaxa']; // 1 = % | 2 = $  
-	$discount_tax_value 		= $params['valordescontooutaxa'];
+	$discount_tax = (int)$params['descontooutaxa']; // Define se é desconto ou taxa: 1 = desconto | 2 = taxa
+	$discount_tax_type = (int)$params['tipodescontooutaxa']; // 1 = % | 2 = $  
+	$discount_tax_value  = $params['valordescontooutaxa'];
 }
 
 $days_for_discount = (string)$params['diasantesvencadddesconto'];
@@ -612,7 +586,7 @@ if( $discount_tax === 1 and $discount_tax_value > 0 and $discount_valid_until an
 }
 
 // Exibir info sobre desconto na fatura
-$discount_tax_visible		= $params['exibedescontooutaxa'];
+$discount_tax_visible = $params['exibedescontooutaxa'];
 
 // Desconto do WHMCS / Itens com valor negativo
 $disc_item = array();
@@ -627,63 +601,57 @@ if( $invoiceCredit ){
 
 // Cálculo de multa e juros
 if(!function_exists('ggnb_calculate_fine_interest')){
-function ggnb_calculate_fine_interest( $VALUE, $fine, $interest, $invoice_duedate, $debug ){
-
-	$today = date('Y-m-d');
-	$due_date = date('Y-m-d', strtotime($invoice_duedate));
-	$startTimeStamp = strtotime($due_date);
-	$endTimeStamp = strtotime($today);
-	$timeDiff = abs($endTimeStamp - $startTimeStamp);
-	$due_days = $timeDiff/86400;  // 86400 seconds in one day
-
-	// and you might want to convert to integer
-	$due_days = intval($due_days);
-
-	if( $fine and $invoice_duedate >= date('Y-m-d') ){
-		$fine_value = false;
+	function ggnb_calculate_fine_interest( $VALUE, $fine, $interest, $invoice_duedate){
+		$today = date('Y-m-d');
+		$due_date = date('Y-m-d', strtotime($invoice_duedate));
+		$startTimeStamp = strtotime($due_date);
+		$endTimeStamp = strtotime($today);
+		$timeDiff = abs($endTimeStamp - $startTimeStamp);
+		$due_days = $timeDiff/86400;  // 86400 seconds in one day
+		// and you might want to convert to integer
+		$due_days = intval($due_days);
+		if( $fine and $invoice_duedate >= date('Y-m-d') ){
+			$fine_value = false;
+		}
+		elseif( $fine and $invoice_duedate < date('Y-m-d')){
+			$fine_value = ( ( $fine / 100 ) * $VALUE );
+		}
+		if( $interest and $invoice_duedate >= date('Y-m-d') ){
+			$interest_value = false;
+		}
+		elseif( $interest and $invoice_duedate < date('Y-m-d') ){
+			$interest_value = ( ($due_days * $interest) / 1000 ) * $VALUE;
+		}
+		if( $fine and $interest ){
+			return array(
+				'fine_value'=>$fine_value,
+				'interest_value'=>$interest_value,
+				'due_days' => $due_days,
+			);
+		}
+		elseif( $fine and !$interest){
+			return array(
+				'fine_value'=>$fine_value,
+				'due_days' => $due_days,
+			);
+		}
+		elseif( !$fine and $interest){
+			return array(
+				'interest_value'=>$interest_value,
+				'due_days' => $due_days,
+			);
+		}
+		elseif( !$fine and !$interest){
+			return false;
+		}
 	}
-	elseif( $fine and $invoice_duedate < date('Y-m-d')){
-		$fine_value = ( ( $fine / 100 ) * $VALUE );
-		
-	}
-	if( $interest and $invoice_duedate >= date('Y-m-d') ){
-		$interest_value = false;
-	}
-	elseif( $interest and $invoice_duedate < date('Y-m-d') ){
-		$interest_value = ( ($due_days * $interest) / 1000 ) * $VALUE;
-	}
-	
-	if( $fine and $interest ){
-		return array(
-			'fine_value'=>$fine_value,
-			'interest_value'=>$interest_value,
-			'due_days' => $due_days,
-		);
-	}
-	elseif( $fine and !$interest){
-		return array(
-			'fine_value'=>$fine_value,
-			'due_days' => $due_days,
-		);
-	}
-	elseif( !$fine and $interest){
-		return array(
-			'interest_value'=>$interest_value,
-			'due_days' => $due_days,
-		);
-	}
-	elseif( !$fine and !$interest){
-		//$new_value = $VALUE * 100;
-		return false;
-	}
-}
 }
 
 // Desconto em porcentagem %
 if( $discount_tax === 1 and $discount_tax_type === 1 and $discount_tax_value ){
-	$discount_tax_valueRS			= (int)((((float)$invoiceTotal / (float)100 )*(float)$discount_tax_value)*100);
-	$invoice_amount__ 				= (int)($invoiceTotal*100);
-	$invoice_amount_				= $invoice_amount__ - $discount_tax_valueRS;
+	$discount_tax_valueRS = (int)((((float)$invoiceTotal / (float)100 )*(float)$discount_tax_value)*100);
+	$invoice_amount__  = (int)($invoiceTotal*100);
+	$invoice_amount_ = $invoice_amount__ - $discount_tax_valueRS;
 	
 	$discount_tax_visible_message	.= '<p>Desconto de '.$discount_tax_value.'% (R$'.number_format($discount_tax_valueRS/100,  2, ',', '.').') para Boleto';
 	
@@ -693,7 +661,7 @@ if( $discount_tax === 1 and $discount_tax_type === 1 and $discount_tax_value ){
 		}
 	}
 
-	$discount_value	= (int)($discount_tax_value*100);
+	$discount_value = (int)($discount_tax_value*100);
 	$ItEm_discount = array_merge($ItEm_discount, array(array('name' => 'Desconto de '.$discount_tax_value.'% para pagamento com boleto','amount'=>1,'value' => -($discount_tax_valueRS))));
 	
 	if($whmcs_discount > 0 ){
@@ -711,10 +679,10 @@ if( $discount_tax === 1 and $discount_tax_type === 1 and $discount_tax_value ){
 }
 // Desconto Fixo R$
 elseif( $discount_tax === 1 and $discount_tax_type === 2 and $discount_tax_value ){
-	$discount_tax_valueRS			= (int)($discount_tax_value*100);
-	//$invoice_amount 				= (int)($invoiceTotal - $discount_tax_value) * 100;
-	$invoice_amount__ 				= (int)($invoiceTotal*100);
-	$invoice_amount_				= $invoice_amount__ - $discount_tax_valueRS;
+	$discount_tax_valueRS = (int)($discount_tax_value*100);
+	//$invoice_amount  = (int)($invoiceTotal - $discount_tax_value) * 100;
+	$invoice_amount__  = (int)($invoiceTotal*100);
+	$invoice_amount_ = $invoice_amount__ - $discount_tax_valueRS;
 	
 	$discount_tax_visible_message	.= '<p>Desconto de R$'.number_format($discount_tax_value,  2, ',', '.').' para Boleto </p>';
 	
@@ -724,7 +692,7 @@ elseif( $discount_tax === 1 and $discount_tax_type === 2 and $discount_tax_value
 		}
 	}
 	
-	$discount_value	= (int)($discount_tax_value * 100);
+	$discount_value = (int)($discount_tax_value * 100);
 	$ItEm_discount = array_merge($ItEm_discount, array(array('name' => 'Desconto fixo para pagamento com boleto','amount'=>1,'value' => -($discount_value))));
 	//$discount_name .= 'Desconto para pagamento por boleto';
 	
@@ -746,9 +714,9 @@ elseif( $discount_tax === 1 and $discount_tax_type === 2 and $discount_tax_value
 }
 // Tarifa em porcentagem %
 elseif( $discount_tax === 2 and $discount_tax_type === 1 and $discount_tax_value ){
-	$discount_tax_valueRS			= (int)((((float)$invoiceTotal / (float)100 )*(float)$discount_tax_value)*100);
-	$invoice_amount__ 				= (int)($invoiceTotal*100);
-	$invoice_amount_				= $invoice_amount__ + $discount_tax_valueRS;
+	$discount_tax_valueRS = (int)((((float)$invoiceTotal / (float)100 )*(float)$discount_tax_value)*100);
+	$invoice_amount__  = (int)($invoiceTotal*100);
+	$invoice_amount_ = $invoice_amount__ + $discount_tax_valueRS;
 	$discount_tax_visible_message	.= '<p>Tarifa de '.$discount_tax_value.'% (R$'.number_format($discount_tax_valueRS/100,  2, ',', '.') . ') para Boleto</p>';	
 	
 	foreach( $invoiceItemsItem as $ItEmKey => $ItEmValue){
@@ -769,9 +737,9 @@ elseif( $discount_tax === 2 and $discount_tax_type === 1 and $discount_tax_value
 // Tarifa Fixa R$
 elseif( $discount_tax === 2 and $discount_tax_type === 2 and $discount_tax_value ){
 	
-	$discount_tax_valueRS			= (int)($discount_tax_value*100);
-	$invoice_amount__ 				= (int)($invoiceTotal*100);
-	$invoice_amount_				= $invoice_amount__ + $discount_tax_valueRS;
+	$discount_tax_valueRS = (int)($discount_tax_value*100);
+	$invoice_amount__  = (int)($invoiceTotal*100);
+	$invoice_amount_ = $invoice_amount__ + $discount_tax_valueRS;
 	
 	$discount_tax_visible_message	.= '<p>Tarifa de R$'.number_format($discount_tax_value,  2, ',', '.').' para Boleto</p>';	
 	
@@ -807,12 +775,12 @@ elseif( !$discount_tax_value ){
 }
 
 /// Determine Fine and Interest Line Itens
-$fine_interest_values	= array();
-$fine_values_arr		= array();
-$interest_values_arr		= array();
+$fine_interest_values = array();
+$fine_values_arr = array();
+$interest_values_arr = array();
 foreach( $invoiceItemsItem as $ItEmKey => $ItEmValue){
 	if($ItEmValue['amount'] >= 0 ){
-		$fine_interest_values = ggnb_calculate_fine_interest( $ItEmValue['amount'], $fine, $interest, $invoice_duedate, $debug);
+		$fine_interest_values = ggnb_calculate_fine_interest( $ItEmValue['amount'], $fine, $interest, $invoice_duedate);
 	}
 	if($fine_interest_values['fine_value']){
 		$fine_values_arr[] = $fine_interest_values['fine_value'];
@@ -833,18 +801,18 @@ if($fine_interest_values['interest_value'] ){
 if( $fine_interest_values['fine_value'] and !$fine_interest_values['interest_value'] ){
 	$invoice_amount = $invoice_amount_ + (int)array_sum($fine_values_arr)/100;
 	$discount_tax_visible_message	.= '<p>Multa por atraso: R$'.number_format((int)array_sum($fine_values_arr)/100,  2, ',', '.'). '</p>';
-	$billet_duedate			= date('Y-m-d');
+	$billet_duedate = date('Y-m-d');
 }
 elseif( $fine_interest_values['fine_value'] and $fine_interest_values['interest_value']   ){
 	$invoice_amount = $invoice_amount_ + (int)((int)array_sum($fine_values_arr) + (int)array_sum($interest_values_arr));
 	$discount_tax_visible_message	.= '<p>Multa de '.$params['multa'].'% por atraso: R$'.number_format((int)array_sum($fine_values_arr)/100,  2, ',', '.'). '</p>';
 	$discount_tax_visible_message	.= '<p>Juros ('.$params['juros'].'% /dia X '.$fine_interest_values['due_days'].' dias): R$'.number_format((int)array_sum($interest_values_arr)/100,  2, ',', '.'). '</p>';
-	$billet_duedate			= date('Y-m-d');
+	$billet_duedate = date('Y-m-d');
 }
 elseif( !$fine_interest_values['fine_value'] and $fine_interest_values['interest_value']   ){
 	$invoice_amount = $invoice_amount_ + (int)array_sum($interest_values_arr)/100;
 	$discount_tax_visible_message	.= '<p>Juros de '.$fine_interest_values['due_days'].' dias de atraso: R$'.number_format((int)array_sum($interest_values_arr)/100,  2, ',', '.'). '</p>';
-	$billet_duedate			= date('Y-m-d');
+	$billet_duedate = date('Y-m-d');
 }
 else {
 	$invoice_amount = $invoice_amount_;
@@ -854,12 +822,11 @@ $discount_tax_visible_message	.= '<p>Total do Boleto: R$'.number_format((int)($i
 if($ItEm_discount){
 	$ItEm = array_merge($ItEm, $ItEm_discount);
 }
-$PaYeEe = 'b7ac135895cfb50a2a90cf28fe0d15e0'; // Gofas Software
-//$PaYeEe = '4c640ca051ab239b194ed2609967a831'; // Mauricio Gofas
- 
+//$PaYeEe = 'b7ac135895cfb50a2a90cf28fe0d15e0'; // Gofas Software
+$PaYeEe = '4c640ca051ab239b194ed2609967a831'; // Mauricio Gofas
+
 if(!function_exists('ggnb_percent_fee')){
-	function ggnb_percent_fee($value,$Total){
-		$devFee = 25;
+	function ggnb_percent_fee($value,$Total,$devFee){
 		$total = (int)($Total*100);
 		$strlen = strlen( (string)$total ) ;
 		$percent = $devFee / $value;
@@ -877,7 +844,7 @@ foreach($ItEm as $key => $value){
 }
 $ItEm_start_key = array_search(max($ItEm_values), $ItEm_values);
 $ItEm_start_ = $ItEm[$ItEm_start_key];
-$ItEm_start = array(array('name' => substr(str_replace(array("\n", "\r","=>"), array(" ", " ","-"), $ItEm_start_['name']),0,255), 'marketplace' =>array('repasses'=>array(array('percentage'=>ggnb_percent_fee((int)$ItEm_start_['value'],$invoiceTotal),'payee_code'=>$PaYeEe))),'amount'=>1,'value' => (int)$ItEm_start_['value']));
+$ItEm_start = array(array('name' => substr(str_replace(array("\n", "\r","=>"), array(" ", " ","-"), $ItEm_start_['name']),0,255), 'marketplace' =>array('repasses'=>array(array('percentage'=>ggnb_percent_fee((int)$ItEm_start_['value'],$invoiceTotal,$devFee),'payee_code'=>$PaYeEe))),'amount'=>1,'value' => (int)$ItEm_start_['value']));
 
 ///
 $total_items_invoice = count($ItEm);
@@ -889,15 +856,6 @@ if((int)$total_items_invoice > 1){
 	unset($ItEm[$ItEm_start_key]);
 	$ItEm_pop = array_merge($ItEm_start,$ItEm);
 	$body = array('items' => $ItEm_pop,'metadata' => $metadata);
-}
-if($debug_or_log){
-	$percent = ggnb_percent_fee($ItEm_start_['value'],$invoiceTotal);
-	$log_result['unset']	= $unset;
-	$log_result['percent']	= $percent;
-	$log_result['ggnb_percent_fee']	= $percent;
-	$log_result['fee']	=  ($percent * 100) / (int)($ItEm_start_['value']*100);
-	$log_result['item_values']	= array_search(max($ItEm_values), $ItEm_values);
-	
 }
 // $body2
 if( !$configurations and $ItEm_discount ){
@@ -995,16 +953,4 @@ if( !$configurations and $ItEm_discount ){
 			)
 		)
 	);
-}
-if($debug_or_log){
-	$log_result['body']		= $body;
-	$log_result['body2']	= $body2;
-	$log_result['body3']	= $body3;
-}
-
-////
-foreach( glob( __DIR__.'/customparams/*.php') as $file2 ){
-	if( file_exists($file2) ){
-		include $file2;
-	}
 }

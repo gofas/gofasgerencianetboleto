@@ -6,7 +6,7 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.2.1
+ * @version		3.3.0
  */
 use WHMCS\Database\Capsule;
 add_hook('InvoiceCancelled', 1, function($vars){
@@ -15,7 +15,6 @@ add_hook('InvoiceCancelled', 1, function($vars){
 	if($params['cancelbilletoncancelinvoice']){
 		// Parâmetros do Módulo
 		$sandbox	= $params['sandbox'];
-		$debug		= $params['debug'];
 		if($sandbox){
 			$sandbox		= true;
 			$client_id		= $params['clientidsandbox'];
@@ -31,7 +30,6 @@ add_hook('InvoiceCancelled', 1, function($vars){
 			$api_url		= 'https://api.gerencianet.com.br/v1/';
 		}
 	}
-    //$invoice_id	= (int)$vars['invoiceid'];
 	$invoice	= localAPI('GetInvoice',array( 'invoiceid' => $vars['invoiceid'], ), (int)$params['admin']);	
 	// Parâmetros das transações associadas à Fatura
 	$trans_idendA				= $invoice['transactions'];
@@ -41,7 +39,6 @@ add_hook('InvoiceCancelled', 1, function($vars){
 	if($trans_idend){
 		$trans_idp				= end( $trans_idend );
 		$trans_id_				= $trans_idp['transid'];
-	
 		// Verifica se a transação pertence ao módulo
 		if( (strpos( $trans_id_, 'ggnb') !== false) and (strpos( $trans_id_, 'unpaid') !== false or strpos( $trans_id_, 'waiting') !== false ) and strpos( $trans_id_, $api_mode) ){
 			$trans_id					= (int)preg_replace('/[^0-9]/', '', $trans_id_ ); // ggnb_waiting_213630
@@ -53,8 +50,6 @@ add_hook('InvoiceCancelled', 1, function($vars){
 	else {
 		$trans_id				= false;
 	}
-	//logModuleCall('gofasgerencianetboleto', 'trans_idendA', $trans_idendA, $trans_idp);
-	
 	if($trans_id){
 		$access_token_ = ggnb_get_token($api_url,$client_id,$client_secret);
 		if($access_token_['access_token']){
@@ -77,12 +72,10 @@ add_hook('InvoiceCancelled', 1, function($vars){
 				logModuleCall('gofasgerencianetboleto','cancel_transaction_1',array('Error:'=>$cancel_charge), $access_token_);
 			}
 		}
-		
 		catch (Exception $e){
 			$error	= 'Erro ao cancelar Transação: ' . $e->getMessage();
 			logModuleCall('gofasgerencianetboleto','cancel_transaction_2',array('Error:'=>$error), '');
 		}
 	}
 	logModuleCall('gofasgerencianetboleto', 'InvoiceCancelled', array('params'=>$params,'invoice'=>$invoice),array('cancel_charge'=>$cancel_charge),'');
-}
-);
+});
