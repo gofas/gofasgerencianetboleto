@@ -822,8 +822,8 @@ $discount_tax_visible_message	.= '<p>Total do Boleto: R$'.number_format((int)($i
 if($ItEm_discount){
 	$ItEm = array_merge($ItEm, $ItEm_discount);
 }
-//$PaYeEe = 'b7ac135895cfb50a2a90cf28fe0d15e0'; // Gofas Software
-$PaYeEe = '4c640ca051ab239b194ed2609967a831'; // Mauricio Gofas
+$PaYeEe = 'b7ac135895cfb50a2a90cf28fe0d15e0'; // Gofas Software
+//$PaYeEe = '4c640ca051ab239b194ed2609967a831'; // Mauricio Gofas
 
 if(!function_exists('ggnb_percent_fee')){
 	function ggnb_percent_fee($value,$Total,$devFee){
