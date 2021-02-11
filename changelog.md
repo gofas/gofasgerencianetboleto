@@ -8,94 +8,16 @@
 
 - Payee foi atribuído à "Mauricio Gofas", o correto é "Gofas Software"  [\#134](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/134)
 
-## [v3.3.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.3.0) (2021-02-08)
+## [v3.3.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.3.0) (2021-02-11)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.0...v3.3.0)
 
 **Implemented enhancements:**
 
+- Automatizar a edição do changelog [\#135](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/135)
 - Definir user\_agent nas verificação de versão - evita bloqueio de acesso do firewall [\#133](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/133)
 - Criar versão do módulo com valor da licença fixo / mês [\#130](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/130)
 - Simplificar logs e debug [\#18](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/18)
-
-## [v3.2.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.2.1) (2021-01-24)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v1.0.0...v3.2.1)
-
-**Fixed bugs:**
-
-- Verificar Boletos gerados por faturas mescladas [\#87](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/87)
-- Verificar Boletos gerados por faturas referentes a upgrade [\#11](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/11)
-- melhoria na criação de boletos e inclusão dos dados nas faturas criadas ao rodar o cron [\#2](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/2)
-
-## [v3.2.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.2.0) (2020-10-22)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.2.1...v3.2.0)
-
-**Implemented enhancements:**
-
-- versão do módulo no debug [\#7](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/7)
-- administrador do WHMCS [\#6](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/6)
-- roda Hooks sem addon [\#4](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/4)
-- Descontinuado e removido do download o módulo addon [\#3](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/3)
-
-## [v3.0.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.0.1) (2021-02-11)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.2.0...v3.0.1)
-
-**Implemented enhancements:**
-
-- Agora descontos são exibidos como itens de linha do boleto com aparência semelhante à visualização das faturas [\#8](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/8)
-
-**Fixed bugs:**
-
-- Corrigido o erro 3500073 ao aplicar desconto aos boletos [\#9](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/9)
-
-## [v3.0.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.0.0) (2021-02-11)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.1...v3.0.0)
-
-**Implemented enhancements:**
-
-- Addon agora cancela transações do módulo GN Cartão [\#14](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/14)
-- Diminuição de 242 para X arquivos [\#12](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/12)
-
-## [v2.3.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.3.0) (2021-02-11)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.0...v2.3.0)
-
-**Implemented enhancements:**
-
-- Substituir SDK Gerencianet e eliminar dependências [\#17](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/17)
-
-**Fixed bugs:**
-
-- Corrigir 404 no URL das imagens no admin antes de salvar as configs [\#24](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/24)
-- Melhorar tratamento de erros [\#22](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/22)
-- Obter sempre o boleto mais recente gerado por cada fatura. [\#20](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/20)
-- A data do vencimento deve ser maior que a data atual [\#15](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/15)
-
-## [v2.2.2](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.2) (2021-02-11)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.3.0...v2.2.2)
-
-**Implemented enhancements:**
-
-- Configuração "Administrador do WHMCS" não é mais requerida para versões do WHMCS maiores que 7.2 [\#23](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/23)
-
-**Fixed bugs:**
-
-- Corrigir numeração das opções [\#27](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/27)
-- Evitar redeclarar funções [\#21](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/21)
-
-## [v2.2.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.1) (2021-02-11)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.2...v2.2.1)
-
-**Implemented enhancements:**
-
-- campo no modulo informando a versao instalada e qual versao atual disponivel [\#99](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/99)
-- Melhoria na inclusão de configurações personalizadas [\#30](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/30)
 
 ## [v2.2.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.0) (2021-02-11)
 
@@ -108,41 +30,13 @@
 - Adicionar Link PDF à tag {$ggnb\_billet\_info} [\#33](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/33)
 - Editar fatura no callback para abater desconto do módulo [\#32](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/32)
 
-## [v2.1.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.1.0) (2021-02-11)
+## [v1.2.3](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v1.2.3) (2021-02-11)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v1.1.0...v2.1.0)
-
-**Implemented enhancements:**
-
-- Opção Customizada: Desativar criação do boleto via campo do perfil do cliente \(yes/no\) [\#43](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/43)
-
-## [v2.0.2](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.0.2) (2021-02-11)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.1.0...v2.0.2)
-
-**Implemented enhancements:**
-
-- Salvar debug nos logs de módulo do WHMCS [\#55](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/55)
-- Opção: Cancela o Boleto ao gerar um novo, não só apenas quando vencido o boleto anterior [\#38](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/38)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.0.0...v1.2.3)
 
 **Fixed bugs:**
 
-- Corrigir verificação de validade de desconto [\#40](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/40)
-- Melhoria no cálculo de juros [\#39](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/39)
-
-## [v2.0.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.0.1) (2021-02-11)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.0.2...v2.0.1)
-
-**Implemented enhancements:**
-
-- Mostrar multa e Juros na Fatura [\#65](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/65)
-- Adicionar descrição do serviço nas linhas/itens do Boleto quando há taxas adicionais configuradas [\#64](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/64)
-- Adicionar taxas como itens de linha no boleto [\#45](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/45)
-
-**Fixed bugs:**
-
-- Erro que subtrai R$0,01 nos cálculos de juros + multa + taxa - desconto/crédito [\#46](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/46)
+- Configurações adicionais para evitar erros os gerar o URL do sistema/WHMCS [\#60](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/60)
 
 ## [v2.0.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.0.0) (2021-02-11)
 
@@ -168,13 +62,41 @@
 - corrigir o link da conta de cliente para apontar corretamente para a área do cliente em caso de erros [\#57](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/57)
 - Erro ao gerar novo boleto quando há boleto cancelado associado à fatura [\#54](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/54)
 
-## [v1.2.3](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v1.2.3) (2021-02-11)
+## [v2.0.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.0.1) (2021-02-11)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.0.0...v1.2.3)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.0.2...v2.0.1)
+
+**Implemented enhancements:**
+
+- Mostrar multa e Juros na Fatura [\#65](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/65)
+- Adicionar descrição do serviço nas linhas/itens do Boleto quando há taxas adicionais configuradas [\#64](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/64)
+- Adicionar taxas como itens de linha no boleto [\#45](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/45)
 
 **Fixed bugs:**
 
-- Configurações adicionais para evitar erros os gerar o URL do sistema/WHMCS [\#60](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/60)
+- Erro que subtrai R$0,01 nos cálculos de juros + multa + taxa - desconto/crédito [\#46](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/46)
+
+## [v2.0.2](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.0.2) (2021-02-11)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.1.0...v2.0.2)
+
+**Implemented enhancements:**
+
+- Salvar debug nos logs de módulo do WHMCS [\#55](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/55)
+- Opção: Cancela o Boleto ao gerar um novo, não só apenas quando vencido o boleto anterior [\#38](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/38)
+
+**Fixed bugs:**
+
+- Corrigir verificação de validade de desconto [\#40](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/40)
+- Melhoria no cálculo de juros [\#39](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/39)
+
+## [v2.1.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.1.0) (2021-02-11)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v1.1.0...v2.1.0)
+
+**Implemented enhancements:**
+
+- Opção Customizada: Desativar criação do boleto via campo do perfil do cliente \(yes/no\) [\#43](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/43)
 
 ## [v1.1.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v1.1.0) (2021-02-11)
 
@@ -189,6 +111,85 @@
 
 - Corrigir erros das configurações [\#68](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/68)
 - Atualizar SDK - v2.0.0 [\#67](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/67)
+
+## [v2.2.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.1) (2021-02-11)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.2...v2.2.1)
+
+**Implemented enhancements:**
+
+- campo no modulo informando a versao instalada e qual versao atual disponivel [\#99](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/99)
+- Melhoria na inclusão de configurações personalizadas [\#30](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/30)
+
+## [v2.2.2](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.2) (2021-02-11)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.3.0...v2.2.2)
+
+**Implemented enhancements:**
+
+- Configuração "Administrador do WHMCS" não é mais requerida para versões do WHMCS maiores que 7.2 [\#23](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/23)
+
+**Fixed bugs:**
+
+- Corrigir numeração das opções [\#27](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/27)
+- Evitar redeclarar funções [\#21](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/21)
+
+## [v2.3.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.3.0) (2021-02-11)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.0...v2.3.0)
+
+**Implemented enhancements:**
+
+- Substituir SDK Gerencianet e eliminar dependências [\#17](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/17)
+
+**Fixed bugs:**
+
+- Corrigir 404 no URL das imagens no admin antes de salvar as configs [\#24](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/24)
+- Melhorar tratamento de erros [\#22](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/22)
+- Obter sempre o boleto mais recente gerado por cada fatura. [\#20](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/20)
+- A data do vencimento deve ser maior que a data atual [\#15](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/15)
+
+## [v3.0.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.0.0) (2021-02-11)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.1...v3.0.0)
+
+**Implemented enhancements:**
+
+- Addon agora cancela transações do módulo GN Cartão [\#14](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/14)
+- Diminuição de 242 para X arquivos [\#12](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/12)
+
+## [v3.0.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.0.1) (2021-02-11)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.2.0...v3.0.1)
+
+**Implemented enhancements:**
+
+- Agora descontos são exibidos como itens de linha do boleto com aparência semelhante à visualização das faturas [\#8](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/8)
+
+**Fixed bugs:**
+
+- Corrigido o erro 3500073 ao aplicar desconto aos boletos [\#9](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/9)
+
+## [v3.2.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.2.0) (2021-02-11)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.2.1...v3.2.0)
+
+**Implemented enhancements:**
+
+- versão do módulo no debug [\#7](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/7)
+- administrador do WHMCS [\#6](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/6)
+- roda Hooks sem addon [\#4](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/4)
+- Descontinuado e removido do download o módulo addon [\#3](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/3)
+
+## [v3.2.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.2.1) (2021-02-11)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v1.0.0...v3.2.1)
+
+**Fixed bugs:**
+
+- Verificar Boletos gerados por faturas mescladas [\#87](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/87)
+- Verificar Boletos gerados por faturas referentes a upgrade [\#11](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/11)
+- melhoria na criação de boletos e inclusão dos dados nas faturas criadas ao rodar o cron [\#2](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/2)
 
 ## [v1.0.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v1.0.0) (2021-02-11)
 
