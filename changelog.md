@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.3.0...HEAD)
+
+**Fixed bugs:**
+
+- Payee foi atribuído à "Mauricio Gofas", o correto é "Gofas Software"  [\#134](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/134)
+
 ## [v3.3.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.3.0) (2021-02-11)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.0...v3.3.0)
