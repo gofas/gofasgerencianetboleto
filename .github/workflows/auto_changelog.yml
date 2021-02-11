@@ -17,7 +17,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           output: changelog.md
-          since_tag: 3.3.0
       - name: push
         uses: github-actions-x/commit@v2.6
         with:
