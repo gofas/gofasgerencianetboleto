@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.2.3](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v1.2.3) (2021-02-12)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v1.1.0...v1.2.3)
+
+**Fixed bugs:**
+
+- Configurações adicionais para evitar erros os gerar o URL do sistema/WHMCS [\#60](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/60)
+
 ## [v1.1.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v1.1.0) (2021-02-12)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v1.0.0...v1.1.0)
