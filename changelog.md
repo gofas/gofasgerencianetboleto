@@ -1,5 +1,29 @@
 # Changelog
 
+## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v1.2.3...HEAD)
+
+**Implemented enhancements:**
+
+- Substituir URL da fatura por URL do Boleto na tag padrão dos templates de email {$invoice\_link} [\#101](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/101)
+- Copiar a linha digitável do boleto com um clique [\#74](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/74)
+- Gerar o boleto quando a fatura é gerada [\#58](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/58)
+- Gerar merge tags - hook [\#56](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/56)
+- Obter CPF e CNPJ sem necessidade de configuração [\#53](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/53)
+- Cancelar Boleto ao Cancelar Fatura [\#52](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/52)
+- Remover opção Exige CPF para PJ [\#51](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/51)
+- Numerar as opções do módulo [\#50](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/50)
+- Redireciona para o boleto ao adicionar o parâmetro redirectToBillet=true no URL da fatura e desativa o redirecionamento ao adicionar o parâmetro redirectToBillet=false no URL da fatura \(se esta opção estiver ativada nas configurações do módulo \). [\#49](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/49)
+- Gerar novo boleto ao aplicar crédito à fatura - ou quando o valor da fatura mudou [\#48](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/48)
+- Adicionar informações do boleto no email [\#29](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/29)
+
+**Fixed bugs:**
+
+- Erro ao gerar novo boleto quando a transação foi cancelada na GN [\#63](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/63)
+- corrigir o link da conta de cliente para apontar corretamente para a área do cliente em caso de erros [\#57](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/57)
+- Erro ao gerar novo boleto quando há boleto cancelado associado à fatura [\#54](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/54)
+
 ## [v1.2.3](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v1.2.3) (2021-02-12)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v1.1.0...v1.2.3)
