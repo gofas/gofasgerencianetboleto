@@ -4,8 +4,6 @@ on:
     types: [closed]
   release:
     types: [published]
-  issues:
-    types: [closed, edited]
 jobs:
   generate_changelog:
     runs-on: ubuntu-latest
