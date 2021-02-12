@@ -1,5 +1,19 @@
 # Changelog
 
+## [v1.1.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v1.1.0) (2021-02-12)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v1.0.0...v1.1.0)
+
+**Implemented enhancements:**
+
+- Limitar nº de caracteres dos itens da fatura para 250 [\#88](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/88)
+- Atualizar descrição da transação a cada atualização na API [\#75](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/75)
+
+**Fixed bugs:**
+
+- Corrigir erros das configurações [\#68](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/68)
+- Atualizar SDK - v2.0.0 [\#67](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/67)
+
 ## [v1.0.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v1.0.0) (2021-02-12)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/0105aa2b2d122c069c13fc43f2f0a1a34935a937...v1.0.0)
