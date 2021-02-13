@@ -183,7 +183,7 @@
 - Corrigir erros das configurações [\#68](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/68)
 - Atualizar SDK - v2.0.0 [\#67](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/67)
 
-## [v1.0.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v1.0.0) (2021-02-12)
+## [v1.0.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v1.0.0)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/0105aa2b2d122c069c13fc43f2f0a1a34935a937...v1.0.0)
 
