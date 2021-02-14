@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Generate changelog
-        uses: charmixer/auto-changelog-action@v1
+        uses: mauriciogofas/auto-changelog-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           output: changelog.md
