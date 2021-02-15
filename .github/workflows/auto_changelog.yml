@@ -23,7 +23,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           push-branch: 'master'
-          commit-message: 'auto update changelog'
+          commit-message: 'Update changelog'
           force-add: 'true'
           files: changelog.md
           name: dev-sec CI
