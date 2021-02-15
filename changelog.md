@@ -8,14 +8,14 @@
 
 - Incorporar changelog na documentação pública do módulo [\#136](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/136)
 - Automatizar a edição do changelog [\#135](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/135)
-- Addon agora cancela transações do módulo GN Cartão [\#14](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/14)
-- Diminuição de 242 para X arquivos [\#12](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/12)
-- Agora descontos são exibidos como itens de linha do boleto com aparência semelhante à visualização das faturas [\#8](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/8)
 
 **Fixed bugs:**
 
 - Payee foi atribuído à "Mauricio Gofas", o correto é "Gofas Software"  [\#134](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/134)
-- Corrigido o erro 3500073 ao aplicar desconto aos boletos [\#9](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/9)
+
+**Closed issues:**
+
+- Melhorar cabeçalho padrão de comentários [\#129](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/129)
 
 
 
