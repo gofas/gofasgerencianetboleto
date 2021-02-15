@@ -17,13 +17,13 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           output: changelog.md
-          since_tag: 3.3.0
+          since_tag: v3.3.0
       - name: push
         uses: github-actions-x/commit@v2.6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           push-branch: 'master'
-          commit-message: 'auto update changelog'
+          commit-message: 'Update changelog'
           force-add: 'true'
           files: changelog.md
           name: dev-sec CI
