@@ -1,6 +1,6 @@
 <?php
 /**
- * Módulo Gerencinet Boleto para WHMCS
+ * Módulo Gerencianet Boleto para WHMCS
  * @author		Mauricio Gofas
  * @see			https://gofas.net/?p=7893
  * @copyright	2016 / 2020 Gofas Software
@@ -197,7 +197,7 @@ function gofasgerencianetboleto_config(){
 					<a target="_blank" href="https://gerencianet.com.br/parceiro/gofas/"><img style=" width: 69px;" src="'.$whmcs_url.'modules/gateways/gofasgerencianetboleto/assets/img/gerencianet.png"></a>
 				</div>
 				<div style="margin-left: 10px;">
-					<h4 style="padding-top: 5px;">Módulo Gerencinet Boleto para WHMCS v'.$module_version.'</h4>
+					<h4 style="padding-top: 5px;">Módulo Gerencianet Boleto para WHMCS v'.$module_version.'</h4>
 					'.$available_update_message.'
 					<h6>Antes de iniciar a configuração, lembre-se de:</h6>
 					<p>- Criar um <a style="text-decoration:underline;" target="_blank" href="'.$whmcs_url.'configcustomfields.php">campo personalizado de cliente</a> para CPF e/ou CNPJ, ou se preferir, criar dois campos distintos, um campo apenas para CPF e outro campo para CNPJ. O módulo identifica os campos do perfil do cliente automaticamente.</p>

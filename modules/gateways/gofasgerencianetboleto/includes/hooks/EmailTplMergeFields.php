@@ -1,6 +1,6 @@
 <?php
 /**
- * Módulo Gerencinet Boleto para WHMCS
+ * Módulo Gerencianet Boleto para WHMCS
  * @author		Mauricio Gofas
  * @see			https://gofas.net/?p=7893
  * @copyright	2016 / 2020 Gofas Software
