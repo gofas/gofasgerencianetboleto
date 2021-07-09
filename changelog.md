@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+## [v3.3.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.3.1) (2021-07-09)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.3.0...HEAD)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.3.0...v3.3.1)
 
 **Implemented enhancements:**
 
