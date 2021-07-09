@@ -12,7 +12,7 @@
 
 **Fixed bugs:**
 
-- Payee foi atribuído à "Mauricio Gofas", o correto é "Gofas Software"  [\#134](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/134)
+- Corrigida a conta de recebimento de repasses via marketplace para "Gofas Software"  [\#134](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/134)
 
 
 
