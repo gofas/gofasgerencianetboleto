@@ -6,7 +6,7 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.3.0
+ * @version		3.3.1
  */
 
 if(!defined('WHMCS')){ die('Esse arquivo não pode ser acessado diretamente'); }
