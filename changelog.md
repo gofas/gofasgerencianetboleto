@@ -6,16 +6,13 @@
 
 **Implemented enhancements:**
 
+- Evita erro ao tentar atualizar a data de vencimento de boleto gerado a mais de 90 dias [\#137](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/137)
 - Incorporar changelog na documentação pública do módulo [\#136](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/136)
 - Automatizar a edição do changelog [\#135](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/135)
 
 **Fixed bugs:**
 
 - Payee foi atribuído à "Mauricio Gofas", o correto é "Gofas Software"  [\#134](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/134)
-
-**Closed issues:**
-
-- Melhorar cabeçalho padrão de comentários [\#129](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/129)
 
 
 
