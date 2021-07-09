@@ -6,14 +6,13 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.3.0
+ * @version		3.3.1
  */
 foreach(glob(__DIR__.'/includes/hooks/*.php') as $hooks){
 	if(file_exists($hooks) ){
 		require $hooks;
 	}
 }
-
 require_once __DIR__.'/includes/config.php';
 if(!function_exists('gofasgerencianetboleto_link')){
 function gofasgerencianetboleto_link($params){
@@ -71,7 +70,7 @@ function gofasgerencianetboleto_link($params){
 				$expire_at	= $chargeExistDuedate;
 				$barcode	= $chargeExist['data']['payment']['banking_billet']['barcode'];
 			}
-			elseif(!$error and  ($chargeExistID === $trans_id and $chargeExistStatus !== 'canceled' and $chargeExistDuedate < date('Y-m-d')) and !$configurations and !$cancelBillet ){
+			elseif(!$error and  ($chargeExistID === $trans_id and $chargeExistStatus !== 'canceled' and $chargeExistDuedate < date('Y-m-d') and $chargeExistDuedate > date('Y-m-d',strtotime('-90 days'))) and !$configurations and !$cancelBillet ){
 				// edita transação gerada anteriormente
 				$updateBillet = ggnb_update_billet($api_url,$access_token,$trans_id,$billet_duedate);
 				// segunda via do boleto com multa e juros
@@ -84,7 +83,7 @@ function gofasgerencianetboleto_link($params){
 					$error .= $updateBillet['error'];
 				}
 			}
-			elseif(!$error and ($chargeExistID === $trans_id and $chargeExistStatus === 'canceled' and $chargeExistDuedate >= date('Y-m-d')) ){
+			elseif(!$error and ($chargeExistID === $trans_id and ($chargeExistStatus === 'canceled' or $chargeExistStatus === 'unpaid'))){
 				$create_charge = ggnb_create_charge($api_url,$access_token,$body); // body
 				$charge_id = $create_charge['result'];
 				if($create_charge['error']){
@@ -231,7 +230,6 @@ function gofasgerencianetboleto_link($params){
 					}
 				} else {
 					$error .= $create_charge['error'];
-					
 				}
 			}			
 		} // End of if( $trans_id and !$error)
