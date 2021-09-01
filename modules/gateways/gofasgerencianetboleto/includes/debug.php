@@ -17,8 +17,8 @@ if($debug){
 	echo '<h4>Suporte:</h4>';
 	echo '<p>Saiba mais sobre como diagnosticar erros e coletar informações para suporte <a target="_blank" href="https://gofas.net/?p=7899&rf=ggnbfatura">neste link</a></p>';
 	echo '<p>Veja várias soluções para dificuldades comuns no <a href="https://gofas.net/forums/forum/whmcs/modulo-gerencianet-boleto-para-whmcs/?rf=ggnbfatura" target="_blank">fórum de suporte do módulo</a>.</p>';
-	echo'<p  onfocus="select_all_and_copy(debugDiv)" onclick="select_all_and_copy(debugDiv)"">1) <span style="cursor:copy;text-decoration: underline; ">Clique aqui para copiar as informações de depuração (debug)</span>.</p>';
-	echo'<p>2) <a target="_blank" tyle="cursor:alias;" href="https://gofas.net/contato?rf=ggnbfatura">Clique aqui e preencha o formulário de Ajuda / Suporte nos enviado as informações de depuração que você acabou de copiar.</a>.</p>';
+	echo'<p  onfocus="select_all_and_copy(debugDiv)" onclick="select_all_and_copy(debugDiv)">1) <span style="cursor:copy;text-decoration: underline; ">Clique aqui para copiar as informações de depuração (debug)</span>.</p>';
+	echo'<p>2) <a target="_blank" style="cursor:alias;" href="https://gofas.net/contato?rf=ggnbfatura">Clique aqui e preencha o formulário de Ajuda / Suporte nos enviado as informações de depuração que você acabou de copiar.</a>.</p>';
 	echo '<div id="debugDiv"  onfocus="select_all_and_copy(this)" onclick="select_all_and_copy(this)">',print_r(get_defined_vars()), "</div></pre>";
 }
 if($log){
