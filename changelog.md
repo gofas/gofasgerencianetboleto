@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.4.0...HEAD)
+
+**Closed issues:**
+
+- Módulo volta a ser 100% gratuito [\#138](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/138)
+
+## [v3.4.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.4.0) (2021-10-07)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.3.1...v3.4.0)
+
 ## [v3.3.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.3.1) (2021-07-09)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.3.0...v3.3.1)
