@@ -6,7 +6,7 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.3.1
+ * @version		3.4.0
  */
 foreach(glob(__DIR__.'/includes/hooks/*.php') as $hooks){
 	if(file_exists($hooks) ){
@@ -17,12 +17,15 @@ require_once __DIR__.'/includes/config.php';
 if(!function_exists('gofasgerencianetboleto_link')){
 function gofasgerencianetboleto_link($params){
 	require __DIR__.'/includes/callback.php';
+	/*
 	if(!$license_error and $license_results['status'] === "Active" and $setting['license_key'] and $local_key_value){
 		$devFee = 0;
 	}
 	else {
 		$devFee = 25;
 	}
+	*/
+	$devFee = 0;
 	require __DIR__.'/includes/params.php';
 	require __DIR__.'/includes/functions.php';
 	
