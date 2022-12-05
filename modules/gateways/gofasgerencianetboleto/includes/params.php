@@ -6,7 +6,7 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.3.1
+ * @version		3.5.0
  */
 
 if(!defined('WHMCS')){ die('Esse arquivo não pode ser acessado diretamente'); }
@@ -22,7 +22,7 @@ $langPayNow = $params['langpaynow'];
 $moduleDisplayName = $params['name'];
 $moduleName = $params['paymentmethod'];
 // Parâmetros do Módulo
-$module_version = '3.3.0';
+$module_version = '3.5.0';
 $sandbox = $params['sandbox'];
 if( $sandbox ){
 	$client_id = $params['clientidsandbox'];
@@ -822,41 +822,28 @@ $discount_tax_visible_message	.= '<p>Total do Boleto: R$'.number_format((int)($i
 if($ItEm_discount){
 	$ItEm = array_merge($ItEm, $ItEm_discount);
 }
-$PaYeEe = 'b7ac135895cfb50a2a90cf28fe0d15e0'; // Gofas Software
+//$PaYeEe = 'b7ac135895cfb50a2a90cf28fe0d15e0'; // Gofas Software
 //$PaYeEe = '4c640ca051ab239b194ed2609967a831'; // Mauricio Gofas
 
-if(!function_exists('ggnb_percent_fee')){
-	function ggnb_percent_fee($value,$Total,$devFee){
-		$total = (int)($Total*100);
-		$strlen = strlen( (string)$total ) ;
-		$percent = $devFee / $value;
-		if($strlen === 6){
-			return 2;
-		}
-		if($strlen >= 7){
-			return 1;
-		}
-		return (int)(($percent * 10000));
-	}
-}
+
 foreach($ItEm as $key => $value){
 	$ItEm_values[$key] = $value['value'];
 }
-$ItEm_start_key = array_search(max($ItEm_values), $ItEm_values);
-$ItEm_start_ = $ItEm[$ItEm_start_key];
-$ItEm_start = array(array('name' => substr(str_replace(array("\n", "\r","=>"), array(" ", " ","-"), $ItEm_start_['name']),0,255), 'marketplace' =>array('repasses'=>array(array('percentage'=>ggnb_percent_fee((int)$ItEm_start_['value'],$invoiceTotal,$devFee),'payee_code'=>$PaYeEe))),'amount'=>1,'value' => (int)$ItEm_start_['value']));
+//$ItEm_start_key = array_search(max($ItEm_values), $ItEm_values);
+//$ItEm_start_ = $ItEm[$ItEm_start_key];
+//$ItEm_start = array(array('name' => substr(str_replace(array("\n", "\r","=>"), array(" ", " ","-"), $ItEm_start_['name']),0,255), 'marketplace' =>array('repasses'=>array(array('percentage'=>ggnb_percent_fee((int)$ItEm_start_['value'],$invoiceTotal,$devFee),'payee_code'=>$PaYeEe))),'amount'=>1,'value' => (int)$ItEm_start_['value']));
 
 ///
 $total_items_invoice = count($ItEm);
 $metadata = array('custom_id' => (string)$invoice_id,'notification_url' => $returnUrl);
-if((int)$total_items_invoice === 1){
-	$body = array('items' => $ItEm_start,'metadata' => $metadata);
-}
-if((int)$total_items_invoice > 1){
-	unset($ItEm[$ItEm_start_key]);
-	$ItEm_pop = array_merge($ItEm_start,$ItEm);
-	$body = array('items' => $ItEm_pop,'metadata' => $metadata);
-}
+//if((int)$total_items_invoice === 1){
+	$body = array('items' => $ItEm,'metadata' => $metadata);
+//}
+//if((int)$total_items_invoice > 1){
+	//unset($ItEm[$ItEm_start_key]);
+	//$ItEm_pop = array_merge($ItEm_start,$ItEm);
+	//$body = array('items' => $ItEm,'metadata' => $metadata);
+//}
 // $body2
 if( !$configurations and $ItEm_discount ){
 	$body2 = array(
@@ -882,7 +869,8 @@ if( !$configurations and $ItEm_discount ){
 		)
 	);
 		
-} elseif( !$configurations and !$ItEm_discount ){
+}
+if( !$configurations and !$ItEm_discount ){
 	$body2 = array(
 		'payment' => array(
 			'banking_billet' => array(
@@ -906,7 +894,8 @@ if( !$configurations and $ItEm_discount ){
 		)
 	);
 					
-} elseif( $configurations and $ItEm_discount ){
+}
+if( $configurations and $ItEm_discount ){
 	$body2 = array(
 		'payment' => array(
 			'banking_billet' => array(
@@ -930,7 +919,8 @@ if( !$configurations and $ItEm_discount ){
 		)
 	);
 			
-} elseif( $configurations and !$ItEm_discount ){
+}
+if( $configurations and !$ItEm_discount ){
 	$body2 = array(
 		'payment' => array(
 			'banking_billet' => array(
@@ -954,3 +944,8 @@ if( !$configurations and $ItEm_discount ){
 		)
 	);
 }
+foreach( glob( __DIR__.'/custom/*.php') as $file ) {
+	if(file_exists($file)){
+		require $file;
+	}
+};

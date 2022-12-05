@@ -6,7 +6,7 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.4.0
+ * @version		3.5.0
  */
 if(!defined('WHMCS')){die();}
 use WHMCS\Database\Capsule;
@@ -29,7 +29,7 @@ function gofasgerencianetboleto_config(){
 		}
 	}
 	//echo '<pre>',print_r($license_results),'</pre>';
-	$module_version = '3.4.0';
+	$module_version = '3.5.0';
 	$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
 	$customfields = array();
 	$customfields[] = '';
