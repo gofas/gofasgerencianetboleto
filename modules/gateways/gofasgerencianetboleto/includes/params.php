@@ -70,8 +70,8 @@ $requireCNPJandCPF = $params['requirecnpjandcpf'];
 $cancelBillet = $params['cancelbillet'];
 $customfCPF = $params['customfieldcpf'];
 $customfCNPJ = $params['customfieldcnpj'];
-$fine = $params['multa'] * 100;
-$interest = $params['juros'] * 1000;
+$fine = (float)$params['multa'] * 100;
+$interest = (float)$params['juros'] * 1000;
 $fee = $params['fee'];
 // Dias adicionais à Data de vencimento
 if( $params['diasparavencimento'] ){
