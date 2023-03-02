@@ -6,6 +6,6 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.2.1
+ * @version		3.6.1
  */
-require __DIR__.'/gofasgerencianetboleto/gofasgerencianetboleto.php';
+require __DIR__.'/gofasgerencianetboleto/index.php';
