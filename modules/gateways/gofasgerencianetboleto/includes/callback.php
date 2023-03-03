@@ -6,7 +6,7 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.3.0
+ * @version		3.6.1
  */
 // Require libraries needed for gateway module functions.
 require_once __DIR__ . '/../../../../init.php';
@@ -47,7 +47,8 @@ if($_REQUEST['notification']){
 		$notificationData 		= $notificationDataEnd;
 		$invoiceId				= $notificationData['custom_id']; // Captura ID da fatura
 		$charge_id				= $notificationData['identifiers']['charge_id']; // Captura ID da transação
-		$paymentAmount			= (float)($notificationData['value'] / 100); // Valor da transação
+		$paymentAmount			= (float)number_format(($notificationData['value']/100), 2,'.',''); // issue #142
+
 		$previousStatus			= $notificationData['status']['previous']; // Status anterior
 		$chargeStatus			= $notificationData['status']['current']; // Status atual
 		// Debug
@@ -66,7 +67,7 @@ if($_REQUEST['notification']){
 	}
 	// Confirma pagamento
 	if( $chargeStatus === 'paid' and $invoiceStatus === 'Unpaid'){	
-		if( (int)$paymentAmount * 100 > (int)$invoice_amount * 100 ){
+		if( $paymentAmount > $invoice_amount){
 			$UpdateInvoice = localAPI('updateinvoice', array( 'invoiceid' => $invoiceId, 'newitemdescription' => array('Acréscimos'),'newitemamount' => array((float)($paymentAmount - $invoice_amount))/* , 'total' => $paymentAmount */), $params['admin'] );
 		}
 		echo 'UpdateInvoice: ', json_encode($UpdateInvoice);
