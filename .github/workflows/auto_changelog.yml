@@ -8,9 +8,18 @@ on:
     types: [closed, edited]
 jobs:
   generate_changelog:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     name: Generate changelog for master branch
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set ownership
+        run: |
+          # this is to fix GIT not liking owner of the checkout dir
+          chown -R $(id -u):$(id -g) $PWD
       - uses: actions/checkout@v3
       - name: Generate changelog
         uses: charmixer/auto-changelog-action@v1
