@@ -15,13 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     name: Generate changelog for master branch
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Generate changelog
         uses: charmixer/auto-changelog-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           output: changelog.md
-          set-safe-directory: /github/workspace
+          set-safe-directory: '/github/workspace'
       - name: push
         uses: github-actions-x/commit@v2.6
         with:
