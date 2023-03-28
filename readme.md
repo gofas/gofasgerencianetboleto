@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.6.1...HEAD)
+
+**Implemented enhancements:**
+
+- Verificação de status das transações e baixa automática via tarefa cron do WHMCS [\#147](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/147)
+
+**Closed issues:**
+
+- Hooks transferidos para a pasta /includes/hooks/  [\#146](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/146)
+
 ## [v3.6.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.6.1) (05/03/2023)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.4.0...v3.6.1)
