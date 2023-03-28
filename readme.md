@@ -6,11 +6,13 @@
 
 **Implemented enhancements:**
 
+- Registros mais apurados de estatística de uso [\#152](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/152)
 - Reduz de 90 para 29 dias o tempo depois de emitido que é possível atualizar um boleto  [\#148](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/148)
 - Verificação de status das transações e baixa automática via tarefa cron do WHMCS [\#147](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/147)
 
 **Closed issues:**
 
+- Dispensa configuração Admin do WHMCS e define o admin incarregado da instalação como responsável pelas chamadas à API interna do WHMCS [\#151](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/151)
 - Hooks transferidos para a pasta /includes/hooks/  [\#146](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/146)
 
 ## [v3.6.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.6.1) (05/03/2023)
