@@ -12,7 +12,7 @@
 
 **Closed issues:**
 
-- Dispansa configuração Admin do WHMCS e define o admin incerregado da instalação como responsável pelas chamamadas à API interna do WHMCS [\#151](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/151)
+- Dispensa configuração Admin do WHMCS e define o admin incarregado da instalação como responsável pelas chamadas à API interna do WHMCS [\#151](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/151)
 - Hooks transferidos para a pasta /includes/hooks/  [\#146](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/146)
 
 ## [v3.6.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.6.1) (05/03/2023)
