@@ -8,4 +8,4 @@
  * @support		https://gofas.net/?p=7856
  * @version		3.6.1
  */
-// Silence is gold
+// Silence is golden.

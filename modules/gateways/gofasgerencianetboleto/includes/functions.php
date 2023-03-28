@@ -242,7 +242,7 @@ if(!function_exists('ggnb_get_notification')){
  *
  */
 if(!function_exists('ggnb_add_trans')){
-	function ggnb_add_trans( $USERID, $INVOICEID, $CHARGEID, $admin, $api_mode, $system_url){
+	function ggnb_add_trans( $USERID, $INVOICEID, $CHARGEID, $api_mode, $system_url){
 		$addtransaction = "addtransaction";
 	 	$addtransvalues['userid'] = $USERID;
 	 	$addtransvalues['invoiceid'] = $INVOICEID;
@@ -252,7 +252,7 @@ if(!function_exists('ggnb_add_trans')){
 	 	$addtransvalues['paymentmethod'] = 'gofasgerencianetboleto';
 	 	$addtransvalues['transid'] = 'ggnb_'.$api_mode.'_waiting-'.$CHARGEID.'';
 	 	$addtransvalues['date'] = date('d/m/Y');
-		$addtransresults = localAPI( $addtransaction, $addtransvalues, $admin );
+		$addtransresults = localAPI( $addtransaction, $addtransvalues, (int)ggnb_setup_admin()['id'] );
 		if($addtransresults['result'] === 'success'){
 			return array('result'=>$addtransresults);
 		}
@@ -303,7 +303,7 @@ if( !function_exists('ggnb_store_billet') ){
  *
  */
 if(!function_exists('ggnb_send_error_email')){
-	function ggnb_send_error_email( $INVOICEID, $USERID, $FNAME, $LNAME, $system_url, $ADMIN, $EOE, $ERROR){
+	function ggnb_send_error_email( $INVOICEID, $USERID, $FNAME, $LNAME, $system_url, $EOE, $ERROR){
 		$sendEmailonError = "sendadminemail";
 	 	$sendEOEvalues['customsubject'] = 'Erro ao gerar boleto - fatura #'.$INVOICEID;
 		$sendEOEvalues['custommessage'] = '<br/>Olá administrador,<br/>
@@ -314,7 +314,295 @@ if(!function_exists('ggnb_send_error_email')){
 			Email gerado de acordo com às configurações do gateway <a title="Ir para as configurações do módulo ↗" href="'.$system_url.'/admin/configgateways.php?updated=gofasgerencianetboleto#m_gofasgerencianetboleto">Gofas Gerencianet Boleto</a>.<br/><br/>';
 	 	$sendEOEvalues['type'] = 'system';
 	 	$sendEOEvalues['deptid'] = $EOE;
-	 	$sendEOEresults = @localAPI($sendEmailonError,$sendEOEvalues,$ADMIN);
+	 	$sendEOEresults = @localAPI($sendEmailonError,$sendEOEvalues, (int)ggnb_setup_admin()['id']);
 		 return array('result'=>$sendEOEresults);
+	}
+}
+
+/**
+ * 
+ * v3.7.0
+ * 
+ */
+if( !function_exists('ggnb_whmcs_url') ){
+	function ggnb_whmcs_url(){
+		$self = App::self();
+		$whmcs_admin_path = ggnb_get_protected_property($self, 'customadminpath');
+		$whmcs_url = App::getSystemUrl();
+		$admin_url = $whmcs_url.$whmcs_admin_path;
+		return ['url'=>$whmcs_url,'admin_url'=>$admin_url,'admin_path'=>$whmcs_admin_path];
+	}
+}
+if(!function_exists('ggnb_verify_module_updates')){
+	function ggnb_verify_module_updates($page_id,$referer,$module_version){
+		foreach( Capsule::table('tblconfiguration')->where('setting','=','ggnb_version')->get(['value','created_at','updated_at']) as $version_ ){
+			$version		= json_decode($version_->value, true);
+			$local_version	= $version['local_version'];
+			$last_version	= $version['last_version'];
+			$embed			= $version['check'];
+			$created_at		= $version_->created_at;
+			$updated_at		= $version_->updated_at;
+			//$available_version	= (int)preg_replace("/[^0-9]/","",$version['last_version']);
+		}
+		///// Get
+		if(!$version){
+			$get_version = ggnb_get_version($page_id,$referer,$module_version);
+			$get_embed	 = ggnb_get_embed($page_id,$referer,$module_version);
+			
+			if((int)$get_version['http_code'] !== 200){
+				$error .= $get_version['http_code'].' '.$get_version['version'];
+			}
+			else{
+				$available_version = $get_version['version'];
+			}
+		}
+		if($version and strtotime($updated_at) < strtotime("-1 day")){
+			$get_version = ggnb_get_version($page_id,$referer,$module_version);
+			$get_embed	 = ggnb_get_embed($page_id,$referer,$module_version);
+			if((int)$get_version['http_code'] !== 200){
+				$error .= $get_version['http_code'].' '.$get_version['version'];
+			}
+			else{
+				$available_version = $get_version['version'];
+			}
+		}
+		if($version and (string)$module_version !== (string)$local_version){
+			$get_version = ggnb_get_version($page_id,$referer,$module_version);
+			$get_embed	 = ggnb_get_embed($page_id,$referer,$module_version);
+			if((int)$get_version['http_code'] !== 200){
+				$error .= $get_version['http_code'].' '.$get_version['version'];
+			}
+			else{
+				$available_version = $get_version['version'];
+			}
+		}
+		if($version and strtotime($updated_at) > strtotime("-1 day")){
+			$available_version = $last_version;
+		}
+		// insert
+		if(!$version and $get_version['version'] and $get_embed['embed']){
+			$local_version = $module_version;
+			$last_version = $get_version['version'];
+			$embed		  = ggnb_encrypt($get_embed['embed']);
+			$created_at		= date("Y-m-d H:i:s");
+			$updated_at		= date("Y-m-d H:i:s");
+
+			try { Capsule::table('tblconfiguration')->insert(array(
+				'setting' => 'ggnb_version',
+				'value' => json_encode([
+					'local_version'=>$module_version,
+					'last_version'=>$get_version['version'],
+					'check'=>ggnb_encrypt($get_embed['embed']),
+					'admin'=>ggnb_current_admin(),
+				]),
+				'created_at' => $created_at,
+				'updated_at' => $updated_at
+			));
+			}
+			catch (\Exception $e){
+				$error .= $e->getMessage();
+			}
+		}
+		// update
+		if($version and $get_version['version'] and $get_embed['embed'] and strtotime($updated_at) < strtotime("-1 day") and (
+			$available_version !== $module_version ||
+			$local_version !== $module_version ||
+			$last_version !== $available_version
+		)){
+			try {
+				Capsule::table('tblconfiguration')->where('setting','ggnb_version')->update([
+					'value' => json_encode([
+						'local_version'=>$module_version,
+						'last_version'=>$available_version,
+						'check'=>ggnb_encrypt($get_embed['embed']),
+						'admin'=>ggnb_current_admin(),
+					]),
+					'created_at' =>  $created_at,
+					'updated_at' => date("Y-m-d H:i:s")]
+				);
+			}
+			catch (\Exception $e){
+				$error .= $e->getMessage();
+			}
+		}
+		// update
+		if($version and $get_version['version'] and $get_embed['embed'] and (string)$local_version !== (string)$module_version){
+			try {
+				Capsule::table('tblconfiguration')->where('setting','ggnb_version')->update([
+					'value' => json_encode([
+						'local_version'=>$module_version,
+						'last_version'=>$available_version,
+						'check'=>ggnb_encrypt($get_embed['embed']),
+						'admin'=>ggnb_current_admin(),
+					]),
+					'created_at' =>  $created_at,
+					'updated_at' => date("Y-m-d H:i:s")]
+				);
+			}
+			catch (\Exception $e){
+				$error .= $e->getMessage();
+			}
+		}
+		$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
+		$available_version_int = (int)preg_replace("/[^0-9]/", "", $available_version);
+		if( $available_version_int === $module_version_int ){
+			$message = '<p style="color: green"><i class="fas fa-check-square"></i> Você está executando a versão mais recente do módulo.</p>';
+		}
+		if( $available_version_int > $module_version_int ){
+			$message = '<p style="font-size: 14px; color: red;"><i class="fas fa-exclamation-triangle"></i> Atualização disponível, verifique a <a style="color:#CC0000;text-decoration:underline;" href="https://gofas.net/?p='.$page_id.'" target="_blank">versão '.$available_version.'</a>';
+		}
+		if( $available_version_int < $module_version_int ){
+			$message = '<p style="font-size: 14px; color: orange;"><i class="fas fa-exclamation-triangle"></i> Você está executando uma versão Beta desse módulo.<br>Baixar versão estável: <a style="color:#CC0000;text-decoration:underline;" href="https://gofas.net/?p='.$page_id.'" target="_blank">v'.$available_version.'</a>';
+		}
+		return [
+			'version'=>$version,
+			'get_version'=>$get_version,
+			'message' => $message,
+			'check'=> $embed,
+			'error' => $error,
+		];
+	}
+}
+if(!function_exists('ggnb_version')){
+	function ggnb_version($opt=1){
+		foreach( Capsule::table('tblconfiguration') -> where('setting', '=', 'ggnb_version') -> get( array( 'value','created_at') ) as $ggnb_version_ ){
+			$ggnb_version				= $ggnb_version_->value;
+			$ggnb_version_created_at	= $ggnb_version_->created_at;
+		}
+		if($opt=1){ // local_version string
+			$version = json_decode($ggnb_version, true);
+			return $version['local_version'];
+		}
+		if($opt=2){ // local_version integer
+			$version = json_decode($ggnb_version, true);
+			return (int)preg_replace("/[^0-9]/", "", $version['local_version']);
+		}
+		if($opt=3){ // full
+			return$ggnb_version;
+		}
+	}
+}
+if(!function_exists('ggnb_current_admin')){
+	function ggnb_current_admin(){
+		$currentUser = new \WHMCS\Authentication\CurrentUser;
+		$admin = json_decode(json_encode($currentUser->admin()),true);
+		return $admin;
+	}
+}
+if(!function_exists('ggnb_setup_admin')){
+	function ggnb_setup_admin(){
+	foreach( Capsule::table('tblconfiguration')->where('setting','=','ggnb_version')->get(['value']) as $version_ ){
+		$version		= json_decode($version_->value, true);
+		$admin			= $version['admin'];
+	}
+	return $admin;
+}}
+if(!function_exists('ggnb_update_stats') ){
+	function ggnb_update_stats(){
+		$params = getGatewayVariables('gofasgerencianetboleto');
+		if($params['sandbox']){
+			return;
+		}
+		$whmcs_url = ggnb_whmcs_url();
+		$setup_admin = ggnb_setup_admin();
+		$query = '?software_id=7893&install_url='.$whmcs_url['admin_url'].'&current_version='.ggnb_get_local_version().'&installer_email='.$setup_admin['email'].'&installer_firstname='.$setup_admin['firstname'].'&installer_lastname='.$setup_admin['lastname'].'&action=charge'.ggnb_sysinfo();
+		$curl = curl_init();
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST,0);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER,0);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER,1);
+		curl_setopt($curl, CURLOPT_URL, 'https://gofas.net/br/updates/stats.php'.$query);
+		$response = curl_exec($curl);
+		$http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+		curl_close($curl);
+		$return = ['query'=>$query,'response'=>$response,'http_code'=>$http_status];
+		return $return;
+	}
+}
+if(!function_exists('ggnb_get_local_version')){
+	function ggnb_get_local_version(){
+	foreach( Capsule::table('tblconfiguration')->where('setting','=','ggnb_version')->get(['value']) as $version_ ){
+		$version		= json_decode($version_->value, true);
+		$local_version			= $version['local_version'];
+	}
+	return $local_version;
+}}
+if(!function_exists('ggnb_sysinfo')){
+	function ggnb_sysinfo(){
+		foreach( Capsule::table('tblconfiguration')
+		->where('setting','=','Version')
+		->get(['value']) as $data1 ){
+			$Version = $data1->value;
+		}
+		foreach( Capsule::table('tblconfiguration')
+		->where('setting','=','CronPHPVersion')
+		->get(['value']) as $data1 ){
+			$PHPVersion = $data1->value;
+		}
+		return '&whmcs_version='.$Version.'&php_version='.$PHPVersion;
+	}
+}
+if(!function_exists('ggnb_get_protected_property')){
+	function ggnb_get_protected_property($object, $property){
+	    $reflectedClass = new \ReflectionClass($object);
+	    $reflection = $reflectedClass->getProperty($property);
+	    $reflection->setAccessible(true);
+	    return $reflection->getValue($object);
+	}
+}
+if(!function_exists('ggnb_get_version') ){
+	function ggnb_get_version($page_id,$referer,$module_version){
+		//$currentUser = new \WHMCS\Authentication\CurrentUser;
+		$current_admin = ggnb_current_admin();
+		//$admin_ = json_decode(json_encode($currentUser->admin()),true);
+		//$admin = ['email'=>$admin_['email'],'firstname'=>$admin_['firstname'],'lastname'=>$admin_['lastname']];
+		$query = '?software_id='.$page_id.'&install_url='.$referer.'&current_version='.$module_version.'&installer_email='.$current_admin['email'].'&installer_firstname='.$current_admin['firstname'].'&installer_lastname='.$current_admin['lastname'].'&action=verify'.ggnb_sysinfo();
+		$curl = curl_init();
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST,0);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER,0);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER,1);
+		curl_setopt($curl, CURLOPT_URL, 'https://gofas.net/br/updates/stats.php'.$query);
+		$available_version_ = curl_exec($curl);
+		$http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+		curl_close($curl);
+		//logModuleCall('gofasiuguboleto','ggnb_get_version',array('available_version'=>$available_version_),'','' );
+		return ['version'=>$available_version_,'http_code'=>$http_status];
+	}
+}
+if( !function_exists('ggnb_get_embed') ){
+	function ggnb_get_embed($page_id,$referer,$module_version){
+		$query = 'https://gofas.net/cliente/gofas/updates/?embed='.$page_id.'&referer='.$referer.'&version='.$module_version;
+		$curl = curl_init();
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST,0);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER,0);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER,1);
+		curl_setopt($curl, CURLOPT_URL, $query);
+		$embed = curl_exec($curl);
+		$http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+		curl_close($curl);
+		return ['embed'=>$embed,'http_code'=>$http_status];
+	}
+}
+if(!function_exists('ggnb_encrypt')){
+	function ggnb_encrypt($q) {
+	    $encryptionMethod = "AES-256-CBC";
+		$secretHash = "535ba9979bc6c7ff151f2136cd13b0f9";
+	    return openssl_encrypt($q, $encryptionMethod, $secretHash);
+	}
+}
+if(!function_exists('ggnb_decrypt')){
+	function ggnb_decrypt($q){
+		$encryptionMethod = "AES-256-CBC";
+		$secretHash = "535ba9979bc6c7ff151f2136cd13b0f9";
+	    return openssl_decrypt($q, $encryptionMethod, $secretHash);
+	}
+}
+if( !function_exists('ggnb_get_string_between') ){
+	function ggnb_get_string_between($string, $start, $end){
+		$string = " ".$string;
+		$ini = strpos($string,$start);
+		if ($ini == 0) return "";
+		$ini += strlen($start);   
+		$len = strpos($string,$end,$ini) - $ini;
+		return substr($string,$ini,$len);
 	}
 }

@@ -6,7 +6,7 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.5.0
+ * @version		3.7.0
  */
 
 if(!defined('WHMCS')){ die('Esse arquivo não pode ser acessado diretamente'); }
@@ -17,7 +17,13 @@ foreach( Capsule::table('tblconfiguration') -> where('setting', '=', 'ggnbwhmcsu
 	$ggnbwhmcsurl = $ggnbwhmcsurl_->value;
 }
 $system_url = $ggnbwhmcsurl;
-$returnUrl = $system_url.'modules/gateways/gofasgerencianetboleto/includes/callback.php';
+if(!$params['croncallback']){
+	$returnUrl = $system_url.'modules/gateways/gofasgerencianetboleto/includes/callback.php';
+}
+if($params['croncallback']){
+	$returnUrl = NULL;
+}
+
 $langPayNow = $params['langpaynow'];
 $moduleDisplayName = $params['name'];
 $moduleName = $params['paymentmethod'];

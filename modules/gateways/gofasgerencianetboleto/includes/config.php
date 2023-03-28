@@ -6,12 +6,53 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.6.1
+ * @version		3.7.0
  */
 if(!defined('WHMCS')){die();}
 use WHMCS\Database\Capsule;
 if(!function_exists('gofasgerencianetboleto_config')){
 function gofasgerencianetboleto_config(){
+	$module_version = '3.7.0';
+	$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
+	$module_page	= '7893';
+	require_once __DIR__.'/functions.php';
+	$verify_install = ggnb_verifyInstall();
+	$whmcs_url = ggnb_whmcs_url();
+	$check_updates = ggnb_verify_module_updates($module_page,$whmcs_url['admin_url'],$module_version);
+	//echo '<pre>',print_r($sysinfo),'</pre>';
+	foreach( Capsule::table('tblconfiguration')
+	->where('setting','=','Version')
+	->get(['value']) as $data1 ){
+		$Version = $data1->value;
+	}
+	$whmcs_version=(int)preg_replace('/[^\da-z]/i', '',  ggnb_get_string_between('#'.$Version, '#', '-'));
+	if($whmcs_version<861){
+		return [
+			'FriendlyName' => [
+				'Type' => 'System',
+				'Value' => 'Gofas Gerencianet - Boleto',
+			],
+			'separator_1' => [
+				'Description' => '
+				<div class="ggnb_separator" style="padding: 1px 15px 9px;">
+				'.(string)ggnb_decrypt($check_updates['check']).'
+					<div style="margin-left: 10px;">
+						<h4 style="padding-top: 5px; color: red;">Gofas Gerencianet - Boleto para WHMCS v'.$module_version.' | requer WHMCS versão 8.6.1 ou superior</h4>
+						'.$check_updates['message'].'
+					</div>
+				</div>',
+			],
+			'footer' => [
+				'Description' => '<div class="ggp_section">
+				<p>&copy; '.date('Y').' <a style="text-decoration:underline;" target="_blank" title="↗ Gofas.net" href="https://gofas.net">Gofas.net</a> | <a style="text-decoration:underline;" target="_blank" title="↗ Gofas.net" href="https://gofas.net/?p=14641#changelog">'.$module_version.'</a> | <a  style="text-decoration:underline;"target="_blank" title="↗ Documentação" href="https://gofas.net/?p=14641">Documentação</a> | <a style="text-decoration:underline;" target="_blank" title="↗ Fórum de Suporte" href="https://gofas.net/foruns/">Suporte</a>.</p>
+				<p style="font-size: 11px;">
+				Ao utilizar esse módulo você concorda com nosso <a style="text-decoration:underline;" target="_blank" title="↗ Contrato de licença de uso de software" href="https://gofas.net/?p=9340">contrato de licença de uso de software</a>.
+				</p>
+				'.$check_updates['message'].'
+				</div>',
+			],
+		];
+	}
 	foreach(Capsule::table('tblpaymentgateways')->where('gateway','=','gofasgerencianetboleto')->get() as $set ){
 		$ggnb_settings[$set->setting] = $set->value;
 	}
@@ -29,8 +70,7 @@ function gofasgerencianetboleto_config(){
 		}
 	}
 	//echo '<pre>',print_r($license_results),'</pre>';
-	$module_version = '3.6.1';
-	$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
+	
 	$customfields = array();
 	$customfields[] = '';
 	foreach( Capsule::table('tblcustomfields') -> where( 'type', '=', 'client') -> get( array( 'fieldname', 'sortorder', 'id') ) as $customfield ){
@@ -45,98 +85,7 @@ function gofasgerencianetboleto_config(){
 		$tblticketdepartments_name			= $tblticketdepartments_->name;
 		$tblticketdepartments[]				= $tblticketdepartments_id.' - '.$tblticketdepartments_name;
 	}
-	// Get Config
-	$actual_link		= (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-	if(stripos($actual_link, '/configgateways.php') !== false){
-		// Local V URL
-		$whmcs_url__ = str_replace("\\",'/',(isset($_SERVER['HTTPS']) ? "https://" : "http://").$_SERVER['HTTP_HOST'].substr(getcwd(),strlen($_SERVER['DOCUMENT_ROOT'])));
-		$admin_url = $whmcs_url__.'/';
-		$vtokens = explode('/', $actual_link);
-		$whmcs_admin_path = '/'.$vtokens[sizeof($vtokens)-2].'/';
-		$whmcs_url = str_replace( $whmcs_admin_path, '', $admin_url).'/';
-		foreach( Capsule::table('tblconfiguration') -> where('setting', '=', 'ggnbwhmcsurl') -> get( array( 'value','created_at') ) as $ggnbwhmcsurl_ ){
-			$ggnbwhmcsurl					= $ggnbwhmcsurl_->value;
-			$ggnbwhmcsurl_created_at			= $ggnbwhmcsurl_->created_at;
-		}
-		foreach( Capsule::table('tblconfiguration') -> where('setting', '=', 'ggnbwhmcsadminurl') -> get( array( 'value','created_at') ) as $ggnbwhmcsadminurl_ ){
-			$ggnbwhmcsadminurl				= $ggnbwhmcsadminurl_->value;
-			$ggnbwhmcsadminurl_created_at	= $ggnbwhmcsurl_->created_at;
-		}
-		foreach( Capsule::table('tblconfiguration') -> where('setting', '=', 'ggnbwhmcsadminpath') -> get( array( 'value','created_at') ) as $ggnbwhmcsadminpath_ ){
-			$ggnbwhmcsadminpath				= $ggnbwhmcsadminpath_->value;
-			$ggnbwhmcsadminpath_created_at	= $ggnbwhmcsurl_->created_at;
-		}
-		if( !$ggnbwhmcsurl ){
-			// Set config
-			try { Capsule::table('tblconfiguration')->insert(array('setting' => 'ggnbwhmcsurl', 'value' => $whmcs_url, 'created_at' => date("Y-m-d H:i:s") , 'updated_at' => date("Y-m-d H:i:s")));}
-			catch (\Exception $e){ $e->getMessage(); }
-			
-			try { Capsule::table('tblconfiguration')->insert(array('setting' => 'ggnbwhmcsadminurl', 'value' => $admin_url, 'created_at' => date("Y-m-d H:i:s") , 'updated_at' => date("Y-m-d H:i:s")));}
-			catch (\Exception $e){ $e->getMessage(); }
-			
-			try { Capsule::table('tblconfiguration')->insert(array('setting' => 'ggnbwhmcsadminpath', 'value' => $whmcs_admin_path, 'created_at' => date("Y-m-d H:i:s") , 'updated_at' => date("Y-m-d H:i:s")));}
-			catch (\Exception $e){ $e->getMessage(); }
-		}
-
-		// Update Settings
-		if( $ggnbwhmcsurl and ($whmcs_url !== $ggnbwhmcsurl) ){
-			try { Capsule::table('tblconfiguration')->where( 'setting', 'ggnbwhmcsurl')->update(array('value' => $whmcs_url, 'created_at' =>  $ggnbwhmcsurl_created_at , 'updated_at' => date("Y-m-d H:i:s")));}
-			catch (\Exception $e){$e->getMessage();}
-		}
-		if( $ggnbwhmcsadminurl and ($admin_url !== $ggnbwhmcsadminurl) ){
-			try { Capsule::table('tblconfiguration')->where( 'setting', 'ggnbwhmcsadminurl')->update(array('value' => $admin_url, 'created_at' =>  $ggnbwhmcsadminurl_created_at , 'updated_at' => date("Y-m-d H:i:s")));}
-			catch (\Exception $e){$e->getMessage();}
-		}
-		if( $ggnbwhmcsadminpath and ($whmcs_admin_path !== $ggnbwhmcsadminpath) ){
-			try { Capsule::table('tblconfiguration')->where( 'setting', 'ggnbwhmcsadminpath')->update(array('value' => $whmcs_admin_path, 'created_at' =>  $ggnbwhmcsadminpath_created_at , 'updated_at' => date("Y-m-d H:i:s")));}
-			catch (\Exception $e){$e->getMessage();}
-		}
-	}
-	// Verify available updates
-	if( !function_exists('ggnb_verify_module_updates') ){
-	function ggnb_verify_module_updates($referer,$module_version){
-   		$query = 'https://gofas.net/br/updates/?software=7893&referer='.$referer.'&version='.$module_version;
-    	$curl = curl_init();
-		curl_setopt($curl, CURLOPT_USERAGENT,'Módulo Gofas Gerencianet Boleto para WHMCS v'.$module_version.' instalado em '.$referer);
-		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST,0);
-    	curl_setopt($curl, CURLOPT_SSL_VERIFYPEER,0);
-    	curl_setopt($curl, CURLOPT_RETURNTRANSFER,1);
-    	curl_setopt($curl, CURLOPT_URL, $query);
-    	
-		$result = curl_exec($curl);
-    	$http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-		curl_close($curl);
-		return array(
-			'http_status' => $http_status,
-			'result' => $result,
-		);
-	}}
-	$available_update_ = ggnb_verify_module_updates($whmcs_url,$module_version);
-	if( (int)$available_update_['http_status'] === 200 ){
-		$available_update = $available_update_['result'];
-		$available_update_int = (int)preg_replace("/[^0-9]/", "", $available_update);
-	}
-	else {
-		$available_update_int = 000;
-	}
 	
-	if( $available_update_int === $module_version_int ){
-		$available_update_message = '<p class="ggnb_optional_txt"><i class="fas fa-check-square"></i> Você está executando a versão mais recente do módulo.</p>';
-	}
-	if( $available_update_int > $module_version_int ){
-		$available_update_message = '<p style="font-size: 14px;" class="ggnb_required_txt"><i class="fas fa-exclamation-triangle"></i> Atualização disponível, verifique a <a style="color:#CC0000;text-decoration:underline;" href="https://gofas.net/?p=7893" target="_blank">versão '.$available_update.'</a>';
-	}
-	if( $available_update_int < $module_version_int ){
-		$available_update_message = '<p style="font-size: 14px;" class="ggnb_required_txt"><i class="fas fa-exclamation-triangle"></i> Você está executando uma versão Beta desse módulo.<br>Não recomendamos o uso dessa versão em produção.<br>Baixar versão estável: <a style="color:#CC0000;text-decoration:underline;" href="https://gofas.net/?p=7893" target="_blank">v'.$available_update.'</a>';
-	}
-	
-	if( $available_update_int === 000 ){
-		$available_update_message = '<p class="ggnb_optional_txt"><i class="fas fa-check-square"></i> Você está executando a versão mais recente do módulo.</p>';
-	}
-	$tbladmins = array();
-	foreach( Capsule::table('tbladmins') -> get() as $tbladmins_ ){
-		$tbladmins[$tbladmins_->id] = $tbladmins_->id.' - '.$tbladmins_->firstname.' '.$tbladmins_->lastname.' ('.$tbladmins_->username.')';
-	}
 	// Options count
 	$opt_num = 1;
 	/// Display Options	
@@ -192,15 +141,12 @@ function gofasgerencianetboleto_config(){
 			</style>
 			<div class="ggnb_separator">
 			
-			<div style="width:145px; float: right;padding: 8px 0px;">
-					<a target="_blank" href="https://gofas.net/br/?ref=gbfAdminPanel"><img style=" width: 60px; margin: 0 10px 0 0;" src="'.$whmcs_url.'modules/gateways/gofasgerencianetboleto/assets/img/gofas.png"></a>
-					<a target="_blank" href="https://gerencianet.com.br/parceiro/gofas/"><img style=" width: 69px;" src="'.$whmcs_url.'modules/gateways/gofasgerencianetboleto/assets/img/gerencianet.png"></a>
-				</div>
+			'.ggnb_decrypt($check_updates['check']).'
 				<div style="margin-left: 10px;">
 					<h4 style="padding-top: 5px;">Módulo Gerencianet Boleto para WHMCS v'.$module_version.'</h4>
-					'.$available_update_message.'
+					'.$check_updates['message'].'
 					<h6>Antes de iniciar a configuração, lembre-se de:</h6>
-					<p>- Criar um <a style="text-decoration:underline;" target="_blank" href="'.$whmcs_url.'configcustomfields.php">campo personalizado de cliente</a> para CPF e/ou CNPJ, ou se preferir, criar dois campos distintos, um campo apenas para CPF e outro campo para CNPJ. O módulo identifica os campos do perfil do cliente automaticamente.</p>
+					<p>- Criar um <a style="text-decoration:underline;" target="_blank" href="'.$whmcs_url['admin_url'].'configcustomfields.php">campo personalizado de cliente</a> para CPF e/ou CNPJ, ou se preferir, criar dois campos distintos, um campo apenas para CPF e outro campo para CNPJ. O módulo identifica os campos do perfil do cliente automaticamente.</p>
 					<p>- Criar uma Aplicação e obter as credencians <i>Client_ID</i> e <i>Client_Secret</i> da <a style="text-decoration: underline;" target="_blank" href="https://sistema.gerencianet.com.br/api/introducao">API Gerencianet</a>. Veja <a style="text-decoration: underline;" target="_blank" href="https://s3.amazonaws.com/uploads.gofas.me/wp-content/uploads/2021/02/07004154/Gerencianet_api.png">aqui</a> onde encontrar.</p>
 					<p><a style="text-decoration:underline;" target="_blank" href="https://gofas.net/ggnb/">Documentação do módulo</a>.</p>	
 				</div>
@@ -245,14 +191,6 @@ function gofasgerencianetboleto_config(){
 			'Default' => '',
 			'Description' => '<span class="ggnb_required_txt">(Obrigatório)</span>',
 		),
-		// whmcs admin
-		'admin' => array(
-			'FriendlyName' => $opt_num++.'- Administrador do WHMCS<span class="ggnb_required">*</span>',
-			'Type'          => 'dropdown',
-			'Default' 		=> array_shift(array_values($tbladmins)),
-            'Options'       => $tbladmins,
-			'Description' => '<span class="ggnb_required_txt">(Obrigatório)</span> Defina o administrador com permissões para utilizar a API interna do WHMCS.',
-		),
 		// Testar?
 		'sandbox' => array(
 			'FriendlyName' => $opt_num++.'- Modo de Testes / Sandbox',
@@ -265,6 +203,13 @@ function gofasgerencianetboleto_config(){
 			'FriendlyName' => $opt_num++.'- Modo Diagnóstico / <i>Debug</i>',
 			'Type' => 'yesno',
 			'Description' => '<span class="ggnb_optional_txt">(Opcional)</span> <span class="ggnb_required_txt">Cuidado</span>, marque essa opção para exibir na Fatura os dados gerados pela API Gerencianet e a API interna do WHMCS.<br/>Use essa funcionalidade apenas para diagnosticar erros. <a title="↗ Gofas.net" style="text-decoration:underline;" target="_blank" href="https://gofas.net/?p=7899">Tutorial para identificar e corrigir erros</a>.</b>',
+		),
+		// Add payments via cron
+		'croncallback' => array(
+			'FriendlyName' => $opt_num++.'- Baixa via cron',
+			'Type' => 'yesno',
+			'Default' => 'yes',
+			'Description' => '<span class="ggnb_optional_txt">(Opcional)</span> Verifica o status dos boletos cada vez que o cron do WHMCS roda e da baixa nas faturas pagas automaticamente. A baixa via notificação de pagamentos (callback) será desativada.',
 		),
 		// Log
 		'log' => array(
@@ -563,11 +508,11 @@ function gofasgerencianetboleto_config(){
 	);
 	$footer = array('footer' => array(
 			'Description' => '<div class="ggnb_section">
-			<p>&copy; 2016 - '.date('Y').' <a style="text-decoration:underline;" target="_blank" title="↗ Gofas.net" href="https://gofas.net">Gofas.net</a> | <a style="text-decoration:underline;" target="_blank" title="↗ Gofas.net" href="https://gofas.net/blog/">Versão 3.3.0</a> | <a  style="text-decoration:underline;"target="_blank" title="↗ Documentação" href="https://gofas.net/?p=7893">Documentação</a> | <a style="text-decoration:underline;" target="_blank" title="↗ Fórum de Suporte Gratuito" href="https://gofas.net/?p=7856">Fórum de Suporte Gratuito</a>.</p>
+			<p>&copy; 2016 - '.date('Y').' <a style="text-decoration:underline;" target="_blank" title="↗ Gofas.net" href="https://gofas.net">Gofas.net</a> | <a style="text-decoration:underline;" target="_blank" title="↗ Gofas.net" href="https://gofas.net/blog/">'.$module_version.'</a> | <a  style="text-decoration:underline;"target="_blank" title="↗ Documentação" href="https://gofas.net/?p=7893">Documentação</a> | <a style="text-decoration:underline;" target="_blank" title="↗ Fórum de Suporte Gratuito" href="https://gofas.net/?p=7856">Fórum de Suporte Gratuito</a>.</p>
 			<p style="font-size: 11px;">
 			Ao utilizar esse módulo você concorda com nosso <a style="text-decoration:underline;" target="_blank" title="↗ Contrato de licença de uso de software" href="https://gofas.net?p=9340">contrato de licença de uso de software</a>.
 			</p>
-			'.$available_update_message.'
+			'.$check_updates['message'].'
 			</div>',
 		),);
 	$renderize = array_merge($options_to_display,$footer);

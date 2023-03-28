@@ -84,6 +84,7 @@ if($_REQUEST['notification']){
  		$addtransvalues['transid']			= 'ggnb_'.$api_mode.'_paid-'.$charge_id.'';
  		$addtransvalues['date']				= date('d/m/Y');
 		$addtransresult						= localAPI( 'addtransaction' , $addtransvalues, $params['admin'] );
+		$ggnb_update_stats = ggnb_update_stats();
 		echo 'Add transaction: ', json_encode($addtransresult);
 
 	}
