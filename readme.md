@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- Registros mais apurados de estatística de uso [\#152](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/152)
 - Reduz de 90 para 29 dias o tempo depois de emitido que é possível atualizar um boleto  [\#148](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/148)
 - Verificação de status das transações e baixa automática via tarefa cron do WHMCS [\#147](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/147)
 
