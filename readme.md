@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- Apaga do banco de dados boletos pagos ou que não serão reaproveitados [\#156](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/156)
 - Removido o campo "chave de licença" das configurações / versões premium são disponibilizadas separadamente [\#155](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/155)
 - Melhorias na confirmação de pagamentos via callback [\#154](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/154)
 - Confirmação de pagamento ao acessar a fatura \(quando boleto foi pago mas a baixa automática ainda não ocorreu\) [\#153](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/153)
