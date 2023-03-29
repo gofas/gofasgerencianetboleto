@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- Removido o campo "chave de licença" das configurações / versões premium são disponibilizadas separadamente [\#155](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/155)
 - Melhorias na confirmação de pagamentos via callback [\#154](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/154)
 - Confirmação de pagamento ao acessar a fatura \(quando boleto foi pago mas a baixa automática ainda não ocorreu\) [\#153](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/153)
 - Removida a necessidade de criar transações com valor de R$0.00 para boletos gerados [\#150](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/150)
