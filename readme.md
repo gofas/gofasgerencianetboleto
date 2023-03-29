@@ -8,6 +8,7 @@
 
 - Confirmação de pagamento ao acessar a fatura \(quando boleto foi pago mas a baixa automática ainda não ocorreu\) [\#153](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/153)
 - Removida a necessidade de criar transações com valor de R$0.00 para boletos gerados [\#150](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/150)
+- Melhoria na verificação de atualizações e registros de estatísticas [\#149](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/149)
 
 ## [v3.7.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.7.0) (28/03/2023)
 
