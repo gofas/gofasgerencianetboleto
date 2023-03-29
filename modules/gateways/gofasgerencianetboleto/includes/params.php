@@ -6,69 +6,30 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.7.0
+ * @version		3.8.0
  */
 
 if(!defined('WHMCS')){ die('Esse arquivo não pode ser acessado diretamente'); }
 use WHMCS\Database\Capsule;
-// Parâmetros do sistema
-$companyName = $params['companyname'];
-foreach( Capsule::table('tblconfiguration') -> where('setting', '=', 'ggnbwhmcsurl') -> get( array( 'value','created_at') ) as $ggnbwhmcsurl_ ){
-	$ggnbwhmcsurl = $ggnbwhmcsurl_->value;
-}
-$system_url = $ggnbwhmcsurl;
-if(!$params['croncallback']){
-	$returnUrl = $system_url.'modules/gateways/gofasgerencianetboleto/includes/callback.php';
-}
-if($params['croncallback']){
-	$returnUrl = NULL;
-}
+$system_url = ggnb_whmcs_url()['url'];
+$returnUrl = $system_url.'modules/gateways/gofasgerencianetboleto/includes/callback.php';
 
 $langPayNow = $params['langpaynow'];
 $moduleDisplayName = $params['name'];
 $moduleName = $params['paymentmethod'];
-// Parâmetros do Módulo
-$module_version = '3.5.0';
-$sandbox = $params['sandbox'];
-if( $sandbox ){
+if( $params['sandbox'] ){
 	$client_id = $params['clientidsandbox'];
 	$client_secret = $params['clientsecretsandbox'];
 	$api_mode = 'sandbox';
 	$api_url = 'https://sandbox.gerencianet.com.br/v1/';
 	
-} elseif(!$sandbox){
+} elseif(!$params['sandbox']){
 	$client_id = $params['clientid'];
 	$client_secret = $params['clientsecret'];
 	$api_mode = 'live';
 	$api_url = 'https://api.gerencianet.com.br/v1/';
 }
-if( stripos($_SERVER['REQUEST_URI'], 'viewinvoice.php') ){ // Verifica se a página é uma fatura
-	$isInvoice = true;
-	$debug = $params['debug'];
-	
-} else {
-	$isInvoice = false;
-	$debug = false;
-}
-if($isInvoice and $params['debug']){
-	$debug = true;
-} else {
-	$debug = false;
-}
-if(!$debug and !$_REQUEST['redirectToBillet']){
-	$redirectToBillet = $params['redirecttobillet'];
-}
-if(!$debug and $_REQUEST['redirectToBillet'] === "true"){
-	$redirectToBillet = true;
-}
-if( $debug and $_REQUEST['redirectToBillet'] === "true"){
-	$redirectToBillet = true;
-	$debug = false;
-}
-if($_REQUEST['redirectToBillet'] === "false"){
-	$redirectToBillet = false;
-}
-$log = $params['log'];
+
 $emailonError = $params['emailonerror'];
 $showDueDate = $params['showduedate'];
 $showBarCode = $params['showbarcode'];
@@ -78,7 +39,7 @@ $customfCPF = $params['customfieldcpf'];
 $customfCNPJ = $params['customfieldcnpj'];
 $fine = (float)$params['multa'] * 100;
 $interest = (float)$params['juros'] * 1000;
-$fee = $params['fee'];
+
 // Dias adicionais à Data de vencimento
 if( $params['diasparavencimento'] ){
 	$diasParaVencimento = '+'.$params['diasparavencimento'].' days';
@@ -97,7 +58,7 @@ else {
 if($params['message']){ $message = $params['message'];
 }
 elseif(!$params['message'] || empty($params['message'])){
-	$message = 'Acesse '.$ggnbwhmcsurl.' para gerar 2ª via.';
+	$message = 'Acesse '.$system_url.' para gerar 2ª via.';
 }
 
 if( $params['minimunamount'] ){
@@ -194,24 +155,14 @@ $invoiceTotal =	$GetInvoiceResults['total'];
 $invoiceCredit =	(int)($GetInvoiceResults['credit'] * 100);
 
 // Parâmetros das transações associadas à Fatura
-$trans_idendA = $GetInvoiceResults['transactions'];
-if($trans_idendA){
-	$trans_idend = $trans_idendA['transaction'];
-}
-if($trans_idend){
-	$trans_idp = end( $trans_idend );
-	$trans_id_ = $trans_idp['transid'];
-	
-	// Verifica se a transação pertence ao módulo
-	if( strpos( $trans_id_, 'ggnb') !== false and (strpos( $trans_id_, 'unpaid') !== false or strpos( $trans_id_, 'waiting') !== false ) and strpos( $trans_id_, $api_mode) ){
-		$trans_id = (int)preg_replace('/[^0-9]/', '', $trans_id_ ); // ggnb_waiting_213630
+// Parâmetros das transações associadas à Fatura
+foreach( Capsule::table('gofasgerencianetboleto')->where('invoice_id','=',$invoice_id)->where('api_mode','=',$api_mode)->get(['charge_id']) as $charge_id_local){
+	if($charge_id_local->charge_id){
+		$trans_id = $charge_id_local->charge_id;
 	}
 	else {
 		$trans_id = false;
 	}
-}
-else {
-	$trans_id = false;
 }
 // Serviços/produtos relacionados à fatura
 $invoiceItemsItem = $GetInvoiceResults['items']['item'];
@@ -805,23 +756,23 @@ if($fine_interest_values['interest_value'] ){
 }
 
 if( $fine_interest_values['fine_value'] and !$fine_interest_values['interest_value'] ){
-	$invoice_amount = $invoice_amount_ + (int)array_sum($fine_values_arr)/100;
+	$invoice_amount = (int)($invoice_amount_ + (int)array_sum($fine_values_arr)/100);
 	$discount_tax_visible_message	.= '<p>Multa por atraso: R$'.number_format((int)array_sum($fine_values_arr)/100,  2, ',', '.'). '</p>';
 	$billet_duedate = date('Y-m-d');
 }
 elseif( $fine_interest_values['fine_value'] and $fine_interest_values['interest_value']   ){
-	$invoice_amount = $invoice_amount_ + (int)((int)array_sum($fine_values_arr) + (int)array_sum($interest_values_arr));
+	$invoice_amount = (int)($invoice_amount_ + (int)((int)array_sum($fine_values_arr) + (int)array_sum($interest_values_arr)));
 	$discount_tax_visible_message	.= '<p>Multa de '.$params['multa'].'% por atraso: R$'.number_format((int)array_sum($fine_values_arr)/100,  2, ',', '.'). '</p>';
 	$discount_tax_visible_message	.= '<p>Juros ('.$params['juros'].'% /dia X '.$fine_interest_values['due_days'].' dias): R$'.number_format((int)array_sum($interest_values_arr)/100,  2, ',', '.'). '</p>';
 	$billet_duedate = date('Y-m-d');
 }
 elseif( !$fine_interest_values['fine_value'] and $fine_interest_values['interest_value']   ){
-	$invoice_amount = $invoice_amount_ + (int)array_sum($interest_values_arr)/100;
+	$invoice_amount = (int)($invoice_amount_ + (int)array_sum($interest_values_arr)/100);
 	$discount_tax_visible_message	.= '<p>Juros de '.$fine_interest_values['due_days'].' dias de atraso: R$'.number_format((int)array_sum($interest_values_arr)/100,  2, ',', '.'). '</p>';
 	$billet_duedate = date('Y-m-d');
 }
 else {
-	$invoice_amount = $invoice_amount_;
+	$invoice_amount = (int)$invoice_amount_;
 }
 
 $discount_tax_visible_message	.= '<p>Total do Boleto: R$'.number_format((int)($invoice_amount)/100,  2, ',', '.'). '</p>';

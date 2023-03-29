@@ -6,7 +6,7 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.3.0
+ * @version		3.8.0
  */
 
 if(!defined('WHMCS')){ die('Esse arquivo não pode ser acessado diretamente'); }
@@ -81,7 +81,6 @@ if( !function_exists('ggnb_get_token') ){
  * @ggnb_detail_charge
  *
  */
-
 if(!function_exists('ggnb_detail_charge')){
 	function ggnb_detail_charge($api_url,$access_token,$trans_id){
 		$curl = curl_init($api_url.'charge/'.$trans_id );
@@ -181,12 +180,6 @@ if(!function_exists('ggnb_create_charge')){
 		}
 	}
 }
-/**
- *
- * Associar forma de pagamento à cobrança
- * @ggnb_pay_charge
- *
- */
 if(!function_exists('ggnb_pay_charge')){
 	function ggnb_pay_charge($api_url,$access_token,$charge_id,$body2){
 		$curl = curl_init($api_url.'charge/'.$charge_id.'/pay');
@@ -208,13 +201,6 @@ if(!function_exists('ggnb_pay_charge')){
 		}
 	}
 }
-/**
- *
- * Consultar informações da transação
- * @ggnb_detail_charge
- *
- */
-
 if(!function_exists('ggnb_get_notification')){
 	function ggnb_get_notification($api_url,$access_token,$notification_token){
 		$curl = curl_init($api_url.'notification/'.$notification_token );
@@ -234,39 +220,29 @@ if(!function_exists('ggnb_get_notification')){
 		}
 	}
 }
-
-/**
- *
- * Gravar transação no WHMCS
- * @ggnb_add_trans
- *
- */
-if(!function_exists('ggnb_add_trans')){
-	function ggnb_add_trans( $USERID, $INVOICEID, $CHARGEID, $api_mode, $system_url){
-		$addtransaction = "addtransaction";
-	 	$addtransvalues['userid'] = $USERID;
-	 	$addtransvalues['invoiceid'] = $INVOICEID;
-	 	$addtransvalues['description'] = "Boleto gerado aguardando pagamento.";
-	 	$addtransvalues['amountin'] = '0.00';
-	 	$addtransvalues['fees'] = '0.00';
-	 	$addtransvalues['paymentmethod'] = 'gofasgerencianetboleto';
-	 	$addtransvalues['transid'] = 'ggnb_'.$api_mode.'_waiting-'.$CHARGEID.'';
-	 	$addtransvalues['date'] = date('d/m/Y');
-		$addtransresults = localAPI( $addtransaction, $addtransvalues, (int)ggnb_setup_admin()['id'] );
-		if($addtransresults['result'] === 'success'){
-			return array('result'=>$addtransresults);
+if( !function_exists('ggnb_add_trans') ){
+	function ggnb_add_trans( $user_id, $invoice_id, $amount, $fee, $charge_id, $description ){
+		$params = getGatewayVariables('gofasgerencianetboleto');
+ 		$addtransvalues['userid'] = $user_id;
+ 		$addtransvalues['invoiceid'] = $invoice_id;
+ 		$addtransvalues['description'] = $description;
+ 		$addtransvalues['amountin'] = $amount;
+ 		$addtransvalues['fees'] = $fee;
+ 		$addtransvalues['paymentmethod'] = 'gofasgerencianetboleto';
+ 		$addtransvalues['transid'] = $charge_id;
+ 		$addtransvalues['date'] = date('d/m/Y');
+		$addtransresults = localAPI( "addtransaction", $addtransvalues, (int)ggnb_setup_admin()['id']);
+		$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('invoice_id', '=',$invoice_id)->delete();
+		$ggnb_update_stats = ggnb_update_stats();
+		if( $addtransresults['result'] === 'success'){
+			return array('values'=>$addtransvalues, 'result'=>$addtransresults);
 		}
-		if($addtransresults['result'] !== 'success'){
-			$error = '<b>3) Não foi possível gerar o boleto, por favor <a href="'.$system_url.'/submitticket.php" target="_blank">entre em contato</a> informando o ID da fatura.</b>';
-			return array('error'=>$error);
+		elseif($addtransresults['result'] !== 'success'){
+			$error = '<b>Não foi possível gravar a transação.</b>';
+			return array('error'=>$error, 'values'=>$addtransvalues, 'result'=>$addtransresults,'update_stats'=>$ggnb_update_stats);
 		}
 	}
 }
-/**
- *
- * Grava Boleto no DB
- *
- */
 if( !function_exists('ggnb_store_billet') ){
 	function ggnb_store_billet($pay_charge,$invoice_amount,$invoice_id,$api_mode){
 		$date = str_replace('/', '-', $pay_charge['data']['charges']['0']['dueDate']);
@@ -296,24 +272,18 @@ if( !function_exists('ggnb_store_billet') ){
 		}
 	}
 }
-/**
- *
- * Envia email ao admin em caso de erro
- * ggnb_send_error_email
- *
- */
 if(!function_exists('ggnb_send_error_email')){
-	function ggnb_send_error_email( $INVOICEID, $USERID, $FNAME, $LNAME, $system_url, $EOE, $ERROR){
+	function ggnb_send_error_email( $invoice_id, $user_id, $first_name, $last_name, $dept_id, $error){
 		$sendEmailonError = "sendadminemail";
-	 	$sendEOEvalues['customsubject'] = 'Erro ao gerar boleto - fatura #'.$INVOICEID;
+	 	$sendEOEvalues['customsubject'] = 'Erro ao gerar boleto - fatura #'.$invoice_id;
 		$sendEOEvalues['custommessage'] = '<br/>Olá administrador,<br/>
-			Ocorreu uma falha ao gerar um Boleto para a <a href="'.$system_url.'/admin/invoices.php?action=edit&id='.$INVOICEID.'">Fatura #'.$INVOICEID.'</a>.<br/><br/>
+			Ocorreu uma falha ao gerar um Boleto para a <a href="'.ggnb_whmcs_url()['admin_url'].'/invoices.php?action=edit&id='.$invoice_id.'">Fatura #'.$invoice_id.'</a>.<br/><br/>
 			Detalhes do erro:<br/>
-			<b>Cliente:</b> <a href="'.$system_url.'/admin/clientssummary.php?userid='.$USERID.'">'.$FNAME.' '.$LNAME.'</a><br/><br/>
-			<b>Erro exibido na Fatura:</b><br/><i>"'.$ERROR.'"</i><br/><br/>
-			Email gerado de acordo com às configurações do gateway <a title="Ir para as configurações do módulo ↗" href="'.$system_url.'/admin/configgateways.php?updated=gofasgerencianetboleto#m_gofasgerencianetboleto">Gofas Gerencianet Boleto</a>.<br/><br/>';
+			<b>Cliente:</b> <a href="'.ggnb_whmcs_url()['admin_url'].'/clientssummary.php?userid='.$user_id.'">'.$first_name.' '.$last_name.'</a><br/><br/>
+			<b>Erro exibido na Fatura:</b><br/><i>"'.$error.'"</i><br/><br/>
+			Email gerado de acordo com às configurações do gateway <a title="Ir para as configurações do módulo ↗" href="'.ggnb_whmcs_url()['admin_url'].'/configgateways.php?updated=gofasgerencianetboleto#m_gofasgerencianetboleto">Gofas Gerencianet Boleto</a>.<br/><br/>';
 	 	$sendEOEvalues['type'] = 'system';
-	 	$sendEOEvalues['deptid'] = $EOE;
+	 	$sendEOEvalues['deptid'] = $dept_id;
 	 	$sendEOEresults = @localAPI($sendEmailonError,$sendEOEvalues, (int)ggnb_setup_admin()['id']);
 		 return array('result'=>$sendEOEresults);
 	}
@@ -564,7 +534,7 @@ if(!function_exists('ggnb_get_version') ){
 		$available_version_ = curl_exec($curl);
 		$http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 		curl_close($curl);
-		//logModuleCall('gofasiuguboleto','ggnb_get_version',array('available_version'=>$available_version_),'','' );
+		//logModuleCall('gofasgerencianetboleto','ggnb_get_version',array('available_version'=>$available_version_),'','' );
 		return ['version'=>$available_version_,'http_code'=>$http_status];
 	}
 }

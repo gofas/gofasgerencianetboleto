@@ -6,13 +6,13 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.7.0
+ * @version		3.8.0
  */
 if(!defined('WHMCS')){die();}
 use WHMCS\Database\Capsule;
 if(!function_exists('gofasgerencianetboleto_config')){
 function gofasgerencianetboleto_config(){
-	$module_version = '3.7.0';
+	$module_version = '3.8.0';
 	$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
 	$module_page	= '7893';
 	require_once __DIR__.'/functions.php';
@@ -56,21 +56,7 @@ function gofasgerencianetboleto_config(){
 	foreach(Capsule::table('tblpaymentgateways')->where('gateway','=','gofasgerencianetboleto')->get() as $set ){
 		$ggnb_settings[$set->setting] = $set->value;
 	}
-	$license_key_desc = '<span class="ggnb_optional_txt">(Opcional)</span>';
-	if(stripos($_SERVER['REQUEST_URI'],'configgateways') !== false and $ggnb_settings['type']){
-		require_once __DIR__.'/callback.php';
-		if($license_error and (string)$license_results['status'] !== (string)'Invalid'){
-			$license_key_desc = '<span style="background: #CC0000;color: #fff;padding: 6px;">'.$license_error.'</span>';
-		}
-		if($license_error and (string)$license_results['status'] === (string)'Invalid'){
-			$license_key_desc = '<span class="ggnb_optional_txt">(Opcional)</span>';
-		}
-		if(!$license_error and (string)$license_results['status'] === (string)'Active' and $ggnb_settings['license_key'] and $local_key_value){
-			$license_key_desc = '<span style="background: #02bb04;color: #fff;padding: 6px;">Licença Ativa</span>';
-		}
-	}
-	//echo '<pre>',print_r($license_results),'</pre>';
-	
+
 	$customfields = array();
 	$customfields[] = '';
 	foreach( Capsule::table('tblcustomfields') -> where( 'type', '=', 'client') -> get( array( 'fieldname', 'sortorder', 'id') ) as $customfield ){
@@ -142,22 +128,16 @@ function gofasgerencianetboleto_config(){
 			<div class="ggnb_separator">
 			
 			'.ggnb_decrypt($check_updates['check']).'
-				<div style="margin-left: 10px;">
+				<div style="padding: 10px 10px 20px 10px;">
 					<h4 style="padding-top: 5px;">Módulo Gerencianet Boleto para WHMCS v'.$module_version.'</h4>
 					'.$check_updates['message'].'
 					<h6>Antes de iniciar a configuração, lembre-se de:</h6>
 					<p>- Criar um <a style="text-decoration:underline;" target="_blank" href="'.$whmcs_url['admin_url'].'configcustomfields.php">campo personalizado de cliente</a> para CPF e/ou CNPJ, ou se preferir, criar dois campos distintos, um campo apenas para CPF e outro campo para CNPJ. O módulo identifica os campos do perfil do cliente automaticamente.</p>
 					<p>- Criar uma Aplicação e obter as credencians <i>Client_ID</i> e <i>Client_Secret</i> da <a style="text-decoration: underline;" target="_blank" href="https://sistema.gerencianet.com.br/api/introducao">API Gerencianet</a>. Veja <a style="text-decoration: underline;" target="_blank" href="https://s3.amazonaws.com/uploads.gofas.me/wp-content/uploads/2021/02/07004154/Gerencianet_api.png">aqui</a> onde encontrar.</p>
-					<p><a style="text-decoration:underline;" target="_blank" href="https://gofas.net/ggnb/">Documentação do módulo</a>.</p>	
+					<p><a style="text-decoration:underline;" target="_blank" href="https://gofas.net/ggnb/">Documentação do módulo</a>.<br></p>	
 				</div>
 	
 			</div>',
-		),
-		'license_key' => array(
-			'FriendlyName' => 'Chave de licença',
-			'Type' => 'text',
-			'Size' => '40',
-			'Description' => $license_key_desc,
 		),
 		// Client ID
 		'clientid' => array(
@@ -198,25 +178,19 @@ function gofasgerencianetboleto_config(){
 			'Default' => 'yes',
 			'Description' => 'Marque essa opção para utilizar a API Gerencianet em modo "Desenvolvimento" (modo de testes). <a style="text-decoration: underline;" href="https://sistema.gerencianet.com.br/api/introducao" target="_blank">Painel da API</a>.',
 		),
-		// Debug?
-		'debug' => array(
-			'FriendlyName' => $opt_num++.'- Modo Diagnóstico / <i>Debug</i>',
-			'Type' => 'yesno',
-			'Description' => '<span class="ggnb_optional_txt">(Opcional)</span> <span class="ggnb_required_txt">Cuidado</span>, marque essa opção para exibir na Fatura os dados gerados pela API Gerencianet e a API interna do WHMCS.<br/>Use essa funcionalidade apenas para diagnosticar erros. <a title="↗ Gofas.net" style="text-decoration:underline;" target="_blank" href="https://gofas.net/?p=7899">Tutorial para identificar e corrigir erros</a>.</b>',
-		),
-		// Add payments via cron
-		'croncallback' => array(
-			'FriendlyName' => $opt_num++.'- Baixa via cron',
-			'Type' => 'yesno',
-			'Default' => 'yes',
-			'Description' => '<span class="ggnb_optional_txt">(Opcional)</span> Verifica o status dos boletos cada vez que o cron do WHMCS roda e da baixa nas faturas pagas automaticamente. A baixa via notificação de pagamentos (callback) será desativada.',
-		),
 		// Log
 		'log' => array(
 			'FriendlyName' => $opt_num++.'- Salvar Logs',
 			'Type' => 'yesno',
 			'Default' => 'no',
 			'Description' => 'Salva informações de diagnóstico em <a target="_blank" style="text-decoration: underline;" href="'.$ggnbwhmcsadminurl.'systemmodulelog.php">Utilitários > Logs > Log de Módulo</a>. Para funcionar, antes é necessário ativar o debug de módulo clicando em "Ativar Log de Debug". <a target="_blank" style="text-decoration: underline;" href="'.$ggnbwhmcsadminurl.'systemmodulelog.php">VER LOG</a>.',
+		),
+		// Add payments via cron
+		'croncallback' => array(
+			'FriendlyName' => $opt_num++.'- Confirmação de pagamento via cron',
+			'Type' => 'yesno',
+			'Default' => 'yes',
+			'Description' => '<span class="ggnb_optional_txt">(Opcional)</span> Verifica o status dos boletos cada vez que o cron diário do WHMCS roda e dá baixa nas faturas pagas automaticamente. A confirmação de pagamento via notificação (callback) continua funcionando com essa opção ativada ou não.',
 		),
 		// Tarifas
 		'fee' => array(

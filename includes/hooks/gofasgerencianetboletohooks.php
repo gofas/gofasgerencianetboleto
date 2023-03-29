@@ -6,16 +6,30 @@
  * @copyright	2016 / 2020 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.7.0
+ * @version		3.8.0
  */
 use WHMCS\Database\Capsule;
-add_hook("AfterCronJob",1,"ggnb_check_status_updates");
+add_hook("DailyCronJob",1,"ggnb_check_status_updates");
 if(!function_exists('ggnb_check_status_updates')){
 	function ggnb_check_status_updates($vars){
 		require_once __DIR__.'/../../modules/gateways/gofasgerencianetboleto/includes/functions.php';
 		$params = getGatewayVariables('gofasgerencianetboleto');
 		if(!$params['croncallback']){
 			return;
+		}
+		if( $params['sandbox'] ){
+			$sandbox		= true;
+			$client_id		= $params['clientidsandbox'];
+			$client_secret	= $params['clientsecretsandbox'];
+			$api_mode		= 'sandbox';
+			$api_url		= 'https://sandbox.gerencianet.com.br/v1/';
+		}
+		elseif( !$params['sandbox'] ){
+			$sandbox		= false;
+			$client_id		= $params['clientid'];
+			$client_secret	= $params['clientsecret'];
+			$api_mode		= 'live';
+			$api_url		= 'https://api.gerencianet.com.br/v1/';
 		}
 		//$params_api = ggnb_api_connect();
 		// Get Billets
@@ -25,23 +39,8 @@ if(!function_exists('ggnb_check_status_updates')){
 			$boleto = array();
 			$invoices = array();
 			// Unpaid invoices IDs
-			foreach( Capsule::table('tblinvoices') -> where( 'status', '=', 'Unpaid' ) -> where('paymentmethod','=','gofasgerencianetboleto')->get() as $tblinvoices){
-				foreach( Capsule::table('gofasgerencianetboleto') -> where( 'invoice_id', '=', $tblinvoices->id )-> get( array( 'charge_id' ) ) as $local_boleto ) {
-					
-					if( $params['sandbox'] ){
-						$sandbox		= true;
-						$client_id		= $params['clientidsandbox'];
-						$client_secret	= $params['clientsecretsandbox'];
-						$api_mode		= 'sandbox';
-						$api_url		= 'https://sandbox.gerencianet.com.br/v1/';
-					}
-					elseif( !$params['sandbox'] ){
-						$sandbox		= false;
-						$client_id		= $params['clientid'];
-						$client_secret	= $params['clientsecret'];
-						$api_mode		= 'live';
-						$api_url		= 'https://api.gerencianet.com.br/v1/';
-					}
+			foreach( Capsule::table('tblinvoices') -> where( 'status','=','Unpaid' )->where('paymentmethod','=','gofasgerencianetboleto')->get() as $tblinvoices){
+				foreach( Capsule::table('gofasgerencianetboleto')->where('invoice_id','=',$tblinvoices->id)->where('api_mode','=',$api_mode)->get(['charge_id']) as $local_boleto ){
 					$access_token_ = ggnb_get_token($api_url,$client_id,$client_secret);
 					if($access_token_['access_token']){
 						$access_token = $access_token_['access_token'];
@@ -66,6 +65,9 @@ if(!function_exists('ggnb_check_status_updates')){
 							'fee'=>$params['fee'],
 						];
 					}
+					if($boleto['result']['data']['status'] === 'unpaid' || $boleto['result']['data']['status'] === 'canceled') {
+						$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('invoice_id', '=',$tblinvoices->id)->delete();
+					}
 				} // End Foreach
 			} // End Foreach
 			// Add Payments
@@ -74,24 +76,25 @@ if(!function_exists('ggnb_check_status_updates')){
 					$log['invoice_value'][$value['invoice_id']] = $value;
 					$log['invoice_id'][$value['invoice_id']] = $value['invoice_id'];
 					if ( (float)$value['paid_amount'] > (float)$value['total'] ) {
-						$update_invoice = localAPI('updateinvoice', array( 'invoiceid' => $value['invoice_id'], 'newitemdescription' => array('Acréscimos calculados na emissão do Boleto'),'newitemamount' => array((float)($value['paid_amount'] - $value['total']))), $params['admin'] );
+						$update_invoice = localAPI('updateinvoice', array( 'invoiceid' => $value['invoice_id'], 'newitemdescription' => array('Acréscimos calculados na emissão do Boleto'),'newitemamount' => array((float)($value['paid_amount'] - $value['total']))), (int)ggnb_setup_admin()['id'] );
 					}
 					// - Billet amount is less than the invoice amount
 					if ( (float)$value['paid_amount'] < (float)$value['total'] ) {
-						$update_invoice = localAPI('updateinvoice', array( 'invoiceid' => $value['invoice_id'], 'newitemdescription' => array('Descontos calculados na emissão do Boleto'),'newitemamount' => array((float)($value['paid_amount'] - $value['total']))), $params['admin'] );
+						$update_invoice = localAPI('updateinvoice', array( 'invoiceid' => $value['invoice_id'], 'newitemdescription' => array('Descontos calculados na emissão do Boleto'),'newitemamount' => array((float)($value['paid_amount'] - $value['total']))), (int)ggnb_setup_admin()['id'] );
 					}
 					$add_trans = localAPI( 'addtransaction' ,
 						[
 							'userid'=>$value['user_id'],
 							'invoiceid'=>$value['invoice_id'],
-							'description'=>'Boleto pago - baixa dada via cron job',
+							'description'=>'Boleto pago - confirmação via cron job',
 							'amountin'=>$value['paid_amount'],
 							'fees'=>$value['fee'],
 							'paymentmethod'=>'gofasgerencianetboleto',
-							'transid'=>'ggnb-'.$value['trans_id'].'-'.$api_mode,
+							'transid'=>'ggnb-'.$api_mode.'-'.$value['trans_id'],
 						],
-						$params['admin']
+						(int)ggnb_setup_admin()['id']
 					);
+					$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('invoice_id', '=',$value['invoice_id'])->delete();
 					$ggnb_update_stats = ggnb_update_stats();
 					$update_invoice_log[$value['invoice_id']]=$update_invoice;
 					$add_trans_log[$value['invoice_id']]=$add_trans;
@@ -126,7 +129,7 @@ add_hook('EmailPreSend',1, function($vars){
 		$vars['messagename'] === 'Third Invoice Overdue Notice') and ($params['billetonemail'])
 	){
 		$ggnb_merge_fields	= array();
-		$invoice			= localAPI( 'GetInvoice', array('invoiceid' => $vars['relid']), (int)$params['admin']);
+		$invoice			= localAPI( 'GetInvoice', array('invoiceid' => $vars['relid']), (int)(int)ggnb_setup_admin()['id']);
 		
 		//logModuleCall('gofasgerencianetboleto', 'EmailPreSend', 'invoice', $invoice);
 		
@@ -203,25 +206,15 @@ add_hook('InvoiceCancelled', 1, function($vars){
 			$api_url		= 'https://api.gerencianet.com.br/v1/';
 		}
 	}
-	$invoice	= localAPI('GetInvoice',array( 'invoiceid' => $vars['invoiceid'], ), (int)$params['admin']);	
+	$invoice	= localAPI('GetInvoice',array( 'invoiceid' => $vars['invoiceid'], ), (int)(int)ggnb_setup_admin()['id']);	
 	// Parâmetros das transações associadas à Fatura
-	$trans_idendA				= $invoice['transactions'];
-	if($trans_idendA){
-		$trans_idend			= $trans_idendA['transaction'];
-	}
-	if($trans_idend){
-		$trans_idp				= end( $trans_idend );
-		$trans_id_				= $trans_idp['transid'];
-		// Verifica se a transação pertence ao módulo
-		if( (strpos( $trans_id_, 'ggnb') !== false) and (strpos( $trans_id_, 'unpaid') !== false or strpos( $trans_id_, 'waiting') !== false ) and strpos( $trans_id_, $api_mode) ){
-			$trans_id					= (int)preg_replace('/[^0-9]/', '', $trans_id_ ); // ggnb_waiting_213630
+	foreach( Capsule::table('gofasgerencianetboleto')->where('invoice_id','=',$vars['invoiceid'])->where('api_mode','=',$api_mode)->get(['charge_id']) as $charge_id_local){
+		if($charge_id_local->charge_id){
+			$trans_id = $charge_id_local->charge_id;
 		}
 		else {
-			$trans_id				= false;
+			$trans_id = false;
 		}
-	}
-	else {
-		$trans_id				= false;
 	}
 	if($trans_id){
 		$access_token_ = ggnb_get_token($api_url,$client_id,$client_secret);
@@ -236,8 +229,8 @@ add_hook('InvoiceCancelled', 1, function($vars){
 			//$id = array('id' => (int)$trans_id);
 			$cancel_charge = ggnb_cancel_charge($api_url,$access_token,$trans_id);
 			
-			if($cancel_charge['result'] === (string)'success'){
-				$UpdateTransaction = localAPI('UpdateTransaction', array('transactionid' => $trans_idp['id'], 'transid' => 'ggnb_'.$api_mode.'_canceled-'.$trans_id, ), (int)$params['admin']);
+			if((string)$cancel_charge['result'] === (string)'success'){
+				$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('charge_id', '=',$trans_id)->delete();
 				logModuleCall('gofasgerencianetboleto','cancel_transaction',array('Sucesso:'=>$cancel_charge), $access_token_ );
 			}
 			else {
