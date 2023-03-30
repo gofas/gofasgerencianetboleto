@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.8.0...HEAD)
+
+**Closed issues:**
+
+- Corrigido erro "call to undefined function" ao inserir mergetags de email [\#157](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/157)
+
 ## [v3.8.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.8.0) (29/03/2023)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.7.0...v3.8.0)
