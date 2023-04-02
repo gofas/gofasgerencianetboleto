@@ -4,9 +4,27 @@
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.8.0...HEAD)
 
+**Implemented enhancements:**
+
+- Diretório raíz do WHMCS agora é obtido via banco de dados a consultando o diretório do template ativo \(para casos onde localizações relativas podem falhar\) [\#165](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/165)
+- Nova opção: Máximo de verificações por requisição. Cria fila de processamento para executar a verificação de transações a fim de evitar sobrecarga e bloqueios da API [\#162](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/162)
+- Simplificar verificações if/else no script [\#47](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/47)
+- Hook: Alterar a data de vencimento do boleto, ao alterar a data de vencimento da fatura [\#37](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/37)
+- Hook: Atualizar boleto ao enviar lembretes de fatura em aberto [\#26](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/26)
+- Salvar apenas um boleto por fatura no DB [\#16](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/16)
+
+**Fixed bugs:**
+
+- Prevenção de erros [\#72](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/72)
+
 **Closed issues:**
 
+- Nova opção: Horário da verificação. A hora do dia em que o módulo deve verificar o status de pagamento dos boletos associados às faturas não pagas [\#161](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/161)
+- Compatibilidade com php 7.1 e 8.4 no mesmo módulo [\#160](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/160)
+- Redução e unificação de arquivos e pastas do módulo [\#159](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/159)
+- Adicionada a capacidade de carregar configurações e parâmetros personalizados [\#158](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/158)
 - Corrigido erro "call to undefined function" ao inserir mergetags de email [\#157](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/157)
+- Melhorar cabeçalho padrão de comentários [\#129](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/129)
 
 ## [v3.8.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.8.0) (29/03/2023)
 
