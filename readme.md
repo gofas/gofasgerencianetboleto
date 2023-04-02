@@ -6,7 +6,7 @@
 
 **Implemented enhancements:**
 
-- Diretório raíz do WHMCS agora é obtido via banco de dados a consultando o diretório do template ativo \(para casos onde localizações relativas podem falhar\) [\#165](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/165)
+- Diretório raíz do WHMCS agora é obtido via banco de dados consultando o diretório do template ativo \(para casos onde localizações relativas podem falhar\) [\#165](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/165)
 - Nova opção: Máximo de verificações por requisição. Cria fila de processamento para executar a verificação de transações a fim de evitar sobrecarga e bloqueios da API [\#162](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/162)
 - Simplificar verificações if/else no script [\#47](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/47)
 - Hook: Alterar a data de vencimento do boleto, ao alterar a data de vencimento da fatura [\#37](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/37)
