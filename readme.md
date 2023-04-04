@@ -13,17 +13,13 @@
 - Hook: Atualizar boleto ao enviar lembretes de fatura em aberto [\#26](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/26)
 - Salvar apenas um boleto por fatura no DB [\#16](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/16)
 
-**Fixed bugs:**
-
-- Prevenção de erros [\#72](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/72)
-
 **Closed issues:**
 
 - Adicionado o botão "Verificar atualizações" nas configurações que reseta a informação local e verifica a versão do módulo mais recente disponível [\#164](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/164)
 - Exibe nas configurações data e hora da última verificação de versão  [\#163](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/163)
 - Nova opção: Horário da verificação. A hora do dia em que o módulo deve verificar o status de pagamento dos boletos associados às faturas não pagas [\#161](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/161)
 - Redução e unificação de arquivos e pastas do módulo [\#159](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/159)
-- Adicionada a capacidade de carregar configurações e parâmetros personalizados [\#158](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/158)
+- Ampliada a função de carregar configurações e parâmetros personalizados [\#158](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/158)
 - Corrigido erro "call to undefined function" ao inserir mergetags de email [\#157](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/157)
 - Melhorar cabeçalho padrão de comentários [\#129](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/129)
 
