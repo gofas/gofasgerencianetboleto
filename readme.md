@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+## [v3.9.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.0) (04/04/2023)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.8.0...HEAD)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.8.0...v3.9.0)
 
 **Implemented enhancements:**
 
@@ -10,7 +10,6 @@
 - Adicionado o botão "Verificar atualizações" nas configurações que reseta a informação local e verifica a versão do módulo mais recente disponível [\#164](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/164)
 - Nova opção: Máximo de verificações por requisição. Cria fila de processamento para executar a verificação de transações a fim de evitar sobrecarga e bloqueios da API [\#162](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/162)
 - Nova opção: Horário da verificação. A hora do dia em que o módulo deve verificar o status de pagamento dos boletos associados às faturas não pagas [\#161](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/161)
-- Simplificar verificações if/else no script [\#47](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/47)
 - Hook: Alterar a data de vencimento do boleto, ao alterar a data de vencimento da fatura [\#37](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/37)
 - Hook: Atualizar boleto ao enviar lembretes de fatura em aberto [\#26](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/26)
 - Salvar apenas um boleto por fatura no DB [\#16](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/16)
@@ -98,7 +97,7 @@
 
 ## [v2.3.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.3.0) (12/02/2021)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.0...v2.3.0)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.1...v2.3.0)
 
 **Implemented enhancements:**
 
@@ -111,17 +110,6 @@
 - Obter sempre o boleto mais recente gerado por cada fatura. [\#20](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/20)
 - A data do vencimento deve ser maior que a data atual [\#15](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/15)
 
-## [v2.2.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.0) (12/02/2021)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.1...v2.2.0)
-
-**Implemented enhancements:**
-
-- Opção Customizada: Desativar criação do boleto ao gerar a fatura para IDs de grupos de produtos [\#42](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/42)
-- Possibilitar a inclusão de configurações customizadas que alteram as variáveis [\#34](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/34)
-- Adicionar Link PDF à tag {$ggnb\_billet\_info} [\#33](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/33)
-- Editar fatura no callback para abater desconto do módulo [\#32](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/32)
-
 ## [v2.2.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.1) (12/02/2021)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.2...v2.2.1)
@@ -133,7 +121,7 @@
 
 ## [v2.2.2](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.2) (12/02/2021)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.2.1...v2.2.2)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.0...v2.2.2)
 
 **Implemented enhancements:**
 
@@ -144,15 +132,16 @@
 - Corrigir numeração das opções [\#27](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/27)
 - Evitar redeclarar funções [\#21](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/21)
 
-## [v3.2.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.2.1) (12/02/2021)
+## [v2.2.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.0) (12/02/2021)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.0...v3.2.1)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.0...v2.2.0)
 
-**Fixed bugs:**
+**Implemented enhancements:**
 
-- Verificar Boletos gerados por faturas mescladas [\#87](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/87)
-- Verificar Boletos gerados por faturas referentes a upgrade [\#11](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/11)
-- melhoria na criação de boletos e inclusão dos dados nas faturas criadas ao rodar o cron [\#2](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/2)
+- Opção Customizada: Desativar criação do boleto ao gerar a fatura para IDs de grupos de produtos [\#42](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/42)
+- Possibilitar a inclusão de configurações customizadas que alteram as variáveis [\#34](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/34)
+- Adicionar Link PDF à tag {$ggnb\_billet\_info} [\#33](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/33)
+- Editar fatura no callback para abater desconto do módulo [\#32](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/32)
 
 ## [v3.0.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.0.0) (12/02/2021)
 
@@ -164,7 +153,7 @@
 
 ## [v3.2.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.2.0) (12/02/2021)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.1.0...v3.2.0)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.2.1...v3.2.0)
 
 **Implemented enhancements:**
 
@@ -172,6 +161,16 @@
 - administrador do WHMCS [\#6](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/6)
 - roda Hooks sem addon [\#4](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/4)
 - Descontinuado e removido do download o módulo addon [\#3](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/3)
+
+## [v3.2.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.2.1) (12/02/2021)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.1.0...v3.2.1)
+
+**Fixed bugs:**
+
+- Verificar Boletos gerados por faturas mescladas [\#87](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/87)
+- Verificar Boletos gerados por faturas referentes a upgrade [\#11](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/11)
+- melhoria na criação de boletos e inclusão dos dados nas faturas criadas ao rodar o cron [\#2](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/2)
 
 ## [v2.1.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.1.0) (12/02/2021)
 
