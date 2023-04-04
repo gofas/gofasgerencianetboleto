@@ -1,13 +1,21 @@
 <?php
 /**
- * Módulo Gerencinet Boleto para WHMCS
- * @author		Mauricio Gofas
+ * Módulo EFÍ Boleto para WHMCS
+ * @author		Gofas Software
  * @see			https://gofas.net/?p=7893
- * @copyright	2016 / 2020 Gofas Software
+ * @copyright	2016 -> 2023 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.5.0
+ * @version		3.9.0
  */
+
+/**
+ * Variáveis definidas nesse arquivo são carregadas antes da execução do módulo
+ * Variáveis previamente definidas pelo módulo terão os valores substituídos pelo
+ * valor das variáveis com o mesmo nome definidas nesse arquivo  
+*/
+
+// Exemplo de divisão dos pagamentos via marketplace:
 foreach($ItEm as $key => $value){
 	$custom_items[] =
         array('name'=>substr(str_replace(array("\n", "\r","=>"),

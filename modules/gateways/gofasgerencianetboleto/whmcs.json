@@ -1,0 +1,23 @@
+{
+  "schema": "1.0",
+  "type": "whmcs-gateways",
+  "name": "gofasgerencianetboleto",
+  "license": "proprietary",
+  "category": "payments",
+  "description": {
+    "name": "Gofas EFÍ Boleto",
+    "tagline": "Gerencianet agora é EFÍ! O nome mudou mas esse continua sendo o módulo mais completo do mercado para emissão de boleto bancário via WHMCS."
+  },
+  "logo": {
+    "filename": "whmcs.png"
+  },
+  "support": {
+    "docs_url": "https:\/\/gofas.net\/ggnb"
+  },
+  "authors": [
+    {
+      "name": "Gofas Software",
+      "homepage": "https:\/\/gofas.net\/"
+    }
+  ]
+}
