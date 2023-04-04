@@ -22,7 +22,6 @@
 - Adicionado o botão "Verificar atualizações" nas configurações que reseta a informação local e verifica a versão do módulo mais recente disponível [\#164](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/164)
 - Exibe nas configurações data e hora da última verificação de versão  [\#163](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/163)
 - Nova opção: Horário da verificação. A hora do dia em que o módulo deve verificar o status de pagamento dos boletos associados às faturas não pagas [\#161](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/161)
-- Compatibilidade com php 7.1 e 8.4 no mesmo módulo [\#160](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/160)
 - Redução e unificação de arquivos e pastas do módulo [\#159](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/159)
 - Adicionada a capacidade de carregar configurações e parâmetros personalizados [\#158](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/158)
 - Corrigido erro "call to undefined function" ao inserir mergetags de email [\#157](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/157)
