@@ -7,7 +7,9 @@
 **Implemented enhancements:**
 
 - Diretório raíz do WHMCS agora é obtido via banco de dados consultando o diretório do template ativo \(para casos onde localizações relativas podem falhar\) [\#165](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/165)
+- Adicionado o botão "Verificar atualizações" nas configurações que reseta a informação local e verifica a versão do módulo mais recente disponível [\#164](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/164)
 - Nova opção: Máximo de verificações por requisição. Cria fila de processamento para executar a verificação de transações a fim de evitar sobrecarga e bloqueios da API [\#162](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/162)
+- Nova opção: Horário da verificação. A hora do dia em que o módulo deve verificar o status de pagamento dos boletos associados às faturas não pagas [\#161](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/161)
 - Simplificar verificações if/else no script [\#47](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/47)
 - Hook: Alterar a data de vencimento do boleto, ao alterar a data de vencimento da fatura [\#37](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/37)
 - Hook: Atualizar boleto ao enviar lembretes de fatura em aberto [\#26](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/26)
@@ -15,9 +17,7 @@
 
 **Closed issues:**
 
-- Adicionado o botão "Verificar atualizações" nas configurações que reseta a informação local e verifica a versão do módulo mais recente disponível [\#164](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/164)
 - Exibe nas configurações data e hora da última verificação de versão  [\#163](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/163)
-- Nova opção: Horário da verificação. A hora do dia em que o módulo deve verificar o status de pagamento dos boletos associados às faturas não pagas [\#161](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/161)
 - Redução e unificação de arquivos e pastas do módulo [\#159](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/159)
 - Ampliada a função de carregar configurações e parâmetros personalizados [\#158](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/158)
 - Corrigido erro "call to undefined function" ao inserir mergetags de email [\#157](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/157)
