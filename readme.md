@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+## [v3.9.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.1) (05/04/2023)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.0...HEAD)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.0...v3.9.1)
 
 **Closed issues:**
 
@@ -95,13 +95,30 @@
 
 ## [v3.3.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.3.0) (13/02/2021)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.3.0...v3.3.0)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.0...v3.3.0)
 
 **Implemented enhancements:**
 
 - Definir user\_agent nas verificação de versão - evita bloqueio de acesso do firewall [\#133](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/133)
 - Criar versão do módulo com valor da licença fixo / mês [\#130](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/130)
 - Simplificar logs e debug [\#18](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/18)
+
+## [v3.0.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.0.0) (12/02/2021)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.2...v3.0.0)
+
+## [v2.2.2](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.2) (12/02/2021)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.3.0...v2.2.2)
+
+**Implemented enhancements:**
+
+- Configuração "Administrador do WHMCS" não é mais requerida para versões do WHMCS maiores que 7.2 [\#23](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/23)
+
+**Fixed bugs:**
+
+- Corrigir numeração das opções [\#27](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/27)
+- Evitar redeclarar funções [\#21](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/21)
 
 ## [v2.3.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.3.0) (12/02/2021)
 
@@ -120,40 +137,12 @@
 
 ## [v2.2.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.1) (12/02/2021)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.2...v2.2.1)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.1...v2.2.1)
 
 **Implemented enhancements:**
 
 - campo no modulo informando a versao instalada e qual versao atual disponivel [\#99](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/99)
 - Melhoria na inclusão de configurações personalizadas [\#30](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/30)
-
-## [v2.2.2](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.2) (12/02/2021)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.0...v2.2.2)
-
-**Implemented enhancements:**
-
-- Configuração "Administrador do WHMCS" não é mais requerida para versões do WHMCS maiores que 7.2 [\#23](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/23)
-
-**Fixed bugs:**
-
-- Corrigir numeração das opções [\#27](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/27)
-- Evitar redeclarar funções [\#21](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/21)
-
-## [v2.2.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.0) (12/02/2021)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.0...v2.2.0)
-
-**Implemented enhancements:**
-
-- Opção Customizada: Desativar criação do boleto ao gerar a fatura para IDs de grupos de produtos [\#42](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/42)
-- Possibilitar a inclusão de configurações customizadas que alteram as variáveis [\#34](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/34)
-- Adicionar Link PDF à tag {$ggnb\_billet\_info} [\#33](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/33)
-- Editar fatura no callback para abater desconto do módulo [\#32](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/32)
-
-## [v3.0.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.0.0) (12/02/2021)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.1...v3.0.0)
 
 ## [v3.0.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.0.1) (12/02/2021)
 
@@ -172,13 +161,24 @@
 
 ## [v3.2.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.2.1) (12/02/2021)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.1.0...v3.2.1)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.0...v3.2.1)
 
 **Fixed bugs:**
 
 - Verificar Boletos gerados por faturas mescladas [\#87](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/87)
 - Verificar Boletos gerados por faturas referentes a upgrade [\#11](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/11)
 - melhoria na criação de boletos e inclusão dos dados nas faturas criadas ao rodar o cron [\#2](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/2)
+
+## [v2.2.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.0) (12/02/2021)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.1.0...v2.2.0)
+
+**Implemented enhancements:**
+
+- Opção Customizada: Desativar criação do boleto ao gerar a fatura para IDs de grupos de produtos [\#42](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/42)
+- Possibilitar a inclusão de configurações customizadas que alteram as variáveis [\#34](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/34)
+- Adicionar Link PDF à tag {$ggnb\_billet\_info} [\#33](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/33)
+- Editar fatura no callback para abater desconto do módulo [\#32](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/32)
 
 ## [v2.1.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.1.0) (12/02/2021)
 
