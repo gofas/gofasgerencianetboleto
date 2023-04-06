@@ -1,6 +1,6 @@
 # Changelog
 
-## [v3.9.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.1) (05/04/2023)
+## [v3.9.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.1) (06/04/2023)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.0...v3.9.1)
 
