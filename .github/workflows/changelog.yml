@@ -1,7 +1,7 @@
 name: Auto generate changelog
 on:
   release:
-    types: [published, updated]
+    types: [published]
   issues:
     types: [closed, edited]
 jobs:
