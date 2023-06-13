@@ -6,6 +6,7 @@
 
 **Fixed bugs:**
 
+- Corrigido a versão do módulo exibida na tela de configuração [\#170](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/170)
 - Evita erro getGatewayVariables not defined na área do cliente [\#169](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/169)
 
 ## [v3.9.2](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.2) (20/05/2023)
