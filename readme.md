@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.2...HEAD)
+
+**Fixed bugs:**
+
+- Evita erro getGatewayVariables not defined na área do cliente [\#169](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/169)
+
 ## [v3.9.2](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.2) (20/05/2023)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.1...v3.9.2)
