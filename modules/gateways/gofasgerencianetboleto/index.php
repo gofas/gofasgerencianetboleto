@@ -2597,7 +2597,6 @@ if(!function_exists('ggnb_check_status_updates')){
 }
 add_hook("AfterCronJob",1,"ggnb_check_status_updates");
 add_hook('EmailPreSend',1, function($vars){
-	$params = getGatewayVariables('gofasgerencianetboleto');
 	if(
 		  ($vars['messagename'] === 'Invoice Created' ||
 		  $vars['messagename'] === 'Invoice Payment Reminder' ||
@@ -2605,6 +2604,7 @@ add_hook('EmailPreSend',1, function($vars){
 		  $vars['messagename'] === 'Second Invoice Overdue Notice' ||
 		  $vars['messagename'] === 'Third Invoice Overdue Notice') and ($params['billetonemail'])
 	){
+		$params = getGatewayVariables('gofasgerencianetboleto');
 		  $ggnb_merge_fields	= array();
 		  $invoice			= localAPI( 'GetInvoice', array('invoiceid' => $vars['relid']), ggnb_setup_admin('id'));
 		  
