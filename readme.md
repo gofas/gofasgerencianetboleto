@@ -1,5 +1,14 @@
 # Changelog
 
+## [v3.9.3](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.3) (13/06/2023)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.2...v3.9.3)
+
+**Fixed bugs:**
+
+- Corrigido a versão do módulo exibida na tela de configuração [\#170](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/170)
+- Evita erro getGatewayVariables not defined na área do cliente [\#169](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/169)
+
 ## [v3.9.2](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.2) (20/05/2023)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.1...v3.9.2)
@@ -104,7 +113,7 @@
 
 ## [v3.3.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.3.0) (13/02/2021)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.0...v3.3.0)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.1...v3.3.0)
 
 **Implemented enhancements:**
 
@@ -112,13 +121,17 @@
 - Criar versão do módulo com valor da licença fixo / mês [\#130](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/130)
 - Simplificar logs e debug [\#18](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/18)
 
+## [v3.0.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.0.1) (12/02/2021)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.0...v3.0.1)
+
 ## [v3.0.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.0.0) (12/02/2021)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.3.0...v3.0.0)
 
 ## [v2.3.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.3.0) (12/02/2021)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.2...v2.3.0)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.2.0...v2.3.0)
 
 **Implemented enhancements:**
 
@@ -130,23 +143,6 @@
 - Melhorar tratamento de erros [\#22](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/22)
 - Obter sempre o boleto mais recente gerado por cada fatura. [\#20](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/20)
 - A data do vencimento deve ser maior que a data atual [\#15](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/15)
-
-## [v2.2.2](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.2) (12/02/2021)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.1...v2.2.2)
-
-**Implemented enhancements:**
-
-- Configuração "Administrador do WHMCS" não é mais requerida para versões do WHMCS maiores que 7.2 [\#23](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/23)
-
-**Fixed bugs:**
-
-- Corrigir numeração das opções [\#27](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/27)
-- Evitar redeclarar funções [\#21](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/21)
-
-## [v3.0.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.0.1) (12/02/2021)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.2.0...v3.0.1)
 
 ## [v3.2.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.2.0) (12/02/2021)
 
@@ -161,13 +157,26 @@
 
 ## [v3.2.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.2.1) (12/02/2021)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.1...v3.2.1)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.2...v3.2.1)
 
 **Fixed bugs:**
 
 - Verificar Boletos gerados por faturas mescladas [\#87](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/87)
 - Verificar Boletos gerados por faturas referentes a upgrade [\#11](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/11)
 - melhoria na criação de boletos e inclusão dos dados nas faturas criadas ao rodar o cron [\#2](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/2)
+
+## [v2.2.2](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.2) (12/02/2021)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.1...v2.2.2)
+
+**Implemented enhancements:**
+
+- Configuração "Administrador do WHMCS" não é mais requerida para versões do WHMCS maiores que 7.2 [\#23](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/23)
+
+**Fixed bugs:**
+
+- Corrigir numeração das opções [\#27](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/27)
+- Evitar redeclarar funções [\#21](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/21)
 
 ## [v2.2.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.1) (12/02/2021)
 
