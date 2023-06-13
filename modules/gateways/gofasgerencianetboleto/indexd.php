@@ -7,7 +7,7 @@
  * @copyright	2016 -> 2023 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.9.2
+ * @version		3.9.3
  */
 use WHMCS\Aplication;
 use WHMCS\Database\Capsule;
@@ -625,7 +625,7 @@ if(!function_exists('ggnb_reset_local_version')){
  */
  if(!function_exists('gofasgerencianetboleto_config')){
 	function gofasgerencianetboleto_config(){
-		$module_version = '3.9.2';
+		$module_version = '3.9.3';
 		$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
 		$module_page	= '7893';
 		$verify_install = ggnb_verifyInstall();
@@ -2590,14 +2590,13 @@ if(!function_exists('ggnb_check_status_updates')){
 		$log['update_invoice'] = $update_invoice;
 		$log['add_trans'] = $add_trans;
 		if($params['log']){
-			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.9.1','params'=>$params),'',array($log) );
+			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.9.3','params'=>$params),'',array($log) );
 		}
 		return;  
 	}
 }
 add_hook("AfterCronJob",1,"ggnb_check_status_updates");
 add_hook('EmailPreSend',1, function($vars){
-	$params = getGatewayVariables('gofasgerencianetboleto');
 	if(
 		  ($vars['messagename'] === 'Invoice Created' ||
 		  $vars['messagename'] === 'Invoice Payment Reminder' ||
@@ -2605,6 +2604,7 @@ add_hook('EmailPreSend',1, function($vars){
 		  $vars['messagename'] === 'Second Invoice Overdue Notice' ||
 		  $vars['messagename'] === 'Third Invoice Overdue Notice') and ($params['billetonemail'])
 	){
+		$params = getGatewayVariables('gofasgerencianetboleto');
 		  $ggnb_merge_fields	= array();
 		  $invoice			= localAPI( 'GetInvoice', array('invoiceid' => $vars['relid']), ggnb_setup_admin('id'));
 		  
