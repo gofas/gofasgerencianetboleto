@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.3...HEAD)
+
+**Fixed bugs:**
+
+- Previne falha ao invocar arquivos essesnciais do WHMCS 8.7.\* [\#172](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/172)
+
 ## [v3.9.3](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.3) (13/06/2023)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.2...v3.9.3)
