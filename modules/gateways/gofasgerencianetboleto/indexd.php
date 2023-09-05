@@ -7,7 +7,7 @@
  * @copyright	2016 -> 2023 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.9.3
+ * @version		3.9.4
  */
 use WHMCS\Aplication;
 use WHMCS\Database\Capsule;
@@ -625,7 +625,7 @@ if(!function_exists('ggnb_reset_local_version')){
  */
  if(!function_exists('gofasgerencianetboleto_config')){
 	function gofasgerencianetboleto_config(){
-		$module_version = '3.9.3';
+		$module_version = '3.9.4';
 		$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
 		$module_page	= '7893';
 		$verify_install = ggnb_verifyInstall();
@@ -1651,7 +1651,7 @@ function gofasgerencianetboleto_link($params){
 				$ItEm_discount[] = array('name'=>$Value['description'],'amount'=>1,'value' => (int)($Value['amount'] * 100) );
 			}
 	}
-	if( $invoiceCredit ){
+	if( $invoiceCredit and is_array($ItEm_discount)){
 		$ItEm_discount = array_merge($ItEm_discount, array(array('name' => 'Crédito aplicado à fatura','amount'=>1,'value' => -($invoiceCredit))));
 	}
 	// Cálculo de multa e juros
