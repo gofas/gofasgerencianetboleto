@@ -6,6 +6,7 @@
 
 **Fixed bugs:**
 
+- Corrigido o conflito que impedia a inserção de daods do boleto no email [\#174](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/174)
 - Corrigido o bug que acontecia quando créditos eram a adicionados à faturas mescladas [\#173](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/173)
 - Previne falha ao invocar arquivos essenciais do WHMCS 8.7.\* [\#172](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/172)
 
