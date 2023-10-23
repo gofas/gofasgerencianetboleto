@@ -2597,6 +2597,7 @@ if(!function_exists('ggnb_check_status_updates')){
 }
 add_hook("AfterCronJob",1,"ggnb_check_status_updates");
 add_hook('EmailPreSend',1, function($vars){
+	$params = getGatewayVariables('gofasgerencianetboleto');
 	if(
 		  ($vars['messagename'] === 'Invoice Created' ||
 		  $vars['messagename'] === 'Invoice Payment Reminder' ||
@@ -2604,10 +2605,12 @@ add_hook('EmailPreSend',1, function($vars){
 		  $vars['messagename'] === 'Second Invoice Overdue Notice' ||
 		  $vars['messagename'] === 'Third Invoice Overdue Notice') and ($params['billetonemail'])
 	){
-		$params = getGatewayVariables('gofasgerencianetboleto');
+		
 		  $ggnb_merge_fields	= array();
 		  $invoice			= localAPI( 'GetInvoice', array('invoiceid' => $vars['relid']), ggnb_setup_admin('id'));
-		  
+
+		  logModuleCall('gofasgerencianetboleto', 'EmailPreSend',['vars'=>$vars,'params'=>$params],'',['invoice'=>$invoice]);
+		 
 		  if( (float)$invoice['total'] > (float)'0.00' and $invoice['paymentmethod'] === 'gofasgerencianetboleto'){
 			  // Saved Billets
 			  $billet_saved = array();
@@ -2637,7 +2640,7 @@ add_hook('EmailPreSend',1, function($vars){
 				  $ggnb_merge_fields['ggnb_billet_info']	.= '<br><b><a href="'.$billet_saved['pdf'].'">Visualizar Boleto em PDF</a></b>';
 				  $ggnb_merge_fields['ggnb_billet_info']	.= '<br>------------------------------------------------------';
 				  $ggnb_merge_fields['ggnb_debug'] .= "Debug:\n".(string)json_encode($vars).json_encode($invoice);
-				  logModuleCall('gofasgerencianetboleto', 'EmailPreSend', array('invoice'=>$invoice,'billet_saved'=>$billet_saved),'',array('ggnb_merge_fields'=>$ggnb_merge_fields));
+				  logModuleCall('gofasgerencianetboleto', 'EmailPreSend2', array('invoice'=>$invoice,'billet_saved'=>$billet_saved),'',array('ggnb_merge_fields'=>$ggnb_merge_fields));
 				  return $ggnb_merge_fields;
 			  }
 			  return;
