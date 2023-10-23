@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+## [v3.9.4](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.4) (23/10/2023)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.3...HEAD)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.3...v3.9.4)
 
 **Fixed bugs:**
 
@@ -137,22 +137,7 @@
 
 ## [v3.0.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.0.0) (12/02/2021)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.3.0...v3.0.0)
-
-## [v2.3.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.3.0) (12/02/2021)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.2.0...v2.3.0)
-
-**Implemented enhancements:**
-
-- Substituir SDK Gerencianet e eliminar dependências [\#17](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/17)
-
-**Fixed bugs:**
-
-- Corrigir 404 no URL das imagens no admin antes de salvar as configs [\#24](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/24)
-- Melhorar tratamento de erros [\#22](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/22)
-- Obter sempre o boleto mais recente gerado por cada fatura. [\#20](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/20)
-- A data do vencimento deve ser maior que a data atual [\#15](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/15)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.2.0...v3.0.0)
 
 ## [v3.2.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.2.0) (12/02/2021)
 
@@ -167,13 +152,28 @@
 
 ## [v3.2.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.2.1) (12/02/2021)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.2...v3.2.1)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.3.0...v3.2.1)
 
 **Fixed bugs:**
 
 - Verificar Boletos gerados por faturas mescladas [\#87](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/87)
 - Verificar Boletos gerados por faturas referentes a upgrade [\#11](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/11)
 - melhoria na criação de boletos e inclusão dos dados nas faturas criadas ao rodar o cron [\#2](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/2)
+
+## [v2.3.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.3.0) (12/02/2021)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v2.2.2...v2.3.0)
+
+**Implemented enhancements:**
+
+- Substituir SDK Gerencianet e eliminar dependências [\#17](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/17)
+
+**Fixed bugs:**
+
+- Corrigir 404 no URL das imagens no admin antes de salvar as configs [\#24](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/24)
+- Melhorar tratamento de erros [\#22](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/22)
+- Obter sempre o boleto mais recente gerado por cada fatura. [\#20](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/20)
+- A data do vencimento deve ser maior que a data atual [\#15](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/15)
 
 ## [v2.2.2](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v2.2.2) (12/02/2021)
 
