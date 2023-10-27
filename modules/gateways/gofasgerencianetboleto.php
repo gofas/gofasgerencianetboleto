@@ -1,6 +1,6 @@
 <?php
 /**
- * Módulo EFÍ Boleto para WHMCS
+ * Módulo Efí Boleto para WHMCS
  * @author		Gofas Software
  * @see			https://gofas.net/?p=7893
  * @copyright	2016 -> 2023 Gofas Software

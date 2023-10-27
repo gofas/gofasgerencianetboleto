@@ -1,7 +1,6 @@
 <?php
 /**
- * 
- * Módulo EFÍ Boleto para WHMCS
+ * Módulo Efí Boleto para WHMCS
  * @author		Gofas Software
  * @see			https://gofas.net/?p=7893
  * @copyright	2016 -> 2023 Gofas Software
@@ -301,7 +300,7 @@ if(!function_exists('ggnb_send_error_email')){
 			Detalhes do erro:<br/>
 			<b>Cliente:</b> <a href="'.ggnb_whmcs_url('admin_url').'/clientssummary.php?userid='.$user_id.'">'.$first_name.' '.$last_name.'</a><br/><br/>
 			<b>Erro exibido na Fatura:</b><br/><i>"'.$error.'"</i><br/><br/>
-			Email gerado de acordo com às configurações do gateway <a title="Ir para as configurações do módulo ↗" href="'.ggnb_whmcs_url('admin_url').'/configgateways.php?updated=gofasgerencianetboleto#m_gofasgerencianetboleto">Gofas EFÍ Boleto</a>.<br/><br/>';
+			Email gerado de acordo com às configurações do gateway <a title="Ir para as configurações do módulo ↗" href="'.ggnb_whmcs_url('admin_url').'/configgateways.php?updated=gofasgerencianetboleto#m_gofasgerencianetboleto">Gofas Efí Boleto</a>.<br/><br/>';
 	 	$sendEOEvalues['type'] = 'system';
 	 	$sendEOEvalues['deptid'] = $dept_id;
 	 	$sendEOEresults = @localAPI($sendEmailonError,$sendEOEvalues, ggnb_setup_admin('id'));
@@ -648,14 +647,14 @@ if(!function_exists('ggnb_reset_local_version')){
 			return [
 				'FriendlyName' => [
 					'Type' => 'System',
-					'Value' => 'Gofas EFÍ Boleto',
+					'Value' => 'Gofas Efí Boleto',
 				],
 				'separator_1' => [
 					'Description' => '
 					<div class="ggnb_separator" style="padding: 1px 15px 9px;">
 					'.(string)ggnb_decrypt($check_updates['check']).'
 						<div style="margin-left: 10px;">
-							<h4 style="padding-top: 5px; color: red;">Gofas EFÍ Boleto para WHMCS v'.$module_version.' | requer WHMCS versão 8.6.1 ou superior</h4>
+							<h4 style="padding-top: 5px; color: red;">Gofas Efí Boleto para WHMCS v'.$module_version.' | requer WHMCS versão 8.6.1 ou superior</h4>
 							'.$check_updates['message'].'
 							'.ggnb_file_exists_check('/includes/hooks/gofasgerencianetboleto.php').'
 						</div>
@@ -698,7 +697,7 @@ if(!function_exists('ggnb_reset_local_version')){
 			// Nome de exibição amigável para o gateway
 			'FriendlyName' => array(
 				'Type' => 'System',
-				'Value' => 'Gofas EFÍ Boleto',
+				'Value' => 'Gofas Efí Boleto',
 				'Size' => '40',
 			),
 			/*
@@ -748,12 +747,12 @@ if(!function_exists('ggnb_reset_local_version')){
 				
 				'.ggnb_decrypt($check_updates['check']).'
 					<div style="padding: 10px 10px 20px 10px;">
-						<h4 style="padding-top: 5px;">Módulo EFÍ Boleto para WHMCS v'.$module_version.'</h4>
+						<h4 style="padding-top: 5px;">Módulo Efí Boleto para WHMCS v'.$module_version.'</h4>
 						'.$check_updates['message'].'
 						'.ggnb_file_exists_check('/includes/hooks/gofasgerencianetboleto.php').'
 						<h5>Antes de iniciar a configuração, lembre-se de:</h5>
 						<p>- Criar um <a style="text-decoration:underline;" target="_blank" href="'.$whmcs_url['admin_url'].'configcustomfields.php">campo personalizado de cliente</a> para CPF e/ou CNPJ, ou se preferir, criar dois campos distintos, um campo apenas para CPF e outro campo para CNPJ. O módulo identifica os campos do perfil do cliente automaticamente.</p>
-						<p>- Criar uma Aplicação e obter as credencians <i>Client_ID</i> e <i>Client_Secret</i> da <a style="text-decoration: underline;" target="_blank" href="https://sistema.gerencianet.com.br/api/introducao">API EFÍ</a>. Veja <a style="text-decoration: underline;" target="_blank" href="https://s3.amazonaws.com/uploads.gofas.me/wp-content/uploads/2021/02/07004154/Gerencianet_api.png">aqui</a> onde encontrar.</p>
+						<p>- Criar uma Aplicação e obter as credencians <i>Client_ID</i> e <i>Client_Secret</i> da <a style="text-decoration: underline;" target="_blank" href="https://sistema.gerencianet.com.br/api/introducao">API Efí</a>. Veja <a style="text-decoration: underline;" target="_blank" href="https://s3.amazonaws.com/uploads.gofas.me/wp-content/uploads/2021/02/07004154/Gerencianet_api.png">aqui</a> onde encontrar.</p>
 						<p><a style="text-decoration:underline;" target="_blank" href="https://gofas.net/ggnb/">Documentação do módulo</a>.<br></p>	
 					</div>
 		
@@ -796,7 +795,7 @@ if(!function_exists('ggnb_reset_local_version')){
 				'FriendlyName' => $opt_num++.'- Modo de Testes / Sandbox',
 				'Type' => 'yesno',
 				'Default' => 'yes',
-				'Description' => 'Marque essa opção para utilizar a API EFÍ em modo "Desenvolvimento" (modo de testes). <a style="text-decoration: underline;" href="https://sistema.gerencianet.com.br/api/introducao" target="_blank">Painel da API</a>.',
+				'Description' => 'Marque essa opção para utilizar a API Efí em modo "Desenvolvimento" (modo de testes). <a style="text-decoration: underline;" href="https://sistema.gerencianet.com.br/api/introducao" target="_blank">Painel da API</a>.',
 			),
 			// Log
 			'log' => array(
@@ -809,7 +808,7 @@ if(!function_exists('ggnb_reset_local_version')){
 				'FriendlyName'      => $opt_num++.'- Valor da tarifa por Boleto',
 				'Type'              => 'text',
 				'Size' => '10',
-				'Description'       => '<span class="ggnb_optional_txt">(Opcional)</span> Insira o valor da comissão paga à EFÍ a cada Boleto com pagamento confirmado. Essa informação servirá para calcular e preencher o campo "Taxas" (fee) da lista de transações do WHMCS. Use ponto(.) para separar casas decimais, ex.: 1.5',
+				'Description'       => '<span class="ggnb_optional_txt">(Opcional)</span> Insira o valor da comissão paga à Efí a cada Boleto com pagamento confirmado. Essa informação servirá para calcular e preencher o campo "Taxas" (fee) da lista de transações do WHMCS. Use ponto(.) para separar casas decimais, ex.: 1.5',
 			),
 			'minimunamount' => array(
 				'FriendlyName' => $opt_num++.'- Valor mínimo do Boleto',
@@ -1067,7 +1066,7 @@ if(!function_exists('ggnb_reset_local_version')){
 				<div class="ggnb_separator">
 					<h4>Instruções do Boleto</h4>
 					<p>O texto nas linhas de instrução do Boleto devem ser direcionadas ao caixa do banco, nunca para mensagens direcionadas ao cliente, para essa funcionalidade existe o campo acima "Mensagem ao cliente".</p>
-					<p>As instruções do Boleto configuradas abaixo serão ignoradas e substituídas pelas instruções padrão da API EFÍ, quando multa e/ou juros estiverem ativos.</p>
+					<p>As instruções do Boleto configuradas abaixo serão ignoradas e substituídas pelas instruções padrão da API Efí, quando multa e/ou juros estiverem ativos.</p>
 				</div>',
 			),
 			// Instruções 1
@@ -2652,15 +2651,15 @@ add_hook('EmailPreSend',1, function($vars){
   //Output additional merge fields in the list when editing an email template
   add_hook('EmailTplMergeFields', 1, function($vars){
 	  $ggnb_merge_fields = array();
-	  $ggnb_merge_fields['ggnb_billet_info']	= 'EFÍ: Informações do boleto';
-	  $ggnb_merge_fields['ggnb_link']			= 'EFÍ: Link para o boleto';
-	  $ggnb_merge_fields['ggnb_pdf']			= 'EFÍ: Link para o boleto em PDF';
-	  $ggnb_merge_fields['ggnb_barcode']		= 'EFÍ: Linha digitável do boleto';
-	  $ggnb_merge_fields['ggnb_expire_at']	= 'EFÍ: Vencimento do boleto';
-	  $ggnb_merge_fields['ggnb_total']		= 'EFÍ: Total do boleto';
-	  $ggnb_merge_fields['ggnb_charge_id']	= 'EFÍ: ID da transação';
-	  $ggnb_merge_fields['ggnb_api_mode']		= 'EFÍ: API mode (sandbox ou live)';
-	  $ggnb_merge_fields['ggnb_debug']		= 'EFÍ: Debug nos emails';
+	  $ggnb_merge_fields['ggnb_billet_info']	= 'Efí: Informações do boleto';
+	  $ggnb_merge_fields['ggnb_link']			= 'Efí: Link para o boleto';
+	  $ggnb_merge_fields['ggnb_pdf']			= 'Efí: Link para o boleto em PDF';
+	  $ggnb_merge_fields['ggnb_barcode']		= 'Efí: Linha digitável do boleto';
+	  $ggnb_merge_fields['ggnb_expire_at']	= 'Efí: Vencimento do boleto';
+	  $ggnb_merge_fields['ggnb_total']		= 'Efí: Total do boleto';
+	  $ggnb_merge_fields['ggnb_charge_id']	= 'Efí: ID da transação';
+	  $ggnb_merge_fields['ggnb_api_mode']		= 'Efí: API mode (sandbox ou live)';
+	  $ggnb_merge_fields['ggnb_debug']		= 'Efí: Debug nos emails';
 	  return $ggnb_merge_fields;
   });
   add_hook('InvoiceCancelled', 1, function($vars){
