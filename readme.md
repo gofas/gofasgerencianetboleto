@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.4...HEAD)
+
+**Fixed bugs:**
+
+- Resolvido o erro ao acionar a recuperação de senha no admin [\#175](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/175)
+
 ## [v3.9.4](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.4) (23/10/2023)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.3...v3.9.4)
