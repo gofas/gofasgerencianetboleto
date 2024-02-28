@@ -6,6 +6,7 @@
 
 **Fixed bugs:**
 
+- Evita erro ao disparar emails manualmente em faturas com dados incoerentes [\#176](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/176)
 - Resolvido o erro ao acionar a recuperação de senha no admin [\#175](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/175)
 
 ## [v3.9.4](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.4) (23/10/2023)
