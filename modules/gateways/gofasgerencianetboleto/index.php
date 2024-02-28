@@ -2019,6 +2019,7 @@ function gofasgerencianetboleto_link($params){
 				$error .= $chargeExist_['error'];
 			}
 			if((string)$chargeExistStatus === (string)'paid'){
+				$chargeExistTotal = $chargeExistTotal ?: '0.00';
 				$add_trans = ggnb_add_trans($params['clientdetails']['id'], $params['invoiceid'], (float)number_format( $chargeExistTotal/100,  2, '.', ''), (float)number_format( $params['fee'],  2, '.', ''), 'ggnb-'.$api_mode.'-'.$trans_id, 'Boleto pago - confirmação ao acessar a fatura');
 				header_remove();
 				header("Location: ".$system_url.'/viewinvoice.php?id='.$params['invoiceid'],true,303);
@@ -2596,6 +2597,7 @@ if(!function_exists('ggnb_check_status_updates')){
 }
 add_hook("AfterCronJob",1,"ggnb_check_status_updates");
 add_hook('EmailPreSend',1, function($vars){
+	
 	if(
 		  $vars['messagename'] === 'Invoice Created' ||
 		  $vars['messagename'] === 'Invoice Payment Reminder' ||

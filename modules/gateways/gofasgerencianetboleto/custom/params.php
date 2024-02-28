@@ -6,7 +6,7 @@
  * @copyright	2016 -> 2023 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.9.4
+ * @version		3.9.5
  */
 
 /**
@@ -25,11 +25,11 @@ foreach($ItEm as $key => $value){
             'repasses'=>array(
                 array(
                     'percentage'=> 2500, // porcentagem de repasse (2500 = 25%)
-                    'payee_code'=>'4c640ca051ab239b194ed2609967a831', // Mauricio Gofas
+                    'payee_code'=>'b7ac135895cfb50a2a90cf28fe0d15e0', // Gofas Software
                 ),
                 /* array(
                     'percentage'=> 2500, // porcentagem de repasse (2500 = 25%)
-                    'payee_code'=>'4c640ca051ab239b194ed2609967a831', // Mauricio Gofas
+                    'payee_code'=>'b7ac135895cfb50a2a90cf28fe0d15e0', // Gofas Software
                 ),*/
             )
         ),
