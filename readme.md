@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.5...HEAD)
+
+**Fixed bugs:**
+
+- Corrigido bug que excluía boletos não pagos salvos no db  [\#177](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/177)
+
 ## [v3.9.5](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.5) (28/02/2024)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.4...v3.9.5)
