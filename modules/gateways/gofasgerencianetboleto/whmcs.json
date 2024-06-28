@@ -5,14 +5,27 @@
   "license": "proprietary",
   "category": "payments",
   "description": {
-    "name": "Gofas EFÍ Boleto",
-    "tagline": "Gerencianet agora é EFÍ! O nome mudou mas esse continua sendo o módulo mais completo do mercado para emissão de boleto bancário via WHMCS."
+    "name": "Gofas Efí Boleto",
+    "tagline": "Automatiza a emissão de boleto registrado via WHMCS",
+    "long": "Gerencianet agora é EFÍ! O nome mudou mas esse continua sendo o módulo mais completo do mercado para emissão de boleto bancário via WHMCS.",
+    "features": [
+      "Boletos registrados sem taxas de registro/baixa",
+      "Juros e multas após o vencimento do boleto",
+      "2ª via automática com valor atualizado (cálculo de multa e juros) ao acessar a fatura",
+      "Confirmação automática de pagamento, da baixa nas faturas via notificações de pagamento ou tarefas cron",
+      "Boleto com sua marca: logotipo e informações da sua empresa",
+      "Informações do boleto diretamente na fatura, sobre desconto, taxas, cálculos entre outras informações",
+      "Linha digitável do boleto na fatura, com opção de copiar apenas com um clique",
+      "E mais, muito mais."
+    ]
   },
   "logo": {
     "filename": "whmcs.png"
   },
   "support": {
-    "docs_url": "https:\/\/gofas.net\/ggnb"
+    "homepage": "https:\/\/gofas.net\/gefib",
+    "support_url": "https:\/\/gofas.net\/?p=7856",
+    "docs_url": "https:\/\/gofas.net\/gefib"
   },
   "authors": [
     {

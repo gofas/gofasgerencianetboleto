@@ -6,7 +6,7 @@
  * @copyright	2016 -> 2023 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.9.5
+ * @version		3.9.6
  */
 use WHMCS\Aplication;
 use WHMCS\Database\Capsule;
@@ -624,7 +624,7 @@ if(!function_exists('ggnb_reset_local_version')){
  */
  if(!function_exists('gofasgerencianetboleto_config')){
 	function gofasgerencianetboleto_config(){
-		$module_version = '3.9.5';
+		$module_version = '3.9.6';
 		$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
 		$module_page	= '7893';
 		$verify_install = ggnb_verifyInstall();
@@ -2045,8 +2045,9 @@ function gofasgerencianetboleto_link($params){
 			}
 			if((!$barcode and ($chargeExistID === $trans_id and ($chargeExistStatus === 'canceled' || $chargeExistStatus === 'unpaid'))) or (float)$chargeExistTotal !== (float)$invoice_amount){
 				$cancelCharge = ggnb_cancel_charge($api_url,$access_token,$trans_id);
-				$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('charge_id', '=',$trans_id)->delete();
-				
+				if( $cancelCharge['result'] === 'success'){
+					$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('charge_id', '=',$trans_id)->delete();
+				}
 				$create_charge = ggnb_create_charge($api_url,$access_token,$body); // body
 				$charge_id = $create_charge['result'];
 				if($create_charge['error']){
@@ -2090,7 +2091,7 @@ function gofasgerencianetboleto_link($params){
 					 if($cancelCharge['error']){
 						$error .= $cancelCharge['error'];
 					 }
-					 else{
+					 if( $cancelCharge['result'] === 'success'){
 						$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('charge_id', '=',$trans_id)->delete();
 					 }
 				}
@@ -2557,7 +2558,7 @@ if(!function_exists('ggnb_check_status_updates')){
 							  'fee'=>$params['fee'],
 						  ];
 					  }
-					  if($boleto['result']['data']['status'] === 'unpaid' || $boleto['result']['data']['status'] === 'canceled') {
+					  if($boleto['result']['data']['status'] === 'paid' || $boleto['result']['data']['status'] === 'canceled') {
 						  $delete_qrc = Capsule::table('gofasgerencianetboleto')->where('invoice_id', '=',$tblinvoices->id)->delete();
 					  }
 				  } // End Foreach
@@ -2590,7 +2591,7 @@ if(!function_exists('ggnb_check_status_updates')){
 		$log['update_invoice'] = $update_invoice;
 		$log['add_trans'] = $add_trans;
 		if($params['log']){
-			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.9.5','params'=>$params),'',array($log) );
+			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.9.6','params'=>$params),'',array($log) );
 		}
 		return;  
 	}
