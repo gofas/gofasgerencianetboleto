@@ -1,8 +1,8 @@
 # Changelog
 
-## [v3.9.6](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.6) (25/08/2024)
+## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.5...v3.9.6)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.5...HEAD)
 
 **Fixed bugs:**
 
@@ -150,7 +150,7 @@
 
 ## [v3.2.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.2.0) (12/02/2021)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.2.1...v3.2.0)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.1...v3.2.0)
 
 **Implemented enhancements:**
 
@@ -159,19 +159,19 @@
 - roda Hooks sem addon [\#4](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/4)
 - Descontinuado e removido do download o módulo addon [\#3](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/3)
 
+## [v3.0.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.0.1) (12/02/2021)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.2.1...v3.0.1)
+
 ## [v3.2.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.2.1) (12/02/2021)
 
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.1...v3.2.1)
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.0...v3.2.1)
 
 **Fixed bugs:**
 
 - Verificar Boletos gerados por faturas mescladas [\#87](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/87)
 - Verificar Boletos gerados por faturas referentes a upgrade [\#11](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/11)
 - melhoria na criação de boletos e inclusão dos dados nas faturas criadas ao rodar o cron [\#2](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/2)
-
-## [v3.0.1](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.0.1) (12/02/2021)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.0.0...v3.0.1)
 
 ## [v3.0.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.0.0) (12/02/2021)
 
