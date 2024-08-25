@@ -6,7 +6,7 @@
 
 **Fixed bugs:**
 
-- Corrigido bug que excluía boletos não pagos salvos no db  [\#177](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/177)
+- Corrigido bug que excluía boletos não pagos salvos no db do WHMCS, o que impedia a baixa das respectivas faturas quando os mesmos eram pagos em atraso [\#177](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/177)
 
 ## [v3.9.5](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.5) (28/02/2024)
 
