@@ -8,6 +8,10 @@
 
 - Alteração das rotas-bases da API \(gerencianet.com.br \> efipay.com.br\) [\#178](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/178)
 
+**Fixed bugs:**
+
+- Melhoria na verificação de boletos salvos localmente [\#179](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/179)
+
 ## [v3.9.6](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.6) (25/08/2024)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.5...v3.9.6)
