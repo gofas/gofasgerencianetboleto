@@ -6,7 +6,7 @@
  * @copyright	2016 -> 2023 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.9.6
+ * @version		3.9.7
  */
 use WHMCS\Aplication;
 use WHMCS\Database\Capsule;
@@ -624,7 +624,7 @@ if(!function_exists('ggnb_reset_local_version')){
  */
  if(!function_exists('gofasgerencianetboleto_config')){
 	function gofasgerencianetboleto_config(){
-		$module_version = '3.9.6';
+		$module_version = '3.9.7';
 		$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
 		$module_page	= '7893';
 		$verify_install = ggnb_verifyInstall();
@@ -752,7 +752,7 @@ if(!function_exists('ggnb_reset_local_version')){
 						'.ggnb_file_exists_check('/includes/hooks/gofasgerencianetboleto.php').'
 						<h5>Antes de iniciar a configuração, lembre-se de:</h5>
 						<p>- Criar um <a style="text-decoration:underline;" target="_blank" href="'.$whmcs_url['admin_url'].'configcustomfields.php">campo personalizado de cliente</a> para CPF e/ou CNPJ, ou se preferir, criar dois campos distintos, um campo apenas para CPF e outro campo para CNPJ. O módulo identifica os campos do perfil do cliente automaticamente.</p>
-						<p>- Criar uma Aplicação e obter as credencians <i>Client_ID</i> e <i>Client_Secret</i> da <a style="text-decoration: underline;" target="_blank" href="https://sistema.gerencianet.com.br/api/introducao">API Efí</a>. Veja <a style="text-decoration: underline;" target="_blank" href="https://s3.amazonaws.com/uploads.gofas.me/wp-content/uploads/2021/02/07004154/Gerencianet_api.png">aqui</a> onde encontrar.</p>
+						<p>- Criar uma Aplicação e obter as credencians <i>Client_ID</i> e <i>Client_Secret</i> da <a style="text-decoration: underline;" target="_blank" href="https://app.sejaefi.com.br/api/introducao">API Efí</a>. Veja <a style="text-decoration: underline;" target="_blank" href="https://s3.amazonaws.com/uploads.gofas.me/wp-content/uploads/2021/02/07004154/Gerencianet_api.png">aqui</a> onde encontrar.</p>
 						<p><a style="text-decoration:underline;" target="_blank" href="https://gofas.net/ggnb/">Documentação do módulo</a>.<br></p>	
 					</div>
 		
@@ -795,7 +795,7 @@ if(!function_exists('ggnb_reset_local_version')){
 				'FriendlyName' => $opt_num++.'- Modo de Testes / Sandbox',
 				'Type' => 'yesno',
 				'Default' => 'yes',
-				'Description' => 'Marque essa opção para utilizar a API Efí em modo "Desenvolvimento" (modo de testes). <a style="text-decoration: underline;" href="https://sistema.gerencianet.com.br/api/introducao" target="_blank">Painel da API</a>.',
+				'Description' => 'Marque essa opção para utilizar a API Efí em modo "Desenvolvimento" (modo de testes). <a style="text-decoration: underline;" href="https://app.sejaefi.com.br/api/introducao" target="_blank">Painel da API</a>.',
 			),
 			// Log
 			'log' => array(
@@ -1143,13 +1143,13 @@ function gofasgerencianetboleto_link($params){
 		$client_id = $params['clientidsandbox'];
 		$client_secret = $params['clientsecretsandbox'];
 		$api_mode = 'sandbox';
-		$api_url = 'https://sandbox.gerencianet.com.br/v1/';
+		$api_url = 'https://cobrancas-h.api.efipay.com.br/v1/';
 
 	} elseif(!$params['sandbox']){
 		$client_id = $params['clientid'];
 		$client_secret = $params['clientsecret'];
 		$api_mode = 'live';
-		$api_url = 'https://api.gerencianet.com.br/v1/';
+		$api_url = 'https://cobrancas.api.efipay.com.br/v1/';
 	}
 	$emailonError = $params['emailonerror'];
 	$showDueDate = $params['showduedate'];
@@ -2030,7 +2030,7 @@ function gofasgerencianetboleto_link($params){
 				$expire_at	= $chargeExistDuedate;
 				$barcode	= $chargeExist['data']['payment']['banking_billet']['barcode'];
 			}
-			if(!$error and  ($chargeExistID === $trans_id and $chargeExistStatus !== 'canceled' and $chargeExistDuedate < date('Y-m-d') and $chargeExistDuedate > date('Y-m-d',strtotime('-29 days'))) and !$configurations and !$cancelBillet ){
+			if(!$error and  ((int)$chargeExistID === (int)$trans_id and $chargeExistStatus !== 'canceled' and $chargeExistDuedate < date('Y-m-d') and $chargeExistDuedate > date('Y-m-d',strtotime('-29 days'))) and !$configurations and !$cancelBillet ){
 				// edita transação gerada anteriormente
 				$updateBillet = ggnb_update_billet($api_url,$access_token,$trans_id,$billet_duedate);
 				// segunda via do boleto com multa e juros
@@ -2043,7 +2043,7 @@ function gofasgerencianetboleto_link($params){
 					$error .= $updateBillet['error'];
 				}
 			}
-			if((!$barcode and ($chargeExistID === $trans_id and ($chargeExistStatus === 'canceled' || $chargeExistStatus === 'unpaid'))) or (float)$chargeExistTotal !== (float)$invoice_amount){
+			if((!$barcode and ((int)$chargeExistID === (int)$trans_id and ($chargeExistStatus === 'canceled' || $chargeExistStatus === 'unpaid'))) or (float)$chargeExistTotal !== (float)$invoice_amount){
 				$cancelCharge = ggnb_cancel_charge($api_url,$access_token,$trans_id);
 				if( $cancelCharge['result'] === 'success'){
 					$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('charge_id', '=',$trans_id)->delete();
@@ -2289,14 +2289,14 @@ function gofasgerencianetboleto_link($params){
 		 $client_id		= $params['clientidsandbox'];
 		 $client_secret	= $params['clientsecretsandbox'];
 		 $api_mode		= 'sandbox';
-		 $api_url		= 'https://sandbox.gerencianet.com.br/v1/';
+		 $api_url		= 'https://cobrancas-h.api.efipay.com.br/v1/';
 	 }
 	 elseif( !$params['sandbox'] ){
 		 $sandbox		= false;
 		 $client_id		= $params['clientid'];
 		 $client_secret	= $params['clientsecret'];
 		 $api_mode		= 'live';
-		 $api_url		= 'https://api.gerencianet.com.br/v1/';
+		 $api_url		= 'https://cobrancas.api.efipay.com.br/v1/';
 	 }
 	 $access_token_ = ggnb_get_token($api_url,$client_id,$client_secret);
 	 if($access_token_['access_token']){
@@ -2511,14 +2511,14 @@ if(!function_exists('ggnb_check_status_updates')){
 			$client_id		= $params['clientidsandbox'];
 			$client_secret	= $params['clientsecretsandbox'];
 			$api_mode		= 'sandbox';
-			$api_url		= 'https://sandbox.gerencianet.com.br/v1/';
+			$api_url		= 'https://cobrancas-h.api.efipay.com.br/v1/';
 		}
 		elseif( !$params['sandbox'] ){
 			$sandbox		= false;
 			$client_id		= $params['clientid'];
 			$client_secret	= $params['clientsecret'];
 			$api_mode		= 'live';
-			$api_url		= 'https://api.gerencianet.com.br/v1/';
+			$api_url		= 'https://cobrancas.api.efipay.com.br/v1/';
 		}
 		$check_schedule = ggnb_check_schedule();
     	if(!is_array($check_schedule)){
@@ -2591,7 +2591,7 @@ if(!function_exists('ggnb_check_status_updates')){
 		$log['update_invoice'] = $update_invoice;
 		$log['add_trans'] = $add_trans;
 		if($params['log']){
-			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.9.6','params'=>$params),'',array($log) );
+			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.9.7','params'=>$params),'',array($log) );
 		}
 		return;  
 	}
@@ -2674,14 +2674,14 @@ add_hook('EmailPreSend',1, function($vars){
 			  $client_id		= $params['clientidsandbox'];
 			  $client_secret	= $params['clientsecretsandbox'];
 			  $api_mode		= 'sandbox';
-			  $api_url		= 'https://sandbox.gerencianet.com.br/v1/';
+			  $api_url		= 'https://cobrancas-h.api.efipay.com.br/v1/';
 		  }
 		  elseif(!$sandbox){
 			  $sandbox		= false;
 			  $client_id		= $params['clientid'];
 			  $client_secret	= $params['clientsecret'];
 			  $api_mode		= 'live';
-			  $api_url		= 'https://api.gerencianet.com.br/v1/';
+			  $api_url		= 'https://cobrancas.api.efipay.com.br/v1/';
 		  }
 	  }
 	  $invoice	= localAPI('GetInvoice',array( 'invoiceid' => $vars['invoiceid'], ), ggnb_setup_admin('id'));	
