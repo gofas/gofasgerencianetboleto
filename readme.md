@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.7...HEAD)
+
+**Closed issues:**
+
+- Melhoria ao passar o crédito aplicado à fatura como desconto no boleto [\#180](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/180)
+
 ## [v3.9.7](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.7) (04/11/2024)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.6...v3.9.7)
