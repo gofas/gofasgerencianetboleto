@@ -6,7 +6,7 @@
  * @copyright	2016 -> 2023 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.9.7
+ * @version		3.9.8
  */
 use WHMCS\Aplication;
 use WHMCS\Database\Capsule;
@@ -624,7 +624,7 @@ if(!function_exists('ggnb_reset_local_version')){
  */
  if(!function_exists('gofasgerencianetboleto_config')){
 	function gofasgerencianetboleto_config(){
-		$module_version = '3.9.7';
+		$module_version = '3.9.8';
 		$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
 		$module_page	= '7893';
 		$verify_install = ggnb_verifyInstall();
@@ -1268,7 +1268,6 @@ function gofasgerencianetboleto_link($params){
 	$invoiceCredit =	(int)($GetInvoiceResults['credit'] * 100);
 
 	// Parâmetros das transações associadas à Fatura
-	// Parâmetros das transações associadas à Fatura
 	foreach( Capsule::table('gofasgerencianetboleto')->where('invoice_id','=',$invoice_id)->where('api_mode','=',$api_mode)->get(['charge_id']) as $charge_id_local){
 		if($charge_id_local->charge_id){
 			$trans_id = $charge_id_local->charge_id;
@@ -1650,9 +1649,13 @@ function gofasgerencianetboleto_link($params){
 				$ItEm_discount[] = array('name'=>$Value['description'],'amount'=>1,'value' => (int)($Value['amount'] * 100) );
 			}
 	}
-	if( $invoiceCredit and is_array($ItEm_discount)){
+	if( $invoiceCredit>0and is_array($ItEm_discount)){
 		$ItEm_discount = array_merge($ItEm_discount, array(array('name' => 'Crédito aplicado à fatura','amount'=>1,'value' => -($invoiceCredit))));
 	}
+	if(($invoiceCredit>0 and !is_array($ItEm_discount)) || ($invoiceCredit>0 and!$ItEm_discount)){
+		$ItEm_discount = array(array('name' => 'Crédito aplicado à fatura','amount'=>1,'value' => -($invoiceCredit)));
+	}
+	
 	// Cálculo de multa e juros
 	if(!function_exists('ggnb_calculate_fine_interest')){
 		function ggnb_calculate_fine_interest( $VALUE, $fine, $interest, $invoice_duedate){
@@ -2591,7 +2594,7 @@ if(!function_exists('ggnb_check_status_updates')){
 		$log['update_invoice'] = $update_invoice;
 		$log['add_trans'] = $add_trans;
 		if($params['log']){
-			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.9.7','params'=>$params),'',array($log) );
+			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.9.8','params'=>$params),'',array($log) );
 		}
 		return;  
 	}
