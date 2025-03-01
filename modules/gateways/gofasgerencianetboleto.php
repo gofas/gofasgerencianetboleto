@@ -3,15 +3,15 @@
  * Módulo Efí Boleto para WHMCS
  * @author		Gofas Software
  * @see			https://gofas.net/?p=7893
- * @copyright	2016 -> 2023 Gofas Software
+ * @copyright	2016 -> 2025 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.9.4
+ * @version		3.10.0
  */
 require_once __DIR__.'/../../init.php';
-if((int)substr(preg_replace('/[^\da-z]/i','',phpversion()),0,2)>=(int)81){
+if((int)substr(preg_replace('/[^\da-z]/i','',phpversion()),0,2)>=(int)82){
     require_once __DIR__.'/gofasgerencianetboleto/index.php';
 }
-if((int)substr(preg_replace('/[^\da-z]/i','',phpversion()),0,2)<=(int)74){
+if((int)substr(preg_replace('/[^\da-z]/i','',phpversion()),0,2)<=(int)81){
     require_once __DIR__.'/gofasgerencianetboleto/indexd.php';
 }
