@@ -9,9 +9,4 @@
  * @version		3.10.0
  */
 require_once __DIR__.'/../../init.php';
-if((int)substr(preg_replace('/[^\da-z]/i','',phpversion()),0,2)>=(int)82){
-    require_once __DIR__.'/gofasgerencianetboleto/index.php';
-}
-if((int)substr(preg_replace('/[^\da-z]/i','',phpversion()),0,2)<=(int)81){
-    require_once __DIR__.'/gofasgerencianetboleto/indexd.php';
-}
+require_once __DIR__.'/gofasgerencianetboleto/index.php';
