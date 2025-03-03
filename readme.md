@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.8...HEAD)
+
+**Closed issues:**
+
+- Compatibilidade com PHP 8.2 e 8.3 [\#181](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/181)
+
 ## [v3.9.8](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.9.8) (02/12/2024)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.7...v3.9.8)
