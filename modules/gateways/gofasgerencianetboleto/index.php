@@ -6,7 +6,7 @@
  * @copyright	2016 -> 2025 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.10.0
+ * @version		3.11.0
  */
 use WHMCS\Aplication;
 use WHMCS\Database\Capsule;
@@ -565,7 +565,6 @@ if(!function_exists('ggnb_get_version') ){
 		$available_version_ = curl_exec($curl);
 		$http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 		curl_close($curl);
-		//logModuleCall('gofasgerencianetboleto','ggnb_get_version',array('available_version'=>$available_version_),'','' );
 		return ['version'=>$available_version_,'http_code'=>$http_status];
 	}
 }
@@ -624,7 +623,7 @@ if(!function_exists('ggnb_reset_local_version')){
  */
  if(!function_exists('gofasgerencianetboleto_config')){
 	function gofasgerencianetboleto_config(){
-		$module_version = '3.10.0';
+		$module_version = '3.11.0';
 		$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
 		$module_page	= '7893';
 		$verify_install = ggnb_verifyInstall();
@@ -849,30 +848,32 @@ if(!function_exists('ggnb_reset_local_version')){
 					'Type' => 'yesno',
 					'Default' => 'yes',
 					'Description' => 'Adiciona link, linha digitável, vencimento e outras informações do boleto no corpo dos emails de faturas. Essa opção faz o módulo gerar os boletos no momento em que a fatura é gerada, (do contrário o Boleto é gerado no 1º acesso à Fatura). <a style="font-weight: bold;text-decoration:underline;" target="_blank" href="https://gofas.net/?p=7893#mergetags">Veja aqui a lista de tags de mesclagem disponíveis</a> .',
-				),
-			
+			),
+			'attached_billet' => array(
+					'FriendlyName' => $opt_num++.'- Anexar PDF do Boleto no email',
+					'Type' => 'yesno',
+					'Default' => 'yes',
+					'Description' => 'Adiciona o boleto em PDF como anexo aos emais de faturas do WHMCS.',
+			),
 			// Replace Invoice link for Billet link on email
 			'linkbilletonemail' => array(
 					'FriendlyName' => $opt_num++.'- Substituir link da fatura por link do boleto',
 					'Type' => 'yesno',
 					'Description' => 'Substitui o URL da Fatura pelo URL do Boleto nos emails de "Nova Fatura" (tag <code>{$invoice_link}</code> do template de email <i>Invoice Created</i>).',
-				),
-			
+			),
 			// Altera a data ou cancela e cria um novo boleto
 			'cancelbilletoncancelinvoice' => array(
 					'FriendlyName' => $opt_num++.'- Cancelar Boleto ao cancelar Fatura',
 					'Type' => 'yesno',
 					'Default' => 'yes',
 					'Description' => '<span class="ggnb_optional_txt">(Opcional)</span> Cancela o Boleto associado à uma fatura quando essa fatura é cancelada no WHMCS.',
-				),
-			
+			),
 			// Altera a data ou cancela e cria um novo boleto
 			'cancelbillet' => array(
 				'FriendlyName' => $opt_num++.'- Cancelar Boleto Vencido',
 				'Type' => 'yesno',
 				'Description' => '<span class="ggnb_optional_txt">(Opcional)</span> Cancela o Boleto gerado anteriormente pela Fatura antes de gerar novo Boleto/segunda via. Sem essa opção definida, o módulo altera a data de vencimento do Boleto vencido associado à Fatura, ou gera um novo boleto mas não altera o status do Boleto anterior.',
 			),
-	
 			// Dias + vencimento
 			'diasparavencimento' => array(
 				'FriendlyName'      => $opt_num++.'- Dias adicionais para nova data de vencimento de Boletos',
@@ -880,7 +881,6 @@ if(!function_exists('ggnb_reset_local_version')){
 				'Size'				=> '10',
 				'Description'       => '<span class="ggnb_optional_txt">(Opcional)</span> Número de dias que serão somados a data do vencimento do Boleto ao gerar segunda via ou atualizar um boleto vencido. Essa opção aplica-se apenas a Faturas vencidas, faturas que ainda não venceram sempre irão gerar Boletos com a mesma data de vencimento da Fatura.',
 			),
-			
 			// Notificar admin sobre erros
 			'emailonerror' => array(
 				'FriendlyName' => $opt_num++.'- Notificar admins do WHMCS sobre erros',
@@ -907,7 +907,6 @@ if(!function_exists('ggnb_reset_local_version')){
 					</p>
 				</div>',
 			),
-	
 			// customfield Desconto- Tipo
 			'custom_discount_type' => array(
 				'FriendlyName' => $opt_num++.'- Tipo de Desconto Personalizado',
@@ -1139,13 +1138,14 @@ function gofasgerencianetboleto_link($params){
 	$langPayNow = $params['langpaynow'];
 	$moduleDisplayName = $params['name'];
 	$moduleName = $params['paymentmethod'];
-	if( $params['sandbox'] ){
+	if($params['sandbox'] ){
 		$client_id = $params['clientidsandbox'];
 		$client_secret = $params['clientsecretsandbox'];
 		$api_mode = 'sandbox';
 		$api_url = 'https://cobrancas-h.api.efipay.com.br/v1/';
 
-	} elseif(!$params['sandbox']){
+	}
+	elseif(!$params['sandbox']){
 		$client_id = $params['clientid'];
 		$client_secret = $params['clientsecret'];
 		$api_mode = 'live';
@@ -1556,7 +1556,7 @@ function gofasgerencianetboleto_link($params){
 		div#ggnbbilletinfo p {
 	    	line-height: 1;
 		}';
-	if( !$params['paybutton'] ){
+	if(!$params['paybutton'] ){
 		$css .= '
 			a#ggnbviewbillet {
 				background: #1992c6;
@@ -2235,7 +2235,9 @@ function gofasgerencianetboleto_link($params){
 			if( $emailonError ){
 				$sendEmailonError = ggnb_send_error_email( $invoice_id, $user_id, $firstname, $lastname, $system_url, $emailonError, $error);
 			}
-			logModuleCall("gofasgerencianetboleto","genarate_billet",get_defined_vars(),"", $error);
+			if($params['log']){
+				logModuleCall("gofasgerencianetboleto","genarate_billet",get_defined_vars(),"", $error);
+			}
 			return $error . $css;
 		}
 		if( !$error and $params['redirecttobillet'] and stripos($_SERVER['REQUEST_URI'], 'viewinvoice.php') ){
@@ -2265,6 +2267,9 @@ function gofasgerencianetboleto_link($params){
 				$result .= '</div>';
 			}
 			$result .= '<script type="text/javascript" src="'.$system_url.'/modules/gateways/gofasgerencianetboleto/assets/js/copy.js" charset="UTF-8"></script>';
+			if($params['log']){
+				logModuleCall("gofasgerencianetboleto","genarate_billet_result",get_defined_vars(),"", $error);
+			}
 			return $result.$css;
 		}
 	} // End of if( $generate_billet )
@@ -2285,78 +2290,78 @@ function gofasgerencianetboleto_link($params){
 	require_once ggnb_whmcs_url('root_dir').'/init.php';
 	require_once ggnb_whmcs_url('root_dir').'/includes/gatewayfunctions.php';
 	require_once ggnb_whmcs_url('root_dir').'/includes/invoicefunctions.php';
-	 $params = getGatewayVariables('gofasgerencianetboleto');
-	 if(!$params['type']){die("Module Not Activated");}
-	 if( $params['sandbox'] ){
-		 $sandbox		= true;
-		 $client_id		= $params['clientidsandbox'];
-		 $client_secret	= $params['clientsecretsandbox'];
-		 $api_mode		= 'sandbox';
-		 $api_url		= 'https://cobrancas-h.api.efipay.com.br/v1/';
-	 }
-	 elseif( !$params['sandbox'] ){
-		 $sandbox		= false;
-		 $client_id		= $params['clientid'];
-		 $client_secret	= $params['clientsecret'];
-		 $api_mode		= 'live';
-		 $api_url		= 'https://cobrancas.api.efipay.com.br/v1/';
-	 }
-	 $access_token_ = ggnb_get_token($api_url,$client_id,$client_secret);
-	 if($access_token_['access_token']){
-		 $access_token = $access_token_['access_token'];
-	 }
-	 if($access_token_['error']){
-		 $error = $access_token_['error'];
-	 }
-	 try {
-		 $notification = ggnb_get_notification($api_url,$access_token,$_REQUEST['notification']);
-		 if($notification['data']){
-			 $notificationDataEnd	= end($notification['data']);
-		 }
-		 $notificationData 		= $notificationDataEnd;
-		 $invoiceId				= $notificationData['custom_id']; // Captura ID da fatura
-		 $charge_id				= $notificationData['identifiers']['charge_id']; // Captura ID da transação
-		 $chargeExist_			= ggnb_detail_charge($api_url,$access_token,$charge_id);
-		 $chargeExist			= $chargeExist_['result'];
-		 $paymentAmount			= (float)number_format(($chargeExist['data']['total']/100), 2,'.',''); // issue #142
-		 $chargeStatus			= $chargeExist['data']['status']; // Status atual
-		 $getinvoiceid['invoiceid']	= $invoiceId;
-		 $invoice_data				= localAPI('getinvoice', $getinvoiceid, ggnb_setup_admin('id'));
-		 $invoice_amount				= (float)$invoice_data['total'];
-		 $invoiceStatus				= $invoice_data['status'];
-		 $user_id 					= $invoice_data['userid'];
-		 foreach( Capsule::table('gofasgerencianetboleto')->where('invoice_id','=',$invoiceId)->where('api_mode','=',$api_mode)->get(['charge_id']) as $charge_id_local){
-			 if($charge_id_local->charge_id){
-				 $trans_id = $charge_id_local->charge_id;
-			 }
-			 else {
-				 $trans_id = false;
-			 }
-		 }
-	 }
-	 catch (Exception $e){
-		 echo $e->getMessage();
-	 }
-	 if((string)$trans_id ===  (string)$charge_id and $chargeStatus === 'paid' and $invoiceStatus === 'Unpaid' and $paymentAmount > 0){
-		 if( $paymentAmount > $invoice_amount){
-			 $UpdateInvoice = localAPI('updateinvoice', array( 'invoiceid' => $invoiceId, 'newitemdescription' => array('Acréscimos'),'newitemamount' => array((float)($paymentAmount - $invoice_amount))/* , 'total' => $paymentAmount */), ggnb_setup_admin('id') );
-			 echo 'UpdateInvoice: ', json_encode($UpdateInvoice);
-		 }
-		 if( $paymentAmount < $invoice_amount){
-			 $UpdateInvoice = localAPI('updateinvoice', array( 'invoiceid' => $invoiceId, 'newitemdescription' => array('Descontos'),'newitemamount' => array((float)-($invoice_amount-$paymentAmount))/* , 'total' => $paymentAmount */), ggnb_setup_admin('id') );
-			 if($params['log']){
-				 echo json_encode(['UpdateInvoice'=>$UpdateInvoice]);
-			 }
-		 }
-		  $fee = $params['fee'] ?: '0.00';
-		  $add_trans = ggnb_add_trans($user_id,$invoiceId,$paymentAmount,$fee, 'ggnb-'.$api_mode.'-'.$charge_id, 'Boleto pago - confirmação via notificação/callback');
-				
-		 if($params['log']){
-			 echo json_encode(['Add transaction'=>$addtransresult]);
-		 }
-		 if($params['log']){
-			 logModuleCall("gofasgerencianetboleto","receive_callback",array(get_defined_vars()),"", array($addtransresult));
-		 }
+	$params = getGatewayVariables('gofasgerencianetboleto');
+	if(!$params['type']){die("Module Not Activated");}
+	if( $params['sandbox'] ){
+		$sandbox		= true;
+		$client_id		= $params['clientidsandbox'];
+		$client_secret	= $params['clientsecretsandbox'];
+		$api_mode		= 'sandbox';
+		$api_url		= 'https://cobrancas-h.api.efipay.com.br/v1/';
+	}
+	elseif( !$params['sandbox'] ){
+		$sandbox		= false;
+		$client_id		= $params['clientid'];
+		$client_secret	= $params['clientsecret'];
+		$api_mode		= 'live';
+		$api_url		= 'https://cobrancas.api.efipay.com.br/v1/';
+	}
+	$access_token_ = ggnb_get_token($api_url,$client_id,$client_secret);
+	if($access_token_['access_token']){
+		$access_token = $access_token_['access_token'];
+	}
+	if($access_token_['error']){
+		$error = $access_token_['error'];
+	}
+	try {
+		$notification = ggnb_get_notification($api_url,$access_token,$_REQUEST['notification']);
+		if($notification['data']){
+			$notificationDataEnd	= end($notification['data']);
+		}
+		$notificationData 		= $notificationDataEnd;
+		$invoiceId				= $notificationData['custom_id']; // Captura ID da fatura
+		$charge_id				= $notificationData['identifiers']['charge_id']; // Captura ID da transação
+		$chargeExist_			= ggnb_detail_charge($api_url,$access_token,$charge_id);
+		$chargeExist			= $chargeExist_['result'];
+		$paymentAmount			= (float)number_format(($chargeExist['data']['total']/100), 2,'.',''); // issue #142
+		$chargeStatus			= $chargeExist['data']['status']; // Status atual
+		$getinvoiceid['invoiceid']	= $invoiceId;
+		$invoice_data				= localAPI('getinvoice', $getinvoiceid, ggnb_setup_admin('id'));
+		$invoice_amount				= (float)$invoice_data['total'];
+		$invoiceStatus				= $invoice_data['status'];
+		$user_id 					= $invoice_data['userid'];
+		foreach( Capsule::table('gofasgerencianetboleto')->where('invoice_id','=',$invoiceId)->where('api_mode','=',$api_mode)->get(['charge_id']) as $charge_id_local){
+			if($charge_id_local->charge_id){
+				$trans_id = $charge_id_local->charge_id;
+			}
+			else{
+				$trans_id = false;
+			}
+		}
+	}
+	catch (Exception $e){
+		echo $e->getMessage();
+	}
+	if((string)$trans_id ===  (string)$charge_id and $chargeStatus === 'paid' and $invoiceStatus === 'Unpaid' and $paymentAmount > 0){
+		if( $paymentAmount > $invoice_amount){
+			$UpdateInvoice = localAPI('updateinvoice', array( 'invoiceid' => $invoiceId, 'newitemdescription' => array('Acréscimos'),'newitemamount' => array((float)($paymentAmount - $invoice_amount))/* , 'total' => $paymentAmount */), ggnb_setup_admin('id') );
+			echo 'UpdateInvoice: ', json_encode($UpdateInvoice);
+		}
+		if($paymentAmount < $invoice_amount){
+			$UpdateInvoice = localAPI('updateinvoice', array( 'invoiceid' => $invoiceId, 'newitemdescription' => array('Descontos'),'newitemamount' => array((float)-($invoice_amount-$paymentAmount))/* , 'total' => $paymentAmount */), ggnb_setup_admin('id') );
+			if($params['log']){
+				echo json_encode(['UpdateInvoice'=>$UpdateInvoice]);
+			}
+		}
+		$fee = $params['fee'] ?: '0.00';
+		$add_trans = ggnb_add_trans($user_id,$invoiceId,$paymentAmount,$fee, 'ggnb-'.$api_mode.'-'.$charge_id, 'Boleto pago - confirmação via notificação/callback');
+			
+		if($params['log']){
+			echo json_encode(['Add transaction'=>$addtransresult]);
+		}
+		if($params['log']){
+			logModuleCall("gofasgerencianetboleto","receive_callback",array(get_defined_vars()),"", array($addtransresult));
+		}
 	 }
  }
  /**
@@ -2509,6 +2514,9 @@ function gofasgerencianetboleto_link($params){
 if(!function_exists('ggnb_check_status_updates')){
 	function ggnb_check_status_updates($vars){
 		$params = getGatewayVariables('gofasgerencianetboleto');
+		if(!$params['maxinvoicespercheck'] || $params['maxinvoicespercheck'] < 1 || empty($params['maxinvoicespercheck'])){
+        	return;
+    	}
 		if( $params['sandbox'] ){
 			$sandbox		= true;
 			$client_id		= $params['clientidsandbox'];
@@ -2594,14 +2602,13 @@ if(!function_exists('ggnb_check_status_updates')){
 		$log['update_invoice'] = $update_invoice;
 		$log['add_trans'] = $add_trans;
 		if($params['log']){
-			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.10.0','params'=>$params),'',array($log) );
+			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.11.0','params'=>$params),'',array($log) );
 		}
 		return;  
 	}
 }
 add_hook("AfterCronJob",1,"ggnb_check_status_updates");
 add_hook('EmailPreSend',1, function($vars){
-	
 	if(
 		  $vars['messagename'] === 'Invoice Created' ||
 		  $vars['messagename'] === 'Invoice Payment Reminder' ||
@@ -2613,8 +2620,10 @@ add_hook('EmailPreSend',1, function($vars){
 		if($params['billetonemail']){
 		  	$ggnb_merge_fields	= array();
 		  	$invoice			= localAPI( 'GetInvoice', array('invoiceid' => $vars['relid']), ggnb_setup_admin('id'));
-		  	logModuleCall('gofasgerencianetboleto', 'EmailPreSend',['vars'=>$vars,'params'=>$params],'',['invoice'=>$invoice]);
-		  	if( (float)$invoice['total'] > (float)'0.00' and $invoice['paymentmethod'] === 'gofasgerencianetboleto'){
+			if($params['log']){
+		  		logModuleCall('gofasgerencianetboleto', 'EmailPreSend',['vars'=>$vars,'params'=>$params],'',['invoice'=>$invoice]);
+		  	}
+			if( (float)$invoice['total'] > (float)'0.00' and $invoice['paymentmethod'] === 'gofasgerencianetboleto'){
 				// Saved Billets
 				$billet_saved = array();
 				foreach( Capsule::table('gofasgerencianetboleto') -> where('invoice_id','=',$vars['relid'])->orderBy('charge_id','desc')->get(
@@ -2643,7 +2652,9 @@ add_hook('EmailPreSend',1, function($vars){
 					$ggnb_merge_fields['ggnb_billet_info']	.= '<br><b><a href="'.$billet_saved['pdf'].'">Visualizar Boleto em PDF</a></b>';
 					$ggnb_merge_fields['ggnb_billet_info']	.= '<br>------------------------------------------------------';
 					$ggnb_merge_fields['ggnb_debug'] .= "Debug:\n".(string)json_encode($vars).json_encode($invoice);
-					logModuleCall('gofasgerencianetboleto', 'EmailPreSend2', array('invoice'=>$invoice,'billet_saved'=>$billet_saved),'',array('ggnb_merge_fields'=>$ggnb_merge_fields));
+					if($params['log']){
+						logModuleCall('gofasgerencianetboleto', 'EmailPreSend2', array('invoice'=>$invoice,'billet_saved'=>$billet_saved),'',array('ggnb_merge_fields'=>$ggnb_merge_fields));
+					}
 					return $ggnb_merge_fields;
 				}
 				return;
@@ -2653,76 +2664,83 @@ add_hook('EmailPreSend',1, function($vars){
 	}
 	return;
 });
-  //Output additional merge fields in the list when editing an email template
-  add_hook('EmailTplMergeFields', 1, function($vars){
-	  $ggnb_merge_fields = array();
-	  $ggnb_merge_fields['ggnb_billet_info']	= 'Efí: Informações do boleto';
-	  $ggnb_merge_fields['ggnb_link']			= 'Efí: Link para o boleto';
-	  $ggnb_merge_fields['ggnb_pdf']			= 'Efí: Link para o boleto em PDF';
-	  $ggnb_merge_fields['ggnb_barcode']		= 'Efí: Linha digitável do boleto';
-	  $ggnb_merge_fields['ggnb_expire_at']	= 'Efí: Vencimento do boleto';
-	  $ggnb_merge_fields['ggnb_total']		= 'Efí: Total do boleto';
-	  $ggnb_merge_fields['ggnb_charge_id']	= 'Efí: ID da transação';
-	  $ggnb_merge_fields['ggnb_api_mode']		= 'Efí: API mode (sandbox ou live)';
-	  $ggnb_merge_fields['ggnb_debug']		= 'Efí: Debug nos emails';
-	  return $ggnb_merge_fields;
-  });
-  add_hook('InvoiceCancelled', 1, function($vars){
-	 $params = getGatewayVariables('gofasgerencianetboleto');
-	  if($params['cancelbilletoncancelinvoice']){
-		  // Parâmetros do Módulo
-		  $sandbox	= $params['sandbox'];
-		  if($sandbox){
-			  $sandbox		= true;
-			  $client_id		= $params['clientidsandbox'];
-			  $client_secret	= $params['clientsecretsandbox'];
-			  $api_mode		= 'sandbox';
-			  $api_url		= 'https://cobrancas-h.api.efipay.com.br/v1/';
-		  }
-		  elseif(!$sandbox){
-			  $sandbox		= false;
-			  $client_id		= $params['clientid'];
-			  $client_secret	= $params['clientsecret'];
-			  $api_mode		= 'live';
-			  $api_url		= 'https://cobrancas.api.efipay.com.br/v1/';
-		  }
-	  }
-	  $invoice	= localAPI('GetInvoice',array( 'invoiceid' => $vars['invoiceid'], ), ggnb_setup_admin('id'));	
-	  // Parâmetros das transações associadas à Fatura
-	  foreach( Capsule::table('gofasgerencianetboleto')->where('invoice_id','=',$vars['invoiceid'])->where('api_mode','=',$api_mode)->get(['charge_id']) as $charge_id_local){
-		  if($charge_id_local->charge_id){
-			  $trans_id = $charge_id_local->charge_id;
-		  }
-		  else {
-			  $trans_id = false;
-		  }
-	  }
-	  if($trans_id){
-		  $access_token_ = ggnb_get_token($api_url,$client_id,$client_secret);
-		  if($access_token_['access_token']){
-			  $access_token = $access_token_['access_token'];
-		  }
-		  if($access_token_['error']){
-			  $error = $access_token_['error'];
-		  }
-		  logModuleCall('gofasgerencianetboleto','access_token',array($api_url,$client_id,$client_secret), $access_token_ );
-		  try {
-			  //$id = array('id' => (int)$trans_id);
-			  $cancel_charge = ggnb_cancel_charge($api_url,$access_token,$trans_id);
-			  
-			  if((string)$cancel_charge['result'] === (string)'success'){
-				  $delete_qrc = Capsule::table('gofasgerencianetboleto')->where('charge_id', '=',$trans_id)->delete();
-				  logModuleCall('gofasgerencianetboleto','cancel_transaction',array('Sucesso:'=>$cancel_charge), $access_token_ );
-			  }
-			  else {
-				  $error	= 'Erro ao cancelar Transação: ' . $cancel_charge['error'];
-				  logModuleCall('gofasgerencianetboleto','cancel_transaction_1',array('Error:'=>$cancel_charge), $access_token_);
-			  }
-		  }
-		  catch (Exception $e){
-			  $error	= 'Erro ao cancelar Transação: ' . $e->getMessage();
-			  logModuleCall('gofasgerencianetboleto','cancel_transaction_2',array('Error:'=>$error), '');
-		  }
-	  }
-	  logModuleCall('gofasgerencianetboleto', 'InvoiceCancelled', array('params'=>$params,'invoice'=>$invoice),array('cancel_charge'=>$cancel_charge),'');
-  });
+//Output additional merge fields in the list when editing an email template
+add_hook('EmailTplMergeFields', 1, function($vars){
+	$ggnb_merge_fields = array();
+	$ggnb_merge_fields['ggnb_billet_info']	= 'Efí: Informações do boleto';
+	$ggnb_merge_fields['ggnb_link']			= 'Efí: Link para o boleto';
+	$ggnb_merge_fields['ggnb_pdf']			= 'Efí: Link para o boleto em PDF';
+	$ggnb_merge_fields['ggnb_barcode']		= 'Efí: Linha digitável do boleto';
+	$ggnb_merge_fields['ggnb_expire_at']	= 'Efí: Vencimento do boleto';
+	$ggnb_merge_fields['ggnb_total']		= 'Efí: Total do boleto';
+	$ggnb_merge_fields['ggnb_charge_id']	= 'Efí: ID da transação';
+	$ggnb_merge_fields['ggnb_api_mode']		= 'Efí: API mode (sandbox ou live)';
+	$ggnb_merge_fields['ggnb_debug']		= 'Efí: Debug nos emails';
+	return $ggnb_merge_fields;
+});
+add_hook('InvoiceCancelled', 1, function($vars){
+	$params = getGatewayVariables('gofasgerencianetboleto');
+	if($params['cancelbilletoncancelinvoice']){
+		// Parâmetros do Módulo
+		$sandbox	= $params['sandbox'];
+		if($sandbox){
+			$sandbox		= true;
+			$client_id		= $params['clientidsandbox'];
+			$client_secret	= $params['clientsecretsandbox'];
+			$api_mode		= 'sandbox';
+			$api_url		= 'https://cobrancas-h.api.efipay.com.br/v1/';
+		}
+		elseif(!$sandbox){
+			$sandbox		= false;
+			$client_id		= $params['clientid'];
+			$client_secret	= $params['clientsecret'];
+			$api_mode		= 'live';
+			$api_url		= 'https://cobrancas.api.efipay.com.br/v1/';
+		}
+	}
+	$invoice	= localAPI('GetInvoice',array( 'invoiceid' => $vars['invoiceid'], ), ggnb_setup_admin('id'));	
+	// Parâmetros das transações associadas à Fatura
+	foreach( Capsule::table('gofasgerencianetboleto')->where('invoice_id','=',$vars['invoiceid'])->where('api_mode','=',$api_mode)->get(['charge_id']) as $charge_id_local){
+		if($charge_id_local->charge_id){
+			$trans_id = $charge_id_local->charge_id;
+		}
+		else {
+			$trans_id = false;
+		}
+	}
+	if($trans_id){
+	$access_token_ = ggnb_get_token($api_url,$client_id,$client_secret);
+	if($access_token_['access_token']){
+	  $access_token = $access_token_['access_token'];
+	}
+	if($access_token_['error']){
+	  $error = $access_token_['error'];
+	}
+	if($params['log']){
+		logModuleCall('gofasgerencianetboleto','access_token',array($api_url,$client_id,$client_secret), $access_token_ );
+	}
+	try {
+		//$id = array('id' => (int)$trans_id);
+		$cancel_charge = ggnb_cancel_charge($api_url,$access_token,$trans_id);	  
+		if((string)$cancel_charge['result'] === (string)'success'){
+			$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('charge_id', '=',$trans_id)->delete();
+			if($params['log']){
+			  	logModuleCall('gofasgerencianetboleto','cancel_transaction',array('Sucesso:'=>$cancel_charge), $access_token_ );
+		  	}
+		}
+		else {
+			$error	= 'Erro ao cancelar Transação: ' . $cancel_charge['error'];
+			if($params['log']){
+				logModuleCall('gofasgerencianetboleto','cancel_transaction_1',array('Error:'=>$cancel_charge), $access_token_);
+			}
+		}
+	}
+	catch (Exception $e){
+		$error	= 'Erro ao cancelar Transação: ' . $e->getMessage();
+		logModuleCall('gofasgerencianetboleto','cancel_transaction_2',array('Error:'=>$error), '');
+	}
+	}
+	if($params['log']){
+		logModuleCall('gofasgerencianetboleto', 'InvoiceCancelled', array('params'=>$params,'invoice'=>$invoice),array('cancel_charge'=>$cancel_charge),'');
+	}
+});
