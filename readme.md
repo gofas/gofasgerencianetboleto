@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+
+[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.10.0...HEAD)
+
+**Fixed bugs:**
+
+- Corrigido o tratamento de erros que ainda são desconhecidos com adição de mensagem de erro mais abrangente [\#187](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/187)
+
 ## [v3.10.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.10.0) (03/03/2025)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.9.8...v3.10.0)
