@@ -4,6 +4,11 @@
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.10.0...HEAD)
 
+**Implemented enhancements:**
+
+- Agora a verificação de pagamentos via cron job vem desativada por padrão e é possível desativar definindo como 0 ou vazio o campo "número de requisições" [\#186](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/186)
+- Agora todos os logs são gerados apenas quando a opção "salvar logs" estiver ativada [\#185](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/185)
+
 **Fixed bugs:**
 
 - Corrigido o tratamento de erros que ainda são desconhecidos com adição de mensagem de erro mais abrangente [\#187](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/187)
