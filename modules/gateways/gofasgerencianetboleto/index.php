@@ -6,9 +6,9 @@
  * @copyright	2016 -> 2025 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.11.0
+ * @version		3.11.2
  */
-use WHMCS\Aplication;
+use WHMCS\Application;
 use WHMCS\Database\Capsule;
 //require_once ggnb_whmcs_url('root_dir').'/init.php';
 //require_once ggnb_whmcs_url('root_dir').'/includes/gatewayfunctions.php';
@@ -115,7 +115,7 @@ if(!function_exists('ggnb_detail_charge')){
 			return array('result'=>$json);
 		}
 		if($json['error']){
-			$error	.= 'Erro: '.implode(', ', $json);;
+			$error = 'Erro: '.$json['error'].($json['error_description'] ? ' - '.$json['error_description'] : '');
 			return array('error'=> $error);
 		}
 	}
@@ -141,7 +141,7 @@ if(!function_exists('ggnb_cancel_charge')){
 			return array('result'=>(string)'success');
 		}
 		if($json['error']){
-			$error	.= 'Erro: '.implode(', ', $json);;
+			$error = 'Erro: '.$json['error'].($json['error_description'] ? ' - '.$json['error_description'] : '');
 			return array('error'=> $error);
 		}
 	}
@@ -167,7 +167,7 @@ if(!function_exists('ggnb_update_billet')){
 			return array('result'=>(string)'success');
 		}
 		if($json['error']){
-			$error	.= 'Erro: '.implode(', ', $json);;
+			$error = 'Erro: '.$json['error'].($json['error_description'] ? ' - '.$json['error_description'] : '');
 			return array('error'=> $error);
 		}
 	}
@@ -194,7 +194,7 @@ if(!function_exists('ggnb_create_charge')){
 			return array('result'=>(int)$json['data']['charge_id']);
 		}
 		if($json['error']){
-			$error	.= 'Erro: '.implode(', ', $json);;
+			$error = 'Erro: '.$json['error'].($json['error_description'] ? ' - '.$json['error_description'] : '');
 			return array('error'=> $error);
 		}
 	}
@@ -215,7 +215,7 @@ if(!function_exists('ggnb_pay_charge')){
 			return array('result'=>$json);
 		}
 		if($json['error']){
-			$error	.= 'Erro: '.implode(', ', $json);;
+			$error = 'Erro: '.$json['error'].($json['error_description'] ? ' - '.$json['error_description'] : '');
 			return array('error'=> $error);
 		}
 	}
@@ -234,7 +234,7 @@ if(!function_exists('ggnb_get_notification')){
 			return $json;
 		}
 		if($json['error']){
-			$error	.= 'Erro: '.implode(', ', $json);
+			$error = 'Erro: '.$json['error'].($json['error_description'] ? ' - '.$json['error_description'] : '');
 			return array('error'=> $error);
 		}
 	}
@@ -444,7 +444,7 @@ if(!function_exists('ggnb_verify_module_updates')){
 		}
 		if( $available_version_int > $module_version_int ){
 			$message .= '<p style="font-size: 14px; color: red;"><i class="fas fa-exclamation-triangle"></i> Atualização disponível, verifique a <a style="color:#CC0000;text-decoration:underline;" href="https://gofas.net/?p='.$page_id.'" target="_blank">versão '.$available_version.'</a>';
-			$message .= '<p>Última verificação '.date('d/m/Y à\s H:i', strtotime($updated_at)).' - <a style="text-decoration:underline;" href="'.ggnb_whmcs_url('admin_url').'/configgateways.php?manage=gofasgerencianetboleto&resetversion=gofasgerencianetboleto#m_gofasgerencianetboleto">verificar agora</a>.</p>';$message .= '<p>Última verificação '.date('d/m/Y à\s H:i', strtotime($updated_at)).' - <a style="text-decoration:underline;" href="'.ggnb_whmcs_url('admin_url').'/configgateways.php?manage=gofasgerencianetboleto&resetversion=gofasgerencianetboleto#m_gofasgerencianetboleto">verificar agora</a>.</p>';$message .= '<p>Última verificação '.date('d/m/Y à\s H:i', strtotime($updated_at)).' - <a style="text-decoration:underline;" href="'.ggnb_whmcs_url('admin_url').'/configgateways.php?manage=gofasgerencianetboleto&resetversion=gofasgerencianetboleto#m_gofasgerencianetboleto">verificar agora</a>.</p>';
+			$message .= '<p>Última verificação '.date('d/m/Y à\s H:i', strtotime($updated_at)).' - <a style="text-decoration:underline;" href="'.ggnb_whmcs_url('admin_url').'/configgateways.php?manage=gofasgerencianetboleto&resetversion=gofasgerencianetboleto#m_gofasgerencianetboleto">verificar agora</a>.</p>';
 		}
 		if( $available_version_int < $module_version_int ){
 			$message = '<p style="font-size: 14px; color: orange;"><i class="fas fa-exclamation-triangle"></i> Você está executando uma versão Beta desse módulo.<br>Baixar versão estável: <a style="color:#CC0000;text-decoration:underline;" href="https://gofas.net/?p='.$page_id.'" target="_blank">v'.$available_version.'</a>';
@@ -465,16 +465,16 @@ if(!function_exists('ggnb_version')){
 			$ggnb_version				= $ggnb_version_->value;
 			$ggnb_version_created_at	= $ggnb_version_->created_at;
 		}
-		if($opt=1){ // local_version string
+		if($opt===1){ // local_version string
 			$version = json_decode($ggnb_version, true);
 			return $version['local_version'];
 		}
-		if($opt=2){ // local_version integer
+		if($opt===2){ // local_version integer
 			$version = json_decode($ggnb_version, true);
 			return (int)preg_replace("/[^0-9]/", "", $version['local_version']);
 		}
-		if($opt=3){ // full
-			return$ggnb_version;
+		if($opt===3){ // full
+			return $ggnb_version;
 		}
 	}
 }
@@ -623,7 +623,7 @@ if(!function_exists('ggnb_reset_local_version')){
  */
  if(!function_exists('gofasgerencianetboleto_config')){
 	function gofasgerencianetboleto_config(){
-		$module_version = '3.11.0';
+		$module_version = '3.11.2';
 		$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
 		$module_page	= '7893';
 		$verify_install = ggnb_verifyInstall();
@@ -1265,7 +1265,7 @@ function gofasgerencianetboleto_link($params){
 		$billet_duedate = date('Y-m-d', strtotime('+1 day')); // Se fatura já venceu, data de vencimento do boleto = Hoje
 	}
 	$invoiceTotal =	$GetInvoiceResults['total'];
-	$invoiceCredit =	(int)($GetInvoiceResults['credit'] * 100);
+	$invoiceCredit =	(int)round($GetInvoiceResults['credit'] * 100);
 
 	// Parâmetros das transações associadas à Fatura
 	foreach( Capsule::table('gofasgerencianetboleto')->where('invoice_id','=',$invoice_id)->where('api_mode','=',$api_mode)->get(['charge_id']) as $charge_id_local){
@@ -1646,7 +1646,7 @@ function gofasgerencianetboleto_link($params){
 	$disc_item = array();
 	foreach( $invoiceItemsItem as $Key => $Value){	
 			if($Value['amount'] < 0 ){
-				$ItEm_discount[] = array('name'=>$Value['description'],'amount'=>1,'value' => (int)($Value['amount'] * 100) );
+				$ItEm_discount[] = array('name'=>$Value['description'],'amount'=>1,'value' => (int)round($Value['amount'] * 100) );
 			}
 	}
 	if( $invoiceCredit>0and is_array($ItEm_discount)){
@@ -1705,18 +1705,18 @@ function gofasgerencianetboleto_link($params){
 	}
 	// Desconto em porcentagem %
 	if( $discount_tax === 1 and $discount_tax_type === 1 and $discount_tax_value ){
-		$discount_tax_valueRS = (int)((((float)$invoiceTotal / (float)100 )*(float)$discount_tax_value)*100);
-		$invoice_amount__  = (int)($invoiceTotal*100);
+		$discount_tax_valueRS = (int)round((($invoiceTotal / 100) * $discount_tax_value) * 100);
+		$invoice_amount__  = (int)round($invoiceTotal*100);
 		$invoice_amount_ = $invoice_amount__ - $discount_tax_valueRS;
 
 		$discount_tax_visible_message	.= '<p>Desconto de '.$discount_tax_value.'% (R$'.number_format($discount_tax_valueRS/100,  2, ',', '.').') para Boleto';
 
 		foreach( $invoiceItemsItem as $ItEmKey => $ItEmValue){
 			if($ItEmValue['amount'] >= 0 ){
-				$ItEm[] = array('name'=>substr($ItEmValue['description'],0,255),'amount'=>1,'value'=>(int)($ItEmValue['amount']*100));
+				$ItEm[] = array('name'=>substr($ItEmValue['description'],0,255),'amount'=>1,'value'=>(int)round($ItEmValue['amount']*100));
 			}
 		}
-		$discount_value = (int)($discount_tax_value*100);
+		$discount_value = (int)round($discount_tax_value*100);
 		$ItEm_discount = array_merge($ItEm_discount, array(array('name' => 'Desconto de '.$discount_tax_value.'% para pagamento com boleto','amount'=>1,'value' => -($discount_tax_valueRS))));
 
 		if($whmcs_discount > 0 ){
@@ -1734,19 +1734,18 @@ function gofasgerencianetboleto_link($params){
 	}
 	// Desconto Fixo R$
 	elseif( $discount_tax === 1 and $discount_tax_type === 2 and $discount_tax_value ){
-		$discount_tax_valueRS = (int)($discount_tax_value*100);
-		//$invoice_amount  = (int)($invoiceTotal - $discount_tax_value) * 100;
-		$invoice_amount__  = (int)($invoiceTotal*100);
+		$discount_tax_valueRS = (int)round($discount_tax_value*100);
+		$invoice_amount__  = (int)round($invoiceTotal*100);
 		$invoice_amount_ = $invoice_amount__ - $discount_tax_valueRS;
 
 		$discount_tax_visible_message	.= '<p>Desconto de R$'.number_format($discount_tax_value,  2, ',', '.').' para Boleto </p>';
 
 		foreach( $invoiceItemsItem as $ItEmKey => $ItEmValue){
 			if($ItEmValue['amount'] >= 0 ){
-				$ItEm[] = array('name' => substr($ItEmValue['description'], 0, 255 ),'amount'=>1,'value' => (int)($ItEmValue['amount']*100),);
+				$ItEm[] = array('name' => substr($ItEmValue['description'], 0, 255 ),'amount'=>1,'value' => (int)round($ItEmValue['amount']*100),);
 			}
 		}
-		$discount_value = (int)($discount_tax_value * 100);
+		$discount_value = (int)round($discount_tax_value * 100);
 		$ItEm_discount = array_merge($ItEm_discount, array(array('name' => 'Desconto fixo para pagamento com boleto','amount'=>1,'value' => -($discount_value))));
 		//$discount_name .= 'Desconto para pagamento por boleto';
 
@@ -1768,14 +1767,14 @@ function gofasgerencianetboleto_link($params){
 	}
 	// Tarifa em porcentagem %
 	elseif( $discount_tax === 2 and $discount_tax_type === 1 and $discount_tax_value ){
-		$discount_tax_valueRS = (int)((((float)$invoiceTotal / (float)100 )*(float)$discount_tax_value)*100);
-		$invoice_amount__  = (int)($invoiceTotal*100);
+		$discount_tax_valueRS = (int)round((($invoiceTotal / 100) * $discount_tax_value) * 100);
+		$invoice_amount__  = (int)round($invoiceTotal*100);
 		$invoice_amount_ = $invoice_amount__ + $discount_tax_valueRS;
-		$discount_tax_visible_message	.= '<p>Tarifa de '.$discount_tax_value.'% (R$'.number_format($discount_tax_valueRS/100,  2, ',', '.') . ') para Boleto</p>';	
+		$discount_tax_visible_message	.= '<p>Tarifa de '.$discount_tax_value.'% (R$'.number_format($discount_tax_valueRS/100,  2, ',', '.') . ') para Boleto</p>';
 
 		foreach( $invoiceItemsItem as $ItEmKey => $ItEmValue){
 			if($ItEmValue['amount'] >= 0 ){
-				$ItEm[] = array('name' => substr($ItEmValue['description'], 0, 255 ), 'amount'=>1,'value' => (int)($ItEmValue['amount']*100),);
+				$ItEm[] = array('name' => substr($ItEmValue['description'], 0, 255 ), 'amount'=>1,'value' => (int)round($ItEmValue['amount']*100),);
 			}
 		}
 		$ItEm[] = array('name' => 'Tarifa do boleto', 'amount'=>1, 'value' => $discount_tax_valueRS,);
@@ -1790,16 +1789,16 @@ function gofasgerencianetboleto_link($params){
 	// Tarifa Fixa R$
 	elseif( $discount_tax === 2 and $discount_tax_type === 2 and $discount_tax_value ){
 
-		$discount_tax_valueRS = (int)($discount_tax_value*100);
-		$invoice_amount__  = (int)($invoiceTotal*100);
+		$discount_tax_valueRS = (int)round($discount_tax_value*100);
+		$invoice_amount__  = (int)round($invoiceTotal*100);
 		$invoice_amount_ = $invoice_amount__ + $discount_tax_valueRS;
 
-		$discount_tax_visible_message	.= '<p>Tarifa de R$'.number_format($discount_tax_value,  2, ',', '.').' para Boleto</p>';	
+		$discount_tax_visible_message	.= '<p>Tarifa de R$'.number_format($discount_tax_value,  2, ',', '.').' para Boleto</p>';
 
 		foreach( $invoiceItemsItem as $ItEmKey => $ItEmValue){
 			if($ItEmValue['amount'] >= 0 ){
-				$ItEm[] = array('name' => substr($ItEmValue['description'], 0, 255 ), 'amount'=>1, 
-				'value' => (int)($ItEmValue['amount']*100),);
+				$ItEm[] = array('name' => substr($ItEmValue['description'], 0, 255 ), 'amount'=>1,
+				'value' => (int)round($ItEmValue['amount']*100),);
 			}
 		}
 		$ItEm[] = array('name' => 'Tarifa do Boleto', 'amount'=>1, 'value' => $discount_tax_valueRS,);
@@ -1814,11 +1813,11 @@ function gofasgerencianetboleto_link($params){
 	elseif( !$discount_tax_value ){
 		foreach( $invoiceItemsItem as $ItEmKey => $ItEmValue){
 			if($ItEmValue['amount'] >= 0 ){
-				$ItEm[] = array('name' => substr($ItEmValue['description'], 0, 255 ), 'amount'=>1, 
-				'value' => (int)($ItEmValue['amount']*100),);
+				$ItEm[] = array('name' => substr($ItEmValue['description'], 0, 255 ), 'amount'=>1,
+				'value' => (int)round($ItEmValue['amount']*100),);
 			}
 		}
-		$invoice_amount_ = (int)($invoiceTotal * 100);
+		$invoice_amount_ = (int)round($invoiceTotal * 100);
 		if($whmcs_discount > 0 ){
 			$discount = array(
 				'type' => 'currency',
@@ -1850,7 +1849,7 @@ function gofasgerencianetboleto_link($params){
 			'value' => (int)array_sum($interest_values_arr), );
 	}
 	if( $fine_interest_values['fine_value'] and !$fine_interest_values['interest_value'] ){
-		$invoice_amount = (int)($invoice_amount_ + (int)array_sum($fine_values_arr)/100);
+		$invoice_amount = (int)($invoice_amount_ + (int)array_sum($fine_values_arr));
 		$discount_tax_visible_message	.= '<p>Multa por atraso: R$'.number_format((int)array_sum($fine_values_arr)/100,  2, ',', '.'). '</p>';
 		$billet_duedate = date('Y-m-d');
 	}
@@ -1861,7 +1860,7 @@ function gofasgerencianetboleto_link($params){
 		$billet_duedate = date('Y-m-d');
 	}
 	elseif( !$fine_interest_values['fine_value'] and $fine_interest_values['interest_value']   ){
-		$invoice_amount = (int)($invoice_amount_ + (int)array_sum($interest_values_arr)/100);
+		$invoice_amount = (int)($invoice_amount_ + (int)array_sum($interest_values_arr));
 		$discount_tax_visible_message	.= '<p>Juros de '.$fine_interest_values['due_days'].' dias de atraso: R$'.number_format((int)array_sum($interest_values_arr)/100,  2, ',', '.'). '</p>';
 		$billet_duedate = date('Y-m-d');
 	}
@@ -2054,12 +2053,7 @@ function gofasgerencianetboleto_link($params){
 				$create_charge = ggnb_create_charge($api_url,$access_token,$body); // body
 				$charge_id = $create_charge['result'];
 				if($create_charge['error']){
-					if($create_charge['error']['error_description']['property']){
-						$error	.= $create_charge['error']['error_description']['property'].' '.$create_charge['error']['error_description']['message'];
-					}
-					elseif($create_charge['error']['error_description'] and !$create_charge['error']['error_description']['property']){
-						$error	.= $create_charge['error']['error'].' '.$create_charge['error']['error_description'];
-					}
+					$error .= $create_charge['error'];
 				}
 				// Definir método de pagamanto e Gerar a Cobrança (retorna link do boleto etc)
 				if( is_int($charge_id) ){
@@ -2067,7 +2061,6 @@ function gofasgerencianetboleto_link($params){
 					$pay_charge		= $pay_charge_['result'];
 					if($pay_charge_['error']){
 						$error	.= $pay_charge_['error'];
-						//$log_result['pay_charge_1_error']	= $pay_charge_;
 					}
 					if( is_array($pay_charge) ){
 						$link		= $pay_charge['data']['link'];
@@ -2101,12 +2094,7 @@ function gofasgerencianetboleto_link($params){
 				$create_charge = ggnb_create_charge($api_url,$access_token,$body); // body
 				$charge_id = $create_charge['result'];
 				if($create_charge['error']){
-					if($create_charge['error']['error_description']['property']){
-						$error .= $create_charge['error']['error_description']['property'].' '.$create_charge['error']['error_description']['message'];
-					}
-					elseif($create_charge['error']['error_description'] and !$create_charge['error']['error_description']['property']){
-						$error .= $create_charge['error']['error'].' '.$create_charge['error']['error_description'];
-					}
+					$error .= $create_charge['error'];
 				}
 				// Definir método de pagamanto e Gerar a Cobrança (retorna link do boleto etc)
 				if( is_int($charge_id) ){
@@ -2118,7 +2106,7 @@ function gofasgerencianetboleto_link($params){
 					if( is_array($pay_charge) ){
 						$link		= $pay_charge['data']['link'];
 						$expire_at	= $pay_charge['data']['expire_at'];
-						$barcode	= $pay_charge['data']['barcode'];						
+						$barcode	= $pay_charge['data']['barcode'];
 						// Save billet on DB
 						$ggnb_store_billet = ggnb_store_billet($pay_charge,$invoice_amount,$invoice_id,$api_mode);
 						if($ggnb_store_billet['error']){
@@ -2131,7 +2119,6 @@ function gofasgerencianetboleto_link($params){
 				}
 				else {
 					$error .= $create_charge['error'];
-
 				}
 			}
 			///
@@ -2147,14 +2134,9 @@ function gofasgerencianetboleto_link($params){
 						$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('charge_id', '=',$trans_id)->delete();
 						// Criar transação
 						$create_charge = ggnb_create_charge($api_url,$access_token,$body); // body
-						$charge_id = $create_charge['result'];						
+						$charge_id = $create_charge['result'];
 						if($create_charge['error']){
-							if($create_charge['error']['error_description']['property']){
-								$error	.= $create_charge['error']['error_description']['property'].' '.$create_charge['error']['error_description']['message'];
-							}
-							elseif($create_charge['error']['error_description'] and !$create_charge['error']['error_description']['property']){
-								$error	.= $create_charge['error']['error'].' '.$create_charge['error']['error_description'];
-							}
+							$error .= $create_charge['error'];
 						}
 					}
 					else {
@@ -2162,7 +2144,7 @@ function gofasgerencianetboleto_link($params){
 					}
 				}
 				elseif($chargeExistStatus === 'canceled'){ // ignora transação cancelada
-					$create_charge = ggnb_create_charge( $api, $body, $system_url); // body
+					$create_charge = ggnb_create_charge($api_url, $access_token, $body); // body
 					$charge_id = $create_charge['result'];					
 					if($create_charge['error']){
 						$error	.= $create_charge['error'];
@@ -2190,7 +2172,7 @@ function gofasgerencianetboleto_link($params){
 				}
 			}			
 		} // End of if( $trans_id and !$error)
-		/// The firt billet for the invoice
+		/// The first billet for the invoice
 		if( !$trans_id ){
 			if( (float)$invoiceTotal >= (float)$minimunAmount){
 				// Criar transação
@@ -2233,7 +2215,7 @@ function gofasgerencianetboleto_link($params){
 		if($error){
 			// Email enviado ao admin em caso de erro
 			if( $emailonError ){
-				$sendEmailonError = ggnb_send_error_email( $invoice_id, $user_id, $firstname, $lastname, $system_url, $emailonError, $error);
+				$sendEmailonError = ggnb_send_error_email( $invoice_id, $user_id, $firstname, $lastname, $emailonError, $error);
 			}
 			if($params['log']){
 				logModuleCall("gofasgerencianetboleto","genarate_billet",get_defined_vars(),"", $error);
@@ -2357,10 +2339,10 @@ function gofasgerencianetboleto_link($params){
 		$add_trans = ggnb_add_trans($user_id,$invoiceId,$paymentAmount,$fee, 'ggnb-'.$api_mode.'-'.$charge_id, 'Boleto pago - confirmação via notificação/callback');
 			
 		if($params['log']){
-			echo json_encode(['Add transaction'=>$addtransresult]);
+			echo json_encode(['Add transaction'=>$add_trans]);
 		}
 		if($params['log']){
-			logModuleCall("gofasgerencianetboleto","receive_callback",array(get_defined_vars()),"", array($addtransresult));
+			logModuleCall("gofasgerencianetboleto","receive_callback",array(get_defined_vars()),"", array($add_trans));
 		}
 	 }
  }
@@ -2602,7 +2584,7 @@ if(!function_exists('ggnb_check_status_updates')){
 		$log['update_invoice'] = $update_invoice;
 		$log['add_trans'] = $add_trans;
 		if($params['log']){
-			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.11.0','params'=>$params),'',array($log) );
+			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.11.2','params'=>$params),'',array($log) );
 		}
 		return;  
 	}
