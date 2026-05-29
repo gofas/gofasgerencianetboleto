@@ -1,14 +1,5 @@
 # Changelog
 
-## [Unreleased](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
-
-[Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.11.2...HEAD)
-
-**Fixed bugs:**
-
-- Boleto cancelado e recriado indevidamente por diferença de R$0,01 causada por ponto flutuante [\#189](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/189)
-- TypeError: Cannot access offset of type string on string no PHP 8 ao gerar boleto [\#188](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/188)
-
 ## [v3.11.2](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.11.2) (29/05/2026)
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.10.0...v3.11.2)
@@ -20,6 +11,8 @@
 
 **Fixed bugs:**
 
+- Boleto cancelado e recriado indevidamente por diferença de R$0,01 causada por ponto flutuante [\#189](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/189)
+- TypeError: Cannot access offset of type string on string no PHP 8 ao gerar boleto [\#188](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/188)
 - Corrigido o tratamento de erros que ainda são desconhecidos com adição de mensagem de erro mais abrangente [\#187](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/187)
 
 ## [v3.10.0](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/v3.10.0) (03/03/2025)
