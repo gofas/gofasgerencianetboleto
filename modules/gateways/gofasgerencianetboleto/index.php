@@ -10,9 +10,6 @@
  */
 use WHMCS\Application;
 use WHMCS\Database\Capsule;
-//require_once ggnb_whmcs_url('root_dir').'/init.php';
-//require_once ggnb_whmcs_url('root_dir').'/includes/gatewayfunctions.php';
-//require_once ggnb_whmcs_url('root_dir').'/includes/invoicefunctions.php';
 
 if(!function_exists('ggnb_verifyInstall')){
 function ggnb_verifyInstall(){
