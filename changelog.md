@@ -4,6 +4,10 @@
 
 [Full Changelog](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.11.2...HEAD)
 
+**Fixed bugs:**
+
+- Boleto cancelado e recriado indevidamente por diferença de R$0,01 causada por ponto flutuante [\#189](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/189)
+
 **Closed issues:**
 
 - Corrigido o link nas configurações do módulo que aponta para a documentação \> mergetags [\#182](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/182)
@@ -19,7 +23,6 @@
 
 **Fixed bugs:**
 
-- Boleto cancelado e recriado indevidamente por diferença de R$0,01 causada por ponto flutuante [\#189](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/189)
 - TypeError: Cannot access offset of type string on string no PHP 8 ao gerar boleto [\#188](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/188)
 - Corrigido o tratamento de erros que ainda são desconhecidos com adição de mensagem de erro mais abrangente [\#187](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/187)
 
