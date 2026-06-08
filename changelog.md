@@ -6,6 +6,7 @@
 
 **Fixed bugs:**
 
+- Boleto cancelado e recriado ao visualizar fatura quando API retorna rate\_limit\_exceeded [\#191](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/191)
 - Boleto cancelado e recriado indevidamente por diferença de R$0,01 causada por ponto flutuante [\#189](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/189)
 
 **Closed issues:**
