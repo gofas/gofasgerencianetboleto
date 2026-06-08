@@ -6,7 +6,7 @@
  * @copyright	2016 -> 2025 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.11.2
+ * @version		3.11.3
  */
 use WHMCS\Application;
 use WHMCS\Database\Capsule;
@@ -620,7 +620,7 @@ if(!function_exists('ggnb_reset_local_version')){
  */
  if(!function_exists('gofasgerencianetboleto_config')){
 	function gofasgerencianetboleto_config(){
-		$module_version = '3.11.2';
+		$module_version = '3.11.3';
 		$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
 		$module_page	= '7893';
 		$verify_install = ggnb_verifyInstall();
@@ -2042,7 +2042,7 @@ function gofasgerencianetboleto_link($params){
 					$error .= $updateBillet['error'];
 				}
 			}
-			if((!$barcode and ((int)$chargeExistID === (int)$trans_id and ($chargeExistStatus === 'canceled' || $chargeExistStatus === 'unpaid'))) or (float)$chargeExistTotal !== (float)$invoice_amount){
+			if(!$error and ((!$barcode and ((int)$chargeExistID === (int)$trans_id and ($chargeExistStatus === 'canceled' || $chargeExistStatus === 'unpaid'))) or (float)$chargeExistTotal !== (float)$invoice_amount)){
 				$cancelCharge = ggnb_cancel_charge($api_url,$access_token,$trans_id);
 				if( $cancelCharge['result'] === 'success'){
 					$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('charge_id', '=',$trans_id)->delete();
@@ -2581,7 +2581,7 @@ if(!function_exists('ggnb_check_status_updates')){
 		$log['update_invoice'] = $update_invoice;
 		$log['add_trans'] = $add_trans;
 		if($params['log']){
-			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.11.2','params'=>$params),'',array($log) );
+			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.11.3','params'=>$params),'',array($log) );
 		}
 		return;  
 	}
