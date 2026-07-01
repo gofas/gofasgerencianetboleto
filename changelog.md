@@ -1,6 +1,6 @@
 # Changelog
 
-## [Próxima atualização](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+## [v3.12.0 - 01/07/2026](https://github.com/mauriciogofas/gofasgerencianetboleto/releases/tag/v3.12.0)
 
 
 **Melhorias:**
@@ -11,7 +11,7 @@
 
 - Boleto cancelado e recriado ao visualizar fatura quando API retorna rate_limit_exceeded - [#191](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/191) <a href="https://github.com/mauriciogofas/gofasgerencianetboleto/issues?q=is%3Aissue+state%3Aclosed+label%3Abug" style="color:#a99c9c;text-decoration:none"><code>bug</code></a>
 
-[Comparar versões](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.11.3...HEAD)
+[Comparar versões](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.11.3...v3.12.0)
 
 ## [v3.11.3  - 09/06/2026](https://github.com/mauriciogofas/gofasgerencianetboleto/releases/tag/v3.11.3)
 
