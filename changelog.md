@@ -3,6 +3,10 @@
 ## [Próxima atualização](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
 
 
+**Melhorias:**
+
+- Telemetria com consentimento opt-in e confirmações anônimas por módulo+versão - [#192](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/192) <a href="https://github.com/mauriciogofas/gofasgerencianetboleto/issues?q=is%3Aissue+state%3Aclosed+label%3Aenhancement" style="color:#a99c9c;text-decoration:none"><code>enhancement</code></a>
+
 **Correções:**
 
 - Boleto cancelado e recriado ao visualizar fatura quando API retorna rate_limit_exceeded - [#191](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/191) <a href="https://github.com/mauriciogofas/gofasgerencianetboleto/issues?q=is%3Aissue+state%3Aclosed+label%3Abug" style="color:#a99c9c;text-decoration:none"><code>bug</code></a>
