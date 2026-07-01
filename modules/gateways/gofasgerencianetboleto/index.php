@@ -6,7 +6,7 @@
  * @copyright	2016 -> 2025 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.11.3
+ * @version		3.12.0
  */
 use WHMCS\Application;
 use WHMCS\Database\Capsule;
@@ -501,9 +501,24 @@ if(!function_exists('ggnb_update_stats') ){
 		if($params['sandbox']){
 			return;
 		}
-		$whmcs_url = ggnb_whmcs_url();
-		$setup_admin = ggnb_setup_admin();
-		$query = '?software_id=7893&install_url='.$whmcs_url['admin_url'].'&current_version='.ggnb_get_local_version().'&installer_email='.$setup_admin['email'].'&installer_firstname='.$setup_admin['firstname'].'&installer_lastname='.$setup_admin['lastname'].'&action=charge'.ggnb_sysinfo();
+		// Sem consentimento: contabiliza a confirmacao de pagamento de forma anonima (sem URL nem identificacao do admin)
+		if(empty($params['consent_stats'])){
+			$anon_version = ggnb_get_local_version();
+			$anon_id = 'gefib-v'.$anon_version;
+			$install_url = $anon_id;
+			$installer_email = $anon_id.'@gofas.net';
+			$installer_firstname = 'gefib';
+			$installer_lastname = 'v'.$anon_version;
+		}
+		else{
+			$whmcs_url = ggnb_whmcs_url();
+			$setup_admin = ggnb_setup_admin();
+			$install_url = $whmcs_url['admin_url'];
+			$installer_email = $setup_admin['email'];
+			$installer_firstname = $setup_admin['firstname'];
+			$installer_lastname = $setup_admin['lastname'];
+		}
+		$query = '?software_id=7893&install_url='.$install_url.'&current_version='.ggnb_get_local_version().'&installer_email='.$installer_email.'&installer_firstname='.$installer_firstname.'&installer_lastname='.$installer_lastname.'&action=charge'.ggnb_sysinfo();
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST,0);
 		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER,0);
@@ -620,7 +635,7 @@ if(!function_exists('ggnb_reset_local_version')){
  */
  if(!function_exists('gofasgerencianetboleto_config')){
 	function gofasgerencianetboleto_config(){
-		$module_version = '3.11.3';
+		$module_version = '3.12.0';
 		$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
 		$module_page	= '7893';
 		$verify_install = ggnb_verifyInstall();
@@ -799,6 +814,13 @@ if(!function_exists('ggnb_reset_local_version')){
 				'Type' => 'yesno',
 				'Default' => 'no',
 				'Description' => 'Salva informações de diagnóstico em <a target="_blank" style="text-decoration: underline;" href="'.$ggnbwhmcsadminurl.'systemmodulelog.php">Utilitários > Logs > Log de Módulo</a>. Para funcionar, antes é necessário ativar o debug de módulo clicando em "Ativar Log de Debug". <a target="_blank" style="text-decoration: underline;" href="'.$ggnbwhmcsadminurl.'systemmodulelog.php">VER LOG</a>.',
+			),
+			// Consentimento opt-in para envio de estatisticas de uso (action=charge)
+			'consent_stats' => array(
+				'FriendlyName' => $opt_num++.'- Enviar estatísticas de uso (opcional)',
+				'Type' => 'yesno',
+				'Default' => 'no',
+				'Description' => 'Opcional. Controla o envio identificado das estatísticas de confirmação de pagamento. Marcado: as confirmações são enviadas à Gofas identificadas pela URL do WHMCS, versão do módulo, versão do WHMCS, versão do PHP, email e nome do administrador. Desmarcado: as confirmações de pagamento continuam sendo contabilizadas, porém de forma anônima, sem URL nem identificação do administrador. Em ambos os casos, a verificação de novas versões do módulo envia a URL do WHMCS e o contato do administrador para notificar atualizações e contabilizar a instalação como ativa.',
 			),
 			'fee' => array(
 				'FriendlyName'      => $opt_num++.'- Valor da tarifa por Boleto',
@@ -2581,7 +2603,7 @@ if(!function_exists('ggnb_check_status_updates')){
 		$log['update_invoice'] = $update_invoice;
 		$log['add_trans'] = $add_trans;
 		if($params['log']){
-			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.11.3','params'=>$params),'',array($log) );
+			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.12.0','params'=>$params),'',array($log) );
 		}
 		return;  
 	}
