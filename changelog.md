@@ -1,13 +1,13 @@
 # Changelog
 
-## [Próxima atualização](https://github.com/mauriciogofas/gofasgerencianetboleto/tree/HEAD)
+## [v3.12.1 - 01/07/2026](https://github.com/mauriciogofas/gofasgerencianetboleto/releases/tag/v3.12.1)
 
 
 **Melhorias:**
 
 - Token anônimo de telemetria usa a versão do arquivo (ggnb_module_version) - [#193](https://github.com/mauriciogofas/gofasgerencianetboleto/issues/193) <a href="https://github.com/mauriciogofas/gofasgerencianetboleto/issues?q=is%3Aissue+state%3Aclosed+label%3Aenhancement" style="color:#a99c9c;text-decoration:none"><code>enhancement</code></a>
 
-[Comparar versões](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.12.0...HEAD)
+[Comparar versões](https://github.com/mauriciogofas/gofasgerencianetboleto/compare/v3.12.0...v3.12.1)
 
 ## [v3.12.0 - 01/07/2026](https://github.com/mauriciogofas/gofasgerencianetboleto/releases/tag/v3.12.0)
 
