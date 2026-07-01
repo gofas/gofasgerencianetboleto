@@ -6,7 +6,7 @@
  * @copyright	2016 -> 2025 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.12.0
+ * @version		3.12.1
  */
 use WHMCS\Application;
 use WHMCS\Database\Capsule;
@@ -496,6 +496,9 @@ if(!function_exists('ggnb_setup_admin')){
 	return $admin;
 }}
 if(!function_exists('ggnb_update_stats') ){
+	function ggnb_module_version(){
+		return '3.12.1';
+	}
 	function ggnb_update_stats(){
 		$params = getGatewayVariables('gofasgerencianetboleto');
 		if($params['sandbox']){
@@ -503,7 +506,7 @@ if(!function_exists('ggnb_update_stats') ){
 		}
 		// Sem consentimento: contabiliza a confirmacao de pagamento de forma anonima (sem URL nem identificacao do admin)
 		if(empty($params['consent_stats'])){
-			$anon_version = ggnb_get_local_version();
+			$anon_version = ggnb_module_version();
 			$anon_id = 'gefib-v'.$anon_version;
 			$install_url = $anon_id;
 			$installer_email = $anon_id.'@gofas.net';
@@ -635,7 +638,7 @@ if(!function_exists('ggnb_reset_local_version')){
  */
  if(!function_exists('gofasgerencianetboleto_config')){
 	function gofasgerencianetboleto_config(){
-		$module_version = '3.12.0';
+		$module_version = ggnb_module_version();
 		$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
 		$module_page	= '7893';
 		$verify_install = ggnb_verifyInstall();
@@ -2603,7 +2606,7 @@ if(!function_exists('ggnb_check_status_updates')){
 		$log['update_invoice'] = $update_invoice;
 		$log['add_trans'] = $add_trans;
 		if($params['log']){
-			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>'3.12.0','params'=>$params),'',array($log) );
+			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>ggnb_module_version(),'params'=>$params),'',array($log) );
 		}
 		return;  
 	}
