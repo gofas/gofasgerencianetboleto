@@ -141,7 +141,3 @@ Além dos códigos de erro da API Efí, o módulo fornece mensagens específicas
 - "Falha ao gerar a transação na 2ª conexão com a API": verifique os campos "Descrição" e "Valor total" da fatura.
 - "Erro de comunicação na 2ª/3ª conexão com a API": ative o Debug do módulo para diagnóstico detalhado.
 - "CPF/Telefone/Nome incorretos": dados cadastrais do cliente precisam ser corrigidos.
-
-## Changelog
-
-Ver [changelog.md](changelog.md).
