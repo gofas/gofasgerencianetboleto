@@ -1,4 +1,4 @@
-# Gofas Efí Boleto (Gerencianet Boleto) para WHMCS
+# Gofas Efí Boleto para WHMCS
 
 Gerencianet agora é Efí. O nome mudou mas este continua sendo, desde 2016, um dos módulos mais completos do mercado para emissão de boleto bancário registrado via WHMCS, integrando geração, consulta e baixa automática de boletos pela API Efí (antiga Gerencianet). Desenvolvido pela Gofas Software, é 100% gratuito.
 
