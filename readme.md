@@ -141,3 +141,7 @@ Além dos códigos de erro da API Efí, o módulo fornece mensagens específicas
 - "Falha ao gerar a transação na 2ª conexão com a API": verifique os campos "Descrição" e "Valor total" da fatura.
 - "Erro de comunicação na 2ª/3ª conexão com a API": ative o Debug do módulo para diagnóstico detalhado.
 - "CPF/Telefone/Nome incorretos": dados cadastrais do cliente precisam ser corrigidos.
+
+## Licença
+
+Software proprietário da Gofas Software. O código é público apenas para transparência e consulta; isso não concede licença de uso, modificação ou redistribuição. É vedado modificar, redistribuir, sublicenciar ou realizar engenharia reversa sem autorização prévia por escrito. Veja [LICENSE](LICENSE) e o contrato completo em https://gofas.net/contrato-de-venda-de-licenca-de-uso-de-software/.
