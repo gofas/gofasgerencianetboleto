@@ -4,6 +4,12 @@ Gerencianet agora é Efí. O nome mudou mas este continua sendo, desde 2016, um 
 
 Configuração simples, objetiva e focada em atender todos os modelos de negócio. Nos bastidores o módulo automatiza os principais processos, cuidando dos detalhes da automatização de recebimentos.
 
+## Download
+
+Baixe a versão mais recente (código completo do repositório):
+
+https://github.com/gofas/gofasgerencianetboleto/archive/refs/heads/master.zip
+
 ## Funcionalidades
 
 - **Boletos registrados** sem taxas de registro/baixa
