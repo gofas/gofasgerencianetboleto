@@ -6,7 +6,7 @@
  * @copyright	2016 -> 2025 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.12.1
+ * @version		3.12.2
  */
 use WHMCS\Application;
 use WHMCS\Database\Capsule;
@@ -497,7 +497,7 @@ if(!function_exists('ggnb_setup_admin')){
 }}
 if(!function_exists('ggnb_update_stats') ){
 	function ggnb_module_version(){
-		return '3.12.1';
+		return '3.12.2';
 	}
 	function ggnb_update_stats(){
 		$params = getGatewayVariables('gofasgerencianetboleto');
