@@ -818,13 +818,6 @@ if(!function_exists('ggnb_reset_local_version')){
 				'Default' => 'no',
 				'Description' => 'Salva informações de diagnóstico em <a target="_blank" style="text-decoration: underline;" href="'.$ggnbwhmcsadminurl.'systemmodulelog.php">Utilitários > Logs > Log de Módulo</a>. Para funcionar, antes é necessário ativar o debug de módulo clicando em "Ativar Log de Debug". <a target="_blank" style="text-decoration: underline;" href="'.$ggnbwhmcsadminurl.'systemmodulelog.php">VER LOG</a>.',
 			),
-			// Consentimento opt-in para envio de estatisticas de uso (action=charge)
-			'consent_stats' => array(
-				'FriendlyName' => $opt_num++.'- Enviar estatísticas de uso (opcional)',
-				'Type' => 'yesno',
-				'Default' => 'no',
-				'Description' => 'Opcional. Controla o envio identificado das estatísticas de confirmação de pagamento. Marcado: as confirmações são enviadas à Gofas identificadas pela URL do WHMCS, versão do módulo, versão do WHMCS, versão do PHP, email e nome do administrador. Desmarcado: as confirmações de pagamento continuam sendo contabilizadas, porém de forma anônima, sem URL nem identificação do administrador. Em ambos os casos, a verificação de novas versões do módulo envia a URL do WHMCS e o contato do administrador para notificar atualizações e contabilizar a instalação como ativa.',
-			),
 			'fee' => array(
 				'FriendlyName'      => $opt_num++.'- Valor da tarifa por Boleto',
 				'Type'              => 'text',
@@ -1121,6 +1114,13 @@ if(!function_exists('ggnb_reset_local_version')){
 				'Size' => '60',
 				'Default' => 'Aceitar apenas pagamento em dinheiro.',
 				'Description' => '<span class="ggnb_optional_txt">(Opcional)</span> Insira a 4ª linha de instruções do Boleto.',
+			),
+			// Consentimento opt-in para envio de estatisticas de uso (action=charge)
+			'consent_stats' => array(
+				'FriendlyName' => $opt_num++.'- Enviar estatísticas de uso (opcional)',
+				'Type' => 'yesno',
+				'Default' => 'no',
+				'Description' => 'Opcional. Controla o envio identificado das estatísticas de confirmação de pagamento. Marcado: as confirmações são enviadas à Gofas identificadas pela URL do WHMCS, versão do módulo, versão do WHMCS, versão do PHP, email e nome do administrador. Desmarcado: as confirmações de pagamento continuam sendo contabilizadas, porém de forma anônima, sem URL nem identificação do administrador. Em ambos os casos, a verificação de novas versões do módulo envia a URL do WHMCS e o contato do administrador para notificar atualizações e contabilizar a instalação como ativa.',
 			),
 		);
 		$footer = array('footer' => array(
