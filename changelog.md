@@ -5,6 +5,7 @@
 
 **Melhorias:**
 
+- Reordenar campo consent_stats para ultima posicao (antes do footer) - [#196](https://github.com/gofas/gofasgerencianetboleto/issues/196)
 - readme canonico: corrigir 4 erros e unificar com a descricao da pagina - [#194](https://github.com/gofas/gofasgerencianetboleto/issues/194)
 
 [Comparar versões](https://github.com/gofas/gofasgerencianetboleto/compare/v3.12.1...HEAD)
