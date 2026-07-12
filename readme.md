@@ -6,9 +6,9 @@ Configuração simples, objetiva e focada em atender todos os modelos de negóci
 
 ## Download
 
-Baixe a versão mais recente (código completo do repositório):
+Baixe a versão mais recente:
 
-https://github.com/gofas/gofasgerencianetboleto/archive/refs/heads/master.zip
+https://github.com/gofas/gofasgerencianetboleto/releases/latest/download/gofasgerencianetboleto.zip
 
 ## Funcionalidades
 
@@ -49,8 +49,8 @@ O certificado `.p12` não é necessário para o boleto. Ele é exigido apenas pe
 
 ## Instalação
 
-1. Baixe o arquivo pelo botão de download (é o código completo do repositório) e descompacte. Será criada a pasta `gofasgerencianetboleto-master`.
-2. Copie as pastas `includes` e `modules` de dentro de `gofasgerencianetboleto-master` para a raiz da instalação do WHMCS, mesclando com as pastas existentes. Os itens `.github`, `readme.md` e `changelog.md` podem ser ignorados.
+1. Baixe o arquivo pelo link de download e descompacte. Será criada a pasta `gofasgerencianetboleto`.
+2. Copie as pastas `includes` e `modules` de dentro de `gofasgerencianetboleto` para a raiz da instalação do WHMCS, mesclando com as pastas existentes.
 3. Ative o módulo em `Opções > Pagamentos > Portais para Pagamentos > Aba All Payment Gateways`.
 4. Informe o Client ID e o Client Secret.
 
