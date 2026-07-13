@@ -5,6 +5,7 @@
 
 **Melhorias:**
 
+- readme: titulo igual ao titulo da pagina - [#198](https://github.com/gofas/gofasgerencianetboleto/issues/198)
 - readme: captura de configuracao da v3.12.2 e link de download contabilizavel - [#197](https://github.com/gofas/gofasgerencianetboleto/issues/197)
 
 [Comparar versões](https://github.com/gofas/gofasgerencianetboleto/compare/v3.12.2...HEAD)
