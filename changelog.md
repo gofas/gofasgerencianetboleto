@@ -5,6 +5,7 @@
 
 **Melhorias:**
 
+- readme: contador do site, captura sem aviso de hook e secao de licenca - [#200](https://github.com/gofas/gofasgerencianetboleto/issues/200)
 - readme: captura versionada, badges e sumario - [#199](https://github.com/gofas/gofasgerencianetboleto/issues/199)
 - readme: titulo igual ao titulo da pagina - [#198](https://github.com/gofas/gofasgerencianetboleto/issues/198)
 - readme: captura de configuracao da v3.12.2 e link de download contabilizavel - [#197](https://github.com/gofas/gofasgerencianetboleto/issues/197)
