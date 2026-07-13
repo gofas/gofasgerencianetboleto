@@ -5,6 +5,7 @@
 
 **Melhorias:**
 
+- readme: link de suporte para o forum do proprio modulo - [#201](https://github.com/gofas/gofasgerencianetboleto/issues/201)
 - readme: contador do site, captura sem aviso de hook e secao de licenca - [#200](https://github.com/gofas/gofasgerencianetboleto/issues/200)
 - readme: captura versionada, badges e sumario - [#199](https://github.com/gofas/gofasgerencianetboleto/issues/199)
 - readme: titulo igual ao titulo da pagina - [#198](https://github.com/gofas/gofasgerencianetboleto/issues/198)
