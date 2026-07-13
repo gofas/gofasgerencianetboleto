@@ -2,7 +2,7 @@
 
 [![versão](https://img.shields.io/github/v/release/gofas/gofasgerencianetboleto?label=vers%C3%A3o&color=005071&style=flat-square)](https://github.com/gofas/gofasgerencianetboleto/releases/latest)
 [![downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fgofas.net%2Fwp-json%2Fgofas%2Fv1%2Fbadge%2Fgofasgerencianetboleto&style=flat-square)](https://github.com/gofas/gofasgerencianetboleto/releases/latest)
-[![suporte](https://img.shields.io/badge/suporte-f%C3%B3rum%20gratuito-ff8700?style=flat-square)](https://gofas.net/foruns/)
+[![abrir issue](https://img.shields.io/badge/suporte-abrir%20issue-ff8700?style=flat-square)](https://gofas.net/?p=7856/#new-post)
 
 Gerencianet agora é Efí. O nome mudou mas este continua sendo, desde 2016, um dos módulos mais completos do mercado para emissão de boleto bancário registrado via WHMCS, integrando geração, consulta e baixa automática de boletos pela API Efí (antiga Gerencianet). Desenvolvido pela Gofas Software, é 100% gratuito.
 
