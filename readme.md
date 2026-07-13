@@ -1,14 +1,29 @@
 # Módulo Efí Boleto para WHMCS
 
+[![versão](https://img.shields.io/github/v/release/gofas/gofasgerencianetboleto?label=vers%C3%A3o&color=005071&style=flat-square)](https://github.com/gofas/gofasgerencianetboleto/releases/latest)
+[![downloads](https://img.shields.io/github/downloads/gofas/gofasgerencianetboleto/total?label=downloads&color=005071&style=flat-square)](https://github.com/gofas/gofasgerencianetboleto/releases/latest)
+[![licença](https://img.shields.io/badge/licen%C3%A7a-propriet%C3%A1ria-005071?style=flat-square)](https://gofas.net/contrato-de-venda-de-licenca-de-uso-de-software/)
+[![suporte](https://img.shields.io/badge/suporte-f%C3%B3rum%20gratuito-ff8700?style=flat-square)](https://gofas.net/foruns/)
+
 Gerencianet agora é Efí. O nome mudou mas este continua sendo, desde 2016, um dos módulos mais completos do mercado para emissão de boleto bancário registrado via WHMCS, integrando geração, consulta e baixa automática de boletos pela API Efí (antiga Gerencianet). Desenvolvido pela Gofas Software, é 100% gratuito.
 
 Configuração simples, objetiva e focada em atender todos os modelos de negócio. Nos bastidores o módulo automatiza os principais processos, cuidando dos detalhes da automatização de recebimentos.
 
+## Sumário
+
+- [Download](#download)
+- [Funcionalidades](#funcionalidades)
+- [Requisitos](#requisitos)
+- [Instalação](#instalação)
+- [Configuração](#configuração)
+- [Informações importantes](#informações-importantes)
+- [Licença](#licença)
+
 ## Download
 
-Baixe a versão mais recente:
+**[Baixar a versão mais recente](https://github.com/gofas/gofasgerencianetboleto/releases/latest/download/gofasgerencianetboleto.zip)**
 
-https://github.com/gofas/gofasgerencianetboleto/releases/latest/download/gofasgerencianetboleto.zip
+O download é contabilizado no site pelo contador de instalações do módulo.
 
 ## Funcionalidades
 
@@ -69,7 +84,7 @@ O certificado `.p12` não é necessário para o boleto. Ele é exigido apenas pe
 
 ### Opções do módulo
 
-<img src="https://raw.githubusercontent.com/gofas/gofasgerencianetboleto/master/docs/img/tela-configuracoes-modulo.png" alt="Tela de configuracoes do modulo" width="640">
+<img src="https://raw.githubusercontent.com/gofas/gofasgerencianetboleto/master/docs/img/tela-configuracoes-modulo-3.12.2.png" alt="Tela de configuracoes do modulo" width="640">
 
 - **Client ID Produção**: (obrigatório) Client ID da aba Produção da sua aplicação.
 - **Client Secret Produção**: (obrigatório) Client Secret da aba Produção da sua aplicação.
