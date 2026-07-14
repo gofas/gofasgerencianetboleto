@@ -5,6 +5,7 @@
 
 **Melhorias:**
 
+- Callback descarta notificacao quando o boleto foi regerado (charge_id divergente) e permite mais de um boleto por fatura - [#202](https://github.com/gofas/gofasgerencianetboleto/issues/202)
 - readme: link de suporte para o forum do proprio modulo - [#201](https://github.com/gofas/gofasgerencianetboleto/issues/201)
 - readme: contador do site, captura sem aviso de hook e secao de licenca - [#200](https://github.com/gofas/gofasgerencianetboleto/issues/200)
 - readme: captura versionada, badges e sumario - [#199](https://github.com/gofas/gofasgerencianetboleto/issues/199)
