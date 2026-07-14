@@ -6,7 +6,7 @@
  * @copyright	2016 -> 2025 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.12.2
+ * @version		3.13.0
  */
 use WHMCS\Application;
 use WHMCS\Database\Capsule;
@@ -141,6 +141,8 @@ if(!function_exists('ggnb_cancel_charge')){
 			$error = 'Erro: '.$json['error'].($json['error_description'] ? ' - '.$json['error_description'] : '');
 			return array('error'=> $error);
 		}
+		// Resposta inesperada da Efí: tratada como falha, nunca como sucesso
+		return array('error'=>'Erro: resposta inesperada da Efí ao cancelar a cobrança '.$trans_id.'. '.json_encode($json));
 	}
 }
 /**
@@ -248,7 +250,6 @@ if( !function_exists('ggnb_add_trans') ){
  		$addtransvalues['transid'] = $charge_id;
  		$addtransvalues['date'] = date('d/m/Y');
 		$addtransresults = localAPI( "addtransaction", $addtransvalues, ggnb_setup_admin('id'));
-		$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('invoice_id', '=',$invoice_id)->delete();
 		$ggnb_update_stats = ggnb_update_stats();
 		if( $addtransresults['result'] === 'success'){
 			return array('values'=>$addtransvalues, 'result'=>$addtransresults);
@@ -257,6 +258,342 @@ if( !function_exists('ggnb_add_trans') ){
 			$error = '<b>Não foi possível gravar a transação.</b>';
 			return array('error'=>$error, 'values'=>$addtransvalues, 'result'=>$addtransresults,'update_stats'=>$ggnb_update_stats);
 		}
+	}
+}
+/**
+ *
+ * Ultimo boleto ativo da fatura (nao pago, nao cancelado)
+ * @ggnb_active_charge
+ *
+ */
+if(!function_exists('ggnb_active_charge')){
+	function ggnb_active_charge($invoice_id,$api_mode){
+		$row = Capsule::table('gofasgerencianetboleto')
+			->where('invoice_id','=',(string)$invoice_id)
+			->where('api_mode','=',$api_mode)
+			->whereNotIn('status',array('paid','canceled'))
+			->orderBy('id','desc')
+			->first(array('charge_id'));
+		if($row and $row->charge_id){
+			return (string)$row->charge_id;
+		}
+		return false;
+	}
+}
+/**
+ *
+ * Status de cobranca que representam pagamento: paid (pago no banco) e settled (baixa manual no painel da Efi)
+ * @ggnb_is_paid_status
+ *
+ */
+if(!function_exists('ggnb_is_paid_status')){
+	function ggnb_is_paid_status($status){
+		return in_array((string)$status, array('paid','settled'), true);
+	}
+}
+/**
+ *
+ * Status atual da cobranca na Efi: a Efi e a fonte da verdade, nunca o retorno do cancelamento
+ * @ggnb_charge_status
+ *
+ */
+if(!function_exists('ggnb_charge_status')){
+	function ggnb_charge_status($api_url,$access_token,$charge_id){
+		$detail = ggnb_detail_charge($api_url,$access_token,$charge_id);
+		$status = (string)$detail['result']['data']['status'];
+		if(!$status){
+			return array('error'=>'Não foi possível consultar a cobrança '.$charge_id.' na Efí: '.$detail['error']);
+		}
+		return array('status'=>$status,'charge'=>$detail['result']['data']);
+	}
+}
+/**
+ *
+ * Cancela a cobranca e so confirma o cancelamento depois de reconsultar o status na Efi
+ * @ggnb_cancel_charge_confirmed
+ *
+ */
+if(!function_exists('ggnb_cancel_charge_confirmed')){
+	function ggnb_cancel_charge_confirmed($api_url,$access_token,$charge_id,$api_mode){
+		$before = ggnb_charge_status($api_url,$access_token,$charge_id);
+		if($before['error']){
+			return array('error'=>$before['error']);
+		}
+		if(ggnb_is_paid_status($before['status'])){
+			ggnb_set_charge_status($charge_id,$api_mode,'paid');
+			return array('paid'=>true,'error'=>'A cobrança '.$charge_id.' está paga: não pode ser cancelada.');
+		}
+		if((string)$before['status'] === 'canceled'){
+			ggnb_set_charge_status($charge_id,$api_mode,'canceled');
+			return array('canceled'=>true);
+		}
+		$cancel = ggnb_cancel_charge($api_url,$access_token,$charge_id);
+		// A Efi e reconsultada: o cancelamento so vale se o status virou canceled
+		$after = ggnb_charge_status($api_url,$access_token,$charge_id);
+		if($after['error']){
+			return array('error'=>$after['error']);
+		}
+		if(ggnb_is_paid_status($after['status'])){
+			ggnb_set_charge_status($charge_id,$api_mode,'paid');
+			return array('paid'=>true,'error'=>'A cobrança '.$charge_id.' foi paga: não pode ser cancelada.');
+		}
+		if((string)$after['status'] !== 'canceled'){
+			return array('error'=>'A cobrança '.$charge_id.' continua com status "'.$after['status'].'" na Efí após o pedido de cancelamento. '.$cancel['error']);
+		}
+		ggnb_set_charge_status($charge_id,$api_mode,'canceled');
+		return array('canceled'=>true);
+	}
+}
+/**
+ *
+ * Atualiza o status local do boleto, mantendo o historico da fatura
+ * @ggnb_set_charge_status
+ *
+ */
+if(!function_exists('ggnb_set_charge_status')){
+	function ggnb_set_charge_status($charge_id,$api_mode,$status){
+		return Capsule::table('gofasgerencianetboleto')
+			->where('charge_id','=',(string)$charge_id)
+			->where('api_mode','=',$api_mode)
+			->update(array('status'=>$status));
+	}
+}
+/**
+ *
+ * Verifica se a transacao ja foi lancada na fatura
+ * @ggnb_transaction_exists
+ *
+ */
+if(!function_exists('ggnb_transaction_exists')){
+	function ggnb_transaction_exists($trans_id){
+		return (int)Capsule::table('tblaccounts')->where('transid','=',(string)$trans_id)->count() > 0;
+	}
+}
+/**
+ *
+ * Confere se a cobranca paga pertence a fatura e ao cliente
+ * @ggnb_charge_belongs_to_invoice
+ *
+ */
+if(!function_exists('ggnb_charge_belongs_to_invoice')){
+	function ggnb_charge_belongs_to_invoice($charge,$api_mode){
+		$charge_id	= (string)$charge['charge_id'];
+		$invoice_id	= (int)$charge['custom_id']; // custom_id e gravado por este modulo na criacao da cobranca
+		if(!$charge_id){
+			return array('error'=>'Cobranca sem charge_id: nada a confirmar.');
+		}
+		if($invoice_id < 1){
+			return array('error'=>'Cobranca '.$charge_id.' sem custom_id: nao e possivel identificar a fatura.');
+		}
+		$invoice = Capsule::table('tblinvoices')->where('id','=',$invoice_id)->first(array('id','userid','status','total','credit','paymentmethod'));
+		if(!$invoice){
+			return array('error'=>'Fatura '.$invoice_id.' (custom_id da cobranca '.$charge_id.') nao existe.');
+		}
+		if((int)$invoice->userid < 1){
+			return array('error'=>'Fatura '.$invoice_id.' nao tem cliente associado.');
+		}
+		// Se a cobranca esta registrada localmente, o vinculo com a fatura tem de bater
+		$local = Capsule::table('gofasgerencianetboleto')
+			->where('charge_id','=',$charge_id)
+			->where('api_mode','=',$api_mode)
+			->first(array('invoice_id'));
+		if($local and (int)$local->invoice_id !== $invoice_id){
+			return array('error'=>'Cobranca '.$charge_id.' esta registrada para a fatura '.$local->invoice_id.', mas informou a fatura '.$invoice_id.'.');
+		}
+		// Cobranca sem registro local (boleto antigo, base restaurada): so confirma se a fatura ainda for do modulo
+		if(!$local and (string)$invoice->paymentmethod !== 'gofasgerencianetboleto'){
+			return array('error'=>'Cobranca '.$charge_id.' nao esta registrada localmente e a fatura '.$invoice_id.' nao usa o metodo de pagamento gofasgerencianetboleto.');
+		}
+		// Saldo devedor da fatura: o total do WHMCS ja vem liquido do credito aplicado (tblinvoices.total = subtotal - credit),
+		// entao o saldo e o total menos o que ja foi pago na fatura. E com este saldo, nao com o total,
+		// que o valor pago tem de ser comparado: cobre pagamento parcial ja lancado e boleto pago com multa e juros.
+		$paid_in	= (float)Capsule::table('tblaccounts')->where('invoiceid','=',$invoice_id)->sum('amountin');
+		$paid_out	= (float)Capsule::table('tblaccounts')->where('invoiceid','=',$invoice_id)->sum('amountout');
+		$balance	= (float)number_format((float)$invoice->total - ($paid_in - $paid_out), 2,'.','');
+		return array(
+			'invoice_id'	=> $invoice_id,
+			'user_id'		=> (int)$invoice->userid,
+			'invoice_status'=> (string)$invoice->status,
+			'invoice_total'	=> (float)$invoice->total,
+			'invoice_credit'=> (float)$invoice->credit,
+			'invoice_balance'=> $balance,
+			'registered'	=> $local ? true : false,
+		);
+	}
+}
+/**
+ *
+ * Valor pago da cobranca, em centavos (cobre pagamento a maior ou a menor no banco)
+ * @ggnb_charge_paid_value
+ *
+ */
+if(!function_exists('ggnb_charge_paid_value')){
+	function ggnb_charge_paid_value($charge){
+		$paid = (int)$charge['paid_value'];
+		if($paid > 0){
+			return $paid;
+		}
+		$total		= (int)$charge['total'];
+		$discount	= (int)$charge['payment']['discount'];
+		if($discount > 0){
+			$total = $total - $discount;
+		}
+		return (int)$total;
+	}
+}
+/**
+ *
+ * Cancela os demais boletos em aberto da fatura, garantindo um unico boleto pagavel
+ * @ggnb_cancel_other_charges
+ *
+ */
+if(!function_exists('ggnb_cancel_other_charges')){
+	function ggnb_cancel_other_charges($api_url,$access_token,$invoice_id,$api_mode,$keep_charge_id){
+		$result = array();
+		foreach( Capsule::table('gofasgerencianetboleto')
+			->where('invoice_id','=',(string)$invoice_id)
+			->where('api_mode','=',$api_mode)
+			->where('charge_id','<>',(string)$keep_charge_id)
+			->whereNotIn('status',array('paid','canceled'))
+			->orderBy('id','desc')
+			->get(array('charge_id')) as $row ){
+				$cancel = ggnb_cancel_charge_confirmed($api_url,$access_token,$row->charge_id,$api_mode);
+				if($cancel['canceled']){
+					$result[$row->charge_id] = 'cancelado';
+				}
+				elseif($cancel['paid']){ // ja pago: nao cancela, registra para o admin
+					$result[$row->charge_id] = 'pago';
+				}
+				else{
+					$result[$row->charge_id] = 'erro ao cancelar: '.$cancel['error'];
+				}
+		}
+		return $result;
+	}
+}
+/**
+ *
+ * Confirmacao de pagamento: rotina unica do callback, do acesso a fatura e da tarefa cron
+ * @ggnb_confirm_payment
+ *
+ */
+if(!function_exists('ggnb_confirm_payment')){
+	function ggnb_confirm_payment($api_url,$access_token,$charge,$api_mode,$params,$origin){
+		$charge_id	= (string)$charge['charge_id'];
+		$status		= (string)$charge['status'];
+		if(!ggnb_is_paid_status($status)){
+			return array('error'=>'Cobranca '.$charge_id.' com status "'.$status.'": nada a confirmar.');
+		}
+		// A cobranca paga tem de pertencer a fatura e a fatura tem de ter cliente
+		$owner = ggnb_charge_belongs_to_invoice($charge,$api_mode);
+		if($owner['error']){
+			return array('error'=>$owner['error']);
+		}
+		$invoice_id	= $owner['invoice_id'];
+		$user_id	= $owner['user_id'];
+		$trans_id	= 'ggnb-'.$api_mode.'-'.$charge_id;
+		// Nao lanca a mesma cobranca duas vezes (callback, acesso a fatura e cron podem chegar juntos)
+		if(ggnb_transaction_exists($trans_id)){
+			ggnb_set_charge_status($charge_id,$api_mode,'paid');
+			return array('skipped'=>'Transacao '.$trans_id.' ja lancada na fatura '.$invoice_id.'.');
+		}
+		if($owner['invoice_status'] !== 'Unpaid'){
+			ggnb_set_charge_status($charge_id,$api_mode,'paid');
+			return array('skipped'=>'Fatura '.$invoice_id.' esta como "'.$owner['invoice_status'].'": pagamento nao lancado.');
+		}
+		$paid_amount = (float)number_format(ggnb_charge_paid_value($charge)/100, 2,'.','');
+		if($paid_amount <= 0){
+			return array('error'=>'Cobranca '.$charge_id.' paga sem valor identificado.');
+		}
+		// Multa, juros ou desconto do boleto: acerta a fatura pela diferenca entre o valor pago e o saldo devedor.
+		// Comparar com o saldo (e nao com o total) evita lancar "Descontos" indevidos em fatura com credito aplicado
+		// ou com pagamento parcial ja lancado, e cobre o boleto pago com multa e juros (diferenca positiva).
+		$invoice_total	= (float)$owner['invoice_total'];
+		$invoice_balance= (float)$owner['invoice_balance'];
+		$adjustment		= (float)number_format($paid_amount - $invoice_balance, 2,'.','');
+		$update_invoice	= false;
+		if($adjustment > 0){
+			$update_invoice = localAPI('updateinvoice', array(
+				'invoiceid'				=> $invoice_id,
+				'newitemdescription'	=> array('Acréscimos calculados na emissão do Boleto'),
+				'newitemamount'			=> array($adjustment),
+			), ggnb_setup_admin('id'));
+		}
+		if($adjustment < 0){
+			$update_invoice = localAPI('updateinvoice', array(
+				'invoiceid'				=> $invoice_id,
+				'newitemdescription'	=> array('Descontos calculados na emissão do Boleto'),
+				'newitemamount'			=> array($adjustment),
+			), ggnb_setup_admin('id'));
+		}
+		$fee		= (float)number_format((float)($params['fee'] ?: 0), 2,'.','');
+		$add_trans	= ggnb_add_trans($user_id,$invoice_id,$paid_amount,$fee,$trans_id,'Boleto pago - confirmação via '.$origin);
+		ggnb_set_charge_status($charge_id,$api_mode,'paid');
+		// Um unico boleto pagavel por fatura: cancela os demais boletos em aberto
+		$canceled = ggnb_cancel_other_charges($api_url,$access_token,$invoice_id,$api_mode,$charge_id);
+		return array(
+			'success'			=> true,
+			'invoice_id'		=> $invoice_id,
+			'user_id'			=> $user_id,
+			'charge_id'			=> $charge_id,
+			'paid_amount'		=> $paid_amount,
+			'invoice_total'		=> $invoice_total,
+			'invoice_balance'	=> $invoice_balance,
+			'adjustment'		=> $adjustment,
+			'update_invoice'	=> $update_invoice,
+			'add_trans'			=> $add_trans,
+			'other_charges'		=> $canceled,
+			'origin'			=> $origin,
+		);
+	}
+}
+/**
+ *
+ * Cria a cobranca, emite o boleto e grava o registro local
+ * @ggnb_new_charge
+ *
+ */
+if(!function_exists('ggnb_new_charge')){
+	function ggnb_new_charge($api_url,$access_token,$body,$body2,$invoice_amount,$invoice_id,$api_mode){
+		$create_charge	= ggnb_create_charge($api_url,$access_token,$body);
+		$charge_id		= $create_charge['result'];
+		if(!is_int($charge_id)){
+			return array('error'=>$create_charge['error']);
+		}
+		$pay_charge_	= ggnb_pay_charge($api_url,$access_token,$charge_id,$body2);
+		$pay_charge		= $pay_charge_['result'];
+		if($pay_charge_['error'] or !is_array($pay_charge)){
+			return array('error'=>$pay_charge_['error']);
+		}
+		$store = ggnb_store_billet($pay_charge,$invoice_amount,$invoice_id,$api_mode);
+		if($store['error']){
+			return array('error'=>$store['error']);
+		}
+		return array(
+			'charge_id'	=> $charge_id,
+			'link'		=> $pay_charge['data']['link'],
+			'expire_at'	=> $pay_charge['data']['expire_at'],
+			'barcode'	=> $pay_charge['data']['barcode'],
+		);
+	}
+}
+/**
+ *
+ * Substitui o boleto da fatura: o novo so e criado depois do anterior estar cancelado na Efi
+ * @ggnb_replace_charge
+ *
+ */
+if(!function_exists('ggnb_replace_charge')){
+	function ggnb_replace_charge($api_url,$access_token,$trans_id,$charge_status,$invoice_id,$api_mode,$body,$body2,$invoice_amount){
+		// O boleto anterior tem de estar cancelado na Efí antes de existir um novo: nunca dois boletos pagáveis na mesma fatura
+		$cancel = ggnb_cancel_charge_confirmed($api_url,$access_token,$trans_id,$api_mode);
+		if($cancel['paid']){
+			return array('error'=>$cancel['error'].' Nenhum boleto novo foi gerado.','keep_previous'=>true,'paid'=>true);
+		}
+		if(!$cancel['canceled']){
+			return array('error'=>'Não foi possível cancelar o boleto anterior ('.$trans_id.'): '.$cancel['error'].' O novo boleto não foi gerado, para não deixar dois boletos pagáveis na mesma fatura.','keep_previous'=>true);
+		}
+		return ggnb_new_charge($api_url,$access_token,$body,$body2,$invoice_amount,$invoice_id,$api_mode);
 	}
 }
 if( !function_exists('ggnb_store_billet') ){
@@ -497,7 +834,7 @@ if(!function_exists('ggnb_setup_admin')){
 }}
 if(!function_exists('ggnb_update_stats') ){
 	function ggnb_module_version(){
-		return '3.12.2';
+		return '3.13.0';
 	}
 	function ggnb_update_stats(){
 		$params = getGatewayVariables('gofasgerencianetboleto');
@@ -1290,14 +1627,7 @@ function gofasgerencianetboleto_link($params){
 	$invoiceCredit =	(int)round($GetInvoiceResults['credit'] * 100);
 
 	// Parâmetros das transações associadas à Fatura
-	foreach( Capsule::table('gofasgerencianetboleto')->where('invoice_id','=',$invoice_id)->where('api_mode','=',$api_mode)->get(['charge_id']) as $charge_id_local){
-		if($charge_id_local->charge_id){
-			$trans_id = $charge_id_local->charge_id;
-		}
-		else {
-			$trans_id = false;
-		}
-	}
+	$trans_id = ggnb_active_charge($invoice_id,$api_mode);
 	// Serviços/produtos relacionados à fatura
 	$invoiceItemsItem = $GetInvoiceResults['items']['item'];
 
@@ -1900,6 +2230,10 @@ function gofasgerencianetboleto_link($params){
 	foreach($ItEm as $key => $value){
 		$ItEm_values[$key] = $value['value'];
 	}
+	// Valor efetivo do boleto: soma dos itens enviados à Efí. Inclui multa e juros por atraso,
+	// crédito aplicado à fatura e desconto/taxa do módulo. É este valor, e não o total da fatura,
+	// que a Efí grava como total da cobrança, então é ele que serve para comparar com o boleto existente.
+	$billet_amount = (int)array_sum($ItEm_values);
 	//$ItEm_start_key = array_search(max($ItEm_values), $ItEm_values);
 	//$ItEm_start_ = $ItEm[$ItEm_start_key];
 	//$ItEm_start = array(array('name' => substr(str_replace(array("\n", "\r","=>"), array(" ", " ","-"), $ItEm_start_['name']),0,255), 'marketplace' =>array('repasses'=>array(array('percentage'=>ggnb_percent_fee((int)$ItEm_start_['value'],$invoiceTotal,$devFee),'payee_code'=>$PaYeEe))),'amount'=>1,'value' => (int)$ItEm_start_['value']));
@@ -2042,157 +2376,60 @@ function gofasgerencianetboleto_link($params){
 			if($chargeExist_['error']){
 				$error .= $chargeExist_['error'];
 			}
-			if((string)$chargeExistStatus === (string)'paid'){
-				$chargeExistTotal = $chargeExistTotal ?: '0.00';
-				$add_trans = ggnb_add_trans($params['clientdetails']['id'], $params['invoiceid'], (float)number_format( $chargeExistTotal/100,  2, '.', ''), (float)number_format( $params['fee'],  2, '.', ''), 'ggnb-'.$api_mode.'-'.$trans_id, 'Boleto pago - confirmação ao acessar a fatura');
+			// 1) Boleto pago: confirma o pagamento (valida fatura, cliente e valor pago) e recarrega a fatura
+			if(!$error and ggnb_is_paid_status($chargeExistStatus)){
+				$confirm = ggnb_confirm_payment($api_url,$access_token,$chargeExist['data'],$api_mode,$params,'acesso à fatura');
+				if($params['log']){
+					logModuleCall('gofasgerencianetboleto','confirm_payment',array('origem'=>'acesso à fatura','invoice_id'=>$invoice_id,'charge_id'=>$trans_id),'',$confirm);
+				}
 				header_remove();
 				header("Location: ".$system_url.'/viewinvoice.php?id='.$params['invoiceid'],true,303);
 				exit;
 			}
-			if(!$error and (int)$chargeExistID === (int)$trans_id and (string)$chargeExistStatus !== (string)'canceled' and $chargeExistDuedate >= date('Y-m-d') and (float)$chargeExistTotal === (float)$invoice_amount){
+			// 2) Boleto em aberto, com o mesmo valor e dentro do vencimento: reaproveita, sem nenhuma alteração na Efí
+			elseif(!$error and $chargeExistID === (int)$trans_id and $chargeExistStatus !== 'canceled' and $chargeExistDuedate >= date('Y-m-d') and (int)$chargeExistTotal === (int)$billet_amount){
 				$link		= $chargeExist['data']['payment']['banking_billet']['link'];
 				$expire_at	= $chargeExistDuedate;
 				$barcode	= $chargeExist['data']['payment']['banking_billet']['barcode'];
 			}
-			if(!$error and  ((int)$chargeExistID === (int)$trans_id and $chargeExistStatus !== 'canceled' and $chargeExistDuedate < date('Y-m-d') and $chargeExistDuedate > date('Y-m-d',strtotime('-29 days'))) and !$configurations and !$cancelBillet ){
-				// edita transação gerada anteriormente
+			// 3) Boleto vencido, mas com o mesmo valor (sem multa/juros a acrescentar): altera o vencimento do próprio boleto
+			elseif(!$error and $chargeExistID === (int)$trans_id and $chargeExistStatus !== 'canceled' and $chargeExistDuedate < date('Y-m-d') and $chargeExistDuedate > date('Y-m-d',strtotime('-29 days')) and (int)$chargeExistTotal === (int)$billet_amount and !$configurations and !$cancelBillet){
 				$updateBillet = ggnb_update_billet($api_url,$access_token,$trans_id,$billet_duedate);
-				// segunda via do boleto com multa e juros
-				if( $updateBillet['result'] === 'success'){	
+				if((string)$updateBillet['result'] === 'success'){
 					$link		= $chargeExist['data']['payment']['banking_billet']['link'];
 					$expire_at	= $billet_duedate;
 					$barcode	= $chargeExist['data']['payment']['banking_billet']['barcode'];
+					Capsule::table('gofasgerencianetboleto')->where('charge_id','=',(string)$trans_id)->where('api_mode','=',$api_mode)->update(array('expire_at'=>$billet_duedate));
 				}
 				else {
 					$error .= $updateBillet['error'];
 				}
 			}
-			if(!$error and ((!$barcode and ((int)$chargeExistID === (int)$trans_id and ($chargeExistStatus === 'canceled' || $chargeExistStatus === 'unpaid'))) or (float)$chargeExistTotal !== (float)$invoice_amount)){
-				$cancelCharge = ggnb_cancel_charge($api_url,$access_token,$trans_id);
-				if( $cancelCharge['result'] === 'success'){
-					$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('charge_id', '=',$trans_id)->delete();
+			// 4) Valor mudou (multa, juros ou desconto), boleto cancelado, não pago ou fora do prazo de alteração:
+			//    substitui o boleto. O novo só é criado depois do anterior ser cancelado na Efí.
+			elseif(!$error){
+				$replace = ggnb_replace_charge($api_url,$access_token,$trans_id,$chargeExistStatus,$invoice_id,$api_mode,$body,$body2,$invoice_amount);
+				if($replace['error'] and $replace['keep_previous'] and $chargeExist['data']['payment']['banking_billet']['barcode']){
+					// Boleto anterior não pôde ser cancelado: mantém o boleto existente para não deixar dois boletos pagáveis
+					$link		= $chargeExist['data']['payment']['banking_billet']['link'];
+					$expire_at	= $chargeExistDuedate;
+					$barcode	= $chargeExist['data']['payment']['banking_billet']['barcode'];
+					if($emailonError){
+						$sendEmailonError = ggnb_send_error_email($invoice_id,$user_id,$firstname,$lastname,$emailonError,$replace['error']);
+					}
+					if($params['log']){
+						logModuleCall('gofasgerencianetboleto','replace_charge',array('invoice_id'=>$invoice_id,'charge_id'=>$trans_id,'status'=>$chargeExistStatus),'',$replace);
+					}
 				}
-				$create_charge = ggnb_create_charge($api_url,$access_token,$body); // body
-				$charge_id = $create_charge['result'];
-				if($create_charge['error']){
-					$error .= $create_charge['error'];
-				}
-				// Definir método de pagamanto e Gerar a Cobrança (retorna link do boleto etc)
-				if( is_int($charge_id) ){
-					$pay_charge_	= ggnb_pay_charge($api_url,$access_token,$charge_id,$body2);
-					$pay_charge		= $pay_charge_['result'];
-					if($pay_charge_['error']){
-						$error	.= $pay_charge_['error'];
-					}
-					if( is_array($pay_charge) ){
-						$link		= $pay_charge['data']['link'];
-						$expire_at	= $pay_charge['data']['expire_at'];
-						$barcode	= $pay_charge['data']['barcode'];
-						// Save billet on DB
-						$ggnb_store_billet = ggnb_store_billet($pay_charge,$invoice_amount,$invoice_id,$api_mode);
-						if($ggnb_store_billet['error']){
-							$error .= $ggnb_store_billet['error'];
-						}
-					}
-					elseif( is_string($pay_charge) ){
-						$error .= $pay_charge['error'];
-					}
+				elseif($replace['error']){
+					$error .= $replace['error'];
 				}
 				else {
-					$error .= $create_charge['error'];
+					$link		= $replace['link'];
+					$expire_at	= $replace['expire_at'];
+					$barcode	= $replace['barcode'];
 				}
 			}
-			///
-			if(!$error and $chargeExistID === $trans_id and $chargeExistDuedate >= date('Y-m-d') and (float)$chargeExistTotal !== (float)$invoice_amount ){
-				if($cancelBillet){
-					$cancelCharge = ggnb_cancel_charge($api_url,$access_token,$trans_id);
-					 if($cancelCharge['error']){
-						$error .= $cancelCharge['error'];
-					 }
-					 if( $cancelCharge['result'] === 'success'){
-						$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('charge_id', '=',$trans_id)->delete();
-					 }
-				}
-				$create_charge = ggnb_create_charge($api_url,$access_token,$body); // body
-				$charge_id = $create_charge['result'];
-				if($create_charge['error']){
-					$error .= $create_charge['error'];
-				}
-				// Definir método de pagamanto e Gerar a Cobrança (retorna link do boleto etc)
-				if( is_int($charge_id) ){
-					$pay_charge_	= ggnb_pay_charge($api_url,$access_token,$charge_id,$body2);
-					$pay_charge		= $pay_charge_['result'];
-					if($pay_charge_['error']){
-						$error	.= $pay_charge_['error'];
-					}
-					if( is_array($pay_charge) ){
-						$link		= $pay_charge['data']['link'];
-						$expire_at	= $pay_charge['data']['expire_at'];
-						$barcode	= $pay_charge['data']['barcode'];
-						// Save billet on DB
-						$ggnb_store_billet = ggnb_store_billet($pay_charge,$invoice_amount,$invoice_id,$api_mode);
-						if($ggnb_store_billet['error']){
-							$error .= $ggnb_store_billet['error'];
-						}
-					}
-					elseif( is_string($pay_charge) ){
-						$error .= $pay_charge['error'];
-					}
-				}
-				else {
-					$error .= $create_charge['error'];
-				}
-			}
-			///
-			if(!$error and ($chargeExistID === $trans_id and $chargeExistDuedate < date('Y-m-d') ) and ($configurations or $cancelBillet) ){
-				// cancela transação gerada anteriormente
-				if( $chargeExistStatus === 'new' || $chargeExistStatus === 'paid' || $chargeExistStatus === 'unpaid'){
-					$cancelCharge = ggnb_cancel_charge($api_url,$access_token,$trans_id);
-					 if($cancelCharge['error']){
-						 $error .= $cancelCharge['error'];
-					 }
-					// segunda via do boleto com multa e juros
-					if( $cancelCharge['result'] === 'success'){
-						$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('charge_id', '=',$trans_id)->delete();
-						// Criar transação
-						$create_charge = ggnb_create_charge($api_url,$access_token,$body); // body
-						$charge_id = $create_charge['result'];
-						if($create_charge['error']){
-							$error .= $create_charge['error'];
-						}
-					}
-					else {
-						$error = $cancelCharge['error'];
-					}
-				}
-				elseif($chargeExistStatus === 'canceled'){ // ignora transação cancelada
-					$create_charge = ggnb_create_charge($api_url, $access_token, $body); // body
-					$charge_id = $create_charge['result'];					
-					if($create_charge['error']){
-						$error	.= $create_charge['error'];
-					}
-				}
-				// Definir método de pagamanto e Gerar a Cobrança (retorna link do boleto etc)
-				if( is_int($charge_id) ){
-					$pay_charge_	= ggnb_pay_charge($api_url,$access_token,$charge_id,$body2);
-					$pay_charge		= $pay_charge_['result'];
-					if($pay_charge_['error']){
-						$error	.= $pay_charge_['error'];
-					}
-					if( is_array($pay_charge) ){
-						$link		= $pay_charge['data']['link'];
-						$expire_at	= $pay_charge['data']['expire_at'];
-						$barcode	= $pay_charge['data']['barcode'];
-						// Save billet on DB
-						$ggnb_store_billet = ggnb_store_billet($pay_charge,$invoice_amount,$invoice_id,$api_mode);
-						
-					} elseif( is_string($pay_charge) ){
-						$error .= $pay_charge['error'];
-					}
-				} else {
-					$error .= $create_charge['error'];
-				}
-			}			
 		} // End of if( $trans_id and !$error)
 		/// The first billet for the invoice
 		if( !$trans_id ){
@@ -2240,7 +2477,7 @@ function gofasgerencianetboleto_link($params){
 				$sendEmailonError = ggnb_send_error_email( $invoice_id, $user_id, $firstname, $lastname, $emailonError, $error);
 			}
 			if($params['log']){
-				logModuleCall("gofasgerencianetboleto","genarate_billet",get_defined_vars(),"", $error);
+				logModuleCall("gofasgerencianetboleto","genarate_billet",array('invoice_id'=>$invoice_id,'charge_id'=>$trans_id,'invoice_amount'=>$invoice_amount),"", $error);
 			}
 			return $error . $css;
 		}
@@ -2272,14 +2509,14 @@ function gofasgerencianetboleto_link($params){
 			}
 			$result .= '<script type="text/javascript" src="'.$system_url.'/modules/gateways/gofasgerencianetboleto/assets/js/copy.js" charset="UTF-8"></script>';
 			if($params['log']){
-				logModuleCall("gofasgerencianetboleto","genarate_billet_result",get_defined_vars(),"", $error);
+				logModuleCall("gofasgerencianetboleto","genarate_billet_result",array('invoice_id'=>$invoice_id,'charge_id'=>$trans_id,'invoice_amount'=>$invoice_amount),"", array('link'=>$link,'expire_at'=>$expire_at,'barcode'=>$barcode));
 			}
 			return $result.$css;
 		}
 	} // End of if( $generate_billet )
 	else {
 		if($params['log']){
-			logModuleCall("gofasgerencianetboleto","genarate_billet",array(get_defined_vars()),"", array($result));
+			logModuleCall("gofasgerencianetboleto","genarate_billet",array('invoice_id'=>$invoice_id,'request_uri'=>$_SERVER['REQUEST_URI']),"", array('billet_not_generated'=>true));
 		}
 		return;
 	}
@@ -2310,63 +2547,42 @@ function gofasgerencianetboleto_link($params){
 		$api_mode		= 'live';
 		$api_url		= 'https://cobrancas.api.efipay.com.br/v1/';
 	}
-	$access_token_ = ggnb_get_token($api_url,$client_id,$client_secret);
+	$callback_log	= array();
+	$access_token_	= ggnb_get_token($api_url,$client_id,$client_secret);
 	if($access_token_['access_token']){
 		$access_token = $access_token_['access_token'];
 	}
 	if($access_token_['error']){
-		$error = $access_token_['error'];
+		$callback_log['error'] = $access_token_['error'];
 	}
 	try {
-		$notification = ggnb_get_notification($api_url,$access_token,$_REQUEST['notification']);
-		if($notification['data']){
-			$notificationDataEnd	= end($notification['data']);
-		}
-		$notificationData 		= $notificationDataEnd;
-		$invoiceId				= $notificationData['custom_id']; // Captura ID da fatura
-		$charge_id				= $notificationData['identifiers']['charge_id']; // Captura ID da transação
-		$chargeExist_			= ggnb_detail_charge($api_url,$access_token,$charge_id);
-		$chargeExist			= $chargeExist_['result'];
-		$paymentAmount			= (float)number_format(($chargeExist['data']['total']/100), 2,'.',''); // issue #142
-		$chargeStatus			= $chargeExist['data']['status']; // Status atual
-		$getinvoiceid['invoiceid']	= $invoiceId;
-		$invoice_data				= localAPI('getinvoice', $getinvoiceid, ggnb_setup_admin('id'));
-		$invoice_amount				= (float)$invoice_data['total'];
-		$invoiceStatus				= $invoice_data['status'];
-		$user_id 					= $invoice_data['userid'];
-		foreach( Capsule::table('gofasgerencianetboleto')->where('invoice_id','=',$invoiceId)->where('api_mode','=',$api_mode)->get(['charge_id']) as $charge_id_local){
-			if($charge_id_local->charge_id){
-				$trans_id = $charge_id_local->charge_id;
+		if($access_token){
+			$notification		= ggnb_get_notification($api_url,$access_token,$_REQUEST['notification']);
+			$notificationData	= is_array($notification['data']) ? end($notification['data']) : array();
+			$charge_id			= (string)$notificationData['identifiers']['charge_id'];
+			if(!$charge_id){
+				$callback_log['error'] = 'Notificação sem charge_id: '.json_encode($notification);
 			}
-			else{
-				$trans_id = false;
+			else {
+				// A cobranca e consultada na Efi: a notificacao so informa qual cobranca mudou de status
+				$chargeExist_	= ggnb_detail_charge($api_url,$access_token,$charge_id);
+				$charge			= $chargeExist_['result']['data'];
+				if($chargeExist_['error'] or !$charge['charge_id']){
+					$callback_log['error'] = 'Não foi possível consultar a cobrança '.$charge_id.': '.$chargeExist_['error'];
+				}
+				else {
+					$callback_log['charge']		= array('charge_id'=>$charge['charge_id'],'status'=>$charge['status'],'custom_id'=>$charge['custom_id'],'total'=>$charge['total'],'paid_value'=>$charge['paid_value']);
+					$callback_log['confirm']	= ggnb_confirm_payment($api_url,$access_token,$charge,$api_mode,$params,'notificação/callback');
+				}
 			}
 		}
 	}
 	catch (Exception $e){
-		echo $e->getMessage();
+		$callback_log['error'] = $e->getMessage();
 	}
-	if((string)$trans_id ===  (string)$charge_id and $chargeStatus === 'paid' and $invoiceStatus === 'Unpaid' and $paymentAmount > 0){
-		if( $paymentAmount > $invoice_amount){
-			$UpdateInvoice = localAPI('updateinvoice', array( 'invoiceid' => $invoiceId, 'newitemdescription' => array('Acréscimos'),'newitemamount' => array((float)($paymentAmount - $invoice_amount))/* , 'total' => $paymentAmount */), ggnb_setup_admin('id') );
-			echo 'UpdateInvoice: ', json_encode($UpdateInvoice);
-		}
-		if($paymentAmount < $invoice_amount){
-			$UpdateInvoice = localAPI('updateinvoice', array( 'invoiceid' => $invoiceId, 'newitemdescription' => array('Descontos'),'newitemamount' => array((float)-($invoice_amount-$paymentAmount))/* , 'total' => $paymentAmount */), ggnb_setup_admin('id') );
-			if($params['log']){
-				echo json_encode(['UpdateInvoice'=>$UpdateInvoice]);
-			}
-		}
-		$fee = $params['fee'] ?: '0.00';
-		$add_trans = ggnb_add_trans($user_id,$invoiceId,$paymentAmount,$fee, 'ggnb-'.$api_mode.'-'.$charge_id, 'Boleto pago - confirmação via notificação/callback');
-			
-		if($params['log']){
-			echo json_encode(['Add transaction'=>$add_trans]);
-		}
-		if($params['log']){
-			logModuleCall("gofasgerencianetboleto","receive_callback",array(get_defined_vars()),"", array($add_trans));
-		}
-	 }
+	if($params['log']){
+		logModuleCall('gofasgerencianetboleto','receive_callback',array('notification'=>$_REQUEST['notification'],'api_mode'=>$api_mode),'',$callback_log);
+	}
  }
  /**
   * 
@@ -2542,59 +2758,46 @@ if(!function_exists('ggnb_check_status_updates')){
 		if(is_array($check_schedule)){
 		  // Get Billets
 		  try {
-			  // Add Payment to Invoices
-			  $log = array();
-			  $boleto = array();
-			  $invoices = array();
-			  // Unpaid invoices IDs
-			  foreach( Capsule::table('tblinvoices') -> where( 'status','=','Unpaid' )->where('paymentmethod','=','gofasgerencianetboleto')->get() as $tblinvoices){
-				  foreach( Capsule::table('gofasgerencianetboleto')->where('invoice_id','=',$tblinvoices->id)->where('api_mode','=',$api_mode)->get(['charge_id']) as $local_boleto ){
-					  $access_token_ = ggnb_get_token($api_url,$client_id,$client_secret);
-					  if($access_token_['access_token']){
-						  $access_token = $access_token_['access_token'];
-					  }
-					  if($access_token_['error']){
-						  $error = $access_token_['error'];
-					  }
-					  $boleto			= ggnb_detail_charge($api_url,$access_token,$local_boleto->charge_id);
-					  $boletos[$local_boleto->charge_id]=$boleto;
-					  
-					  if((int)$boleto['result']['code'] !== (int)200){
-						  $error	.= 'Erro ao verificar Boleto: ' . json_encode($boleto);
-					  }
-					  if($boleto['result']['data']['status'] === 'paid') {
-						  $invoices[$tblinvoices->id] = [
-							  'invoice_id'=>$tblinvoices->id,
-							  'trans_id'=>$local_boleto->charge_id,
-							  'transaction_id'=>$local_boleto->charge_id,
-							  'total'=>$tblinvoices->total,
-							  'user_id'=>$tblinvoices->userid,
-							  'paid_amount'=>(float)number_format(($boleto['result']['data']['total']/100), 2,'.',''),
-							  'fee'=>$params['fee'],
-						  ];
-					  }
-					  if($boleto['result']['data']['status'] === 'paid' || $boleto['result']['data']['status'] === 'canceled') {
-						  $delete_qrc = Capsule::table('gofasgerencianetboleto')->where('invoice_id', '=',$tblinvoices->id)->delete();
-					  }
+			  $log		= array();
+			  $boletos	= array();
+			  $invoices	= array();
+			  $access_token_ = ggnb_get_token($api_url,$client_id,$client_secret);
+			  if($access_token_['access_token']){
+				  $access_token = $access_token_['access_token'];
+			  }
+			  if($access_token_['error']){
+				  $error .= $access_token_['error'];
+			  }
+			  if($access_token){
+				  // Faturas em aberto pagas por boleto
+				  foreach( Capsule::table('tblinvoices') -> where( 'status','=','Unpaid' )->where('paymentmethod','=','gofasgerencianetboleto')->get() as $tblinvoices){
+					  // Todos os boletos ainda nao confirmados da fatura, do mais novo para o mais antigo
+					  foreach( Capsule::table('gofasgerencianetboleto')
+						  ->where('invoice_id','=',(string)$tblinvoices->id)
+						  ->where('api_mode','=',$api_mode)
+						  ->whereNotIn('status',array('paid','canceled'))
+						  ->orderBy('id','desc')
+						  ->get(array('charge_id')) as $local_boleto ){
+							  $boleto			= ggnb_detail_charge($api_url,$access_token,$local_boleto->charge_id);
+							  $charge			= $boleto['result']['data'];
+							  $charge_status	= (string)$charge['status'];
+							  $boletos[$local_boleto->charge_id] = $charge_status ?: $boleto['error'];
+							  if($boleto['error'] or !$charge['charge_id']){
+								  $error .= 'Erro ao verificar o Boleto '.$local_boleto->charge_id.': '.$boleto['error'];
+								  continue;
+							  }
+							  if($charge_status === 'canceled'){
+								  ggnb_set_charge_status($local_boleto->charge_id,$api_mode,'canceled');
+								  continue;
+							  }
+							  if(ggnb_is_paid_status($charge_status)){
+								  // Confirma o pagamento e cancela os demais boletos em aberto da fatura
+								  $invoices[$tblinvoices->id] = ggnb_confirm_payment($api_url,$access_token,$charge,$api_mode,$params,'tarefa cron');
+								  break;
+							  }
+					  } // End Foreach
 				  } // End Foreach
-			  } // End Foreach
-			  // Add Payments
-			if (!empty($invoices)) {
-			  	foreach ($invoices as $key => $value) {
-				  	$log['invoice_value'][$value['invoice_id']] = $value;
-				  	$log['invoice_id'][$value['invoice_id']] = $value['invoice_id'];
-				  	if ( (float)$value['paid_amount'] > (float)$value['total'] ) {
-						$update_invoice = localAPI('updateinvoice', array( 'invoiceid' => $value['invoice_id'], 'newitemdescription' => array('Acréscimos calculados na emissão do Boleto'),'newitemamount' => array((float)($value['paid_amount'] - $value['total']))), ggnb_setup_admin('id') );
-				  	}
-				  	// - Billet amount is less than the invoice amount
-				  	if ( (float)$value['paid_amount'] < (float)$value['total'] ) {
-						$update_invoice = localAPI('updateinvoice', array( 'invoiceid' => $value['invoice_id'], 'newitemdescription' => array('Descontos calculados na emissão do Boleto'),'newitemamount' => array((float)($value['paid_amount'] - $value['total']))), ggnb_setup_admin('id') );
-				  	}
-				  	$add_trans = ggnb_add_trans($value['user_id'],$value['invoice_id'],$value['paid_amount'],$value['fee'], 'ggnb-'.$api_mode.'-'.$value['trans_id'], 'Boleto pago - confirmação via tarefa cron');
-				    $update_invoice_log[$value['invoice_id']]=$update_invoice;
-				  	$add_trans_log[$value['invoice_id']]=$add_trans;
-			  	}
-			}
+			  }
 		 	}
 			catch (Exception $e) {
 			  	$error	.= 'Erro ao listar boletos pagos: ' . $e->getMessage();
@@ -2603,10 +2806,9 @@ if(!function_exists('ggnb_check_status_updates')){
 		}
 		$log['boletos'] = $boletos;
 		$log['invoices'] = $invoices;
-		$log['update_invoice'] = $update_invoice;
-		$log['add_trans'] = $add_trans;
+		$log['error'] = $error;
 		if($params['log']){
-			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>ggnb_module_version(),'params'=>$params),'',array($log) );
+			logModuleCall('gofasgerencianetboleto','AfterCronJob',array('module_version'=>ggnb_module_version()),'',array($log) );
 		}
 		return;  
 	}
@@ -2625,12 +2827,12 @@ add_hook('EmailPreSend',1, function($vars){
 		  	$ggnb_merge_fields	= array();
 		  	$invoice			= localAPI( 'GetInvoice', array('invoiceid' => $vars['relid']), ggnb_setup_admin('id'));
 			if($params['log']){
-		  		logModuleCall('gofasgerencianetboleto', 'EmailPreSend',['vars'=>$vars,'params'=>$params],'',['invoice'=>$invoice]);
+		  		logModuleCall('gofasgerencianetboleto', 'EmailPreSend',['messagename'=>$vars['messagename'],'relid'=>$vars['relid']],'',['invoice_id'=>$invoice['invoiceid'],'status'=>$invoice['status']]);
 		  	}
 			if( (float)$invoice['total'] > (float)'0.00' and $invoice['paymentmethod'] === 'gofasgerencianetboleto'){
 				// Saved Billets
 				$billet_saved = array();
-				foreach( Capsule::table('gofasgerencianetboleto') -> where('invoice_id','=',$vars['relid'])->orderBy('charge_id','desc')->get(
+				foreach( Capsule::table('gofasgerencianetboleto') -> where('invoice_id','=',$vars['relid'])->whereNotIn('status',array('paid','canceled'))->orderBy('id','desc')->get(
 				  array( 'invoice_id', 'charge_id', 'link', 'pdf', 'expire_at', 'total', 'barcode', 'charge_id', 'status', 'api_mode') ) as $key => $value ){
 				  $billets_for_invoice[$key]					= json_decode(json_encode($value), true);
 				}
@@ -2704,14 +2906,7 @@ add_hook('InvoiceCancelled', 1, function($vars){
 	}
 	$invoice	= localAPI('GetInvoice',array( 'invoiceid' => $vars['invoiceid'], ), ggnb_setup_admin('id'));	
 	// Parâmetros das transações associadas à Fatura
-	foreach( Capsule::table('gofasgerencianetboleto')->where('invoice_id','=',$vars['invoiceid'])->where('api_mode','=',$api_mode)->get(['charge_id']) as $charge_id_local){
-		if($charge_id_local->charge_id){
-			$trans_id = $charge_id_local->charge_id;
-		}
-		else {
-			$trans_id = false;
-		}
-	}
+	$trans_id = ggnb_active_charge($vars['invoiceid'],$api_mode);
 	if($trans_id){
 	$access_token_ = ggnb_get_token($api_url,$client_id,$client_secret);
 	if($access_token_['access_token']){
@@ -2721,13 +2916,13 @@ add_hook('InvoiceCancelled', 1, function($vars){
 	  $error = $access_token_['error'];
 	}
 	if($params['log']){
-		logModuleCall('gofasgerencianetboleto','access_token',array($api_url,$client_id,$client_secret), $access_token_ );
+		logModuleCall('gofasgerencianetboleto','access_token',array('api_url'=>$api_url),array('token_ok'=>(bool)$access_token_['access_token'],'error'=>$access_token_['error']) );
 	}
 	try {
 		//$id = array('id' => (int)$trans_id);
 		$cancel_charge = ggnb_cancel_charge($api_url,$access_token,$trans_id);	  
 		if((string)$cancel_charge['result'] === (string)'success'){
-			$delete_qrc = Capsule::table('gofasgerencianetboleto')->where('charge_id', '=',$trans_id)->delete();
+			ggnb_set_charge_status($trans_id,$api_mode,'canceled');
 			if($params['log']){
 			  	logModuleCall('gofasgerencianetboleto','cancel_transaction',array('Sucesso:'=>$cancel_charge), $access_token_ );
 		  	}
@@ -2745,6 +2940,6 @@ add_hook('InvoiceCancelled', 1, function($vars){
 	}
 	}
 	if($params['log']){
-		logModuleCall('gofasgerencianetboleto', 'InvoiceCancelled', array('params'=>$params,'invoice'=>$invoice),array('cancel_charge'=>$cancel_charge),'');
+		logModuleCall('gofasgerencianetboleto', 'InvoiceCancelled', array('invoice_id'=>$vars['invoiceid'],'charge_id'=>$trans_id),array('cancel_charge'=>$cancel_charge),'');
 	}
 });
