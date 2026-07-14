@@ -1,6 +1,6 @@
 # Changelog
 
-## [Próxima atualização](https://github.com/gofas/gofasgerencianetboleto/tree/HEAD)
+## [v3.13.0 - 14/07/2026](https://github.com/gofas/gofasgerencianetboleto/releases/tag/v3.13.0)
 
 
 **Melhorias:**
@@ -12,7 +12,7 @@
 - readme: titulo igual ao titulo da pagina - [#198](https://github.com/gofas/gofasgerencianetboleto/issues/198)
 - readme: captura de configuracao da v3.12.2 e link de download contabilizavel - [#197](https://github.com/gofas/gofasgerencianetboleto/issues/197)
 
-[Comparar versões](https://github.com/gofas/gofasgerencianetboleto/compare/v3.12.2...HEAD)
+[Comparar versões](https://github.com/gofas/gofasgerencianetboleto/compare/v3.12.2...v3.13.0)
 
 ## [v3.12.2 - 10/07/2026](https://github.com/gofas/gofasgerencianetboleto/releases/tag/v3.12.2)
 
