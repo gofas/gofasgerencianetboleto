@@ -1,5 +1,15 @@
 # Changelog
 
+## [Próxima atualização](https://github.com/gofas/gofasgerencianetboleto/tree/HEAD)
+
+
+**Melhorias:**
+
+- Multa e juros: boleto vencido recriado a cada cron e envio parcial de configurations apaga a configuração da conta Efí - [#205](https://github.com/gofas/gofasgerencianetboleto/issues/205)
+- Cobranças vencidas são recriadas automaticamente durante a execução da cron, alterando charge_id, vencimento e valor da cobrança. - [#203](https://github.com/gofas/gofasgerencianetboleto/issues/203)
+
+[Comparar versões](https://github.com/gofas/gofasgerencianetboleto/compare/v3.13.0...HEAD)
+
 ## [v3.13.0 - 14/07/2026](https://github.com/gofas/gofasgerencianetboleto/releases/tag/v3.13.0)
 
 
