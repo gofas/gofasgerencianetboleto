@@ -15,6 +15,7 @@ Configuração simples, objetiva e focada em atender todos os modelos de negóci
 - [Requisitos](#requisitos)
 - [Instalação](#instalação)
 - [Configuração](#configuração)
+- [Juros e multa](#juros-e-multa)
 - [Informações importantes](#informações-importantes)
 - [Licença](#licença)
 
@@ -25,8 +26,9 @@ Configuração simples, objetiva e focada em atender todos os modelos de negóci
 ## Funcionalidades
 
 - **Boletos registrados** sem taxas de registro/baixa
-- **Juros e multa** após o vencimento do boleto
-- **2ª via automática** com valor atualizado (cálculo de multa e juros) ao acessar a fatura
+- **Juros e multa** após o vencimento, registrados na própria cobrança e calculados pela Efí no momento do pagamento. O boleto vencido mantém o mesmo código, o mesmo vencimento e o mesmo valor
+- **Respeita a configuração da sua conta Efí**: se a conta já cobra juros e multa, o módulo não sobrescreve e avisa isso na tela de configuração
+- **2ª via automática** ao acessar a fatura, sem duplicar boletos pagáveis
 - **Confirmação automática de pagamento** e baixa nas faturas via notificações (callback) ou tarefa cron
 - **Boleto com sua marca**: logotipo, mensagem e instruções da sua empresa
 - **Informações do boleto na fatura**: desconto, taxas, cálculos e outras informações
@@ -81,7 +83,7 @@ O certificado `.p12` não é necessário para o boleto. Ele é exigido apenas pe
 
 ### Opções do módulo
 
-<img src="https://raw.githubusercontent.com/gofas/gofasgerencianetboleto/master/docs/img/tela-configuracoes-modulo-3.12.2.png" alt="Tela de configuracoes do modulo" width="640">
+<img src="https://raw.githubusercontent.com/gofas/gofasgerencianetboleto/master/docs/img/tela-configuracoes-modulo-3.14.0.png" alt="Tela de configuracoes do modulo" width="640">
 
 - **Client ID Produção**: (obrigatório) Client ID da aba Produção da sua aplicação.
 - **Client Secret Produção**: (obrigatório) Client Secret da aba Produção da sua aplicação.
@@ -106,8 +108,9 @@ O certificado `.p12` não é necessário para o boleto. Ele é exigido apenas pe
 - **Tipo de desconto/taxa**: porcentagem ou reais.
 - **Valor do Desconto ou Taxa**: valor abatido ou acrescentado ao total.
 - **Validade do desconto**: máximo de dias antes do vencimento para aplicar desconto. Em branco aplica mesmo após o vencimento; 0 aplica a boletos gerados até o vencimento; de 1 a X aplica entre 1 e X dias antes do vencimento.
-- **Multa após o vencimento**: máximo 10%. Use ponto para decimais.
-- **Juros após o vencimento**: juros por dia (mínimo 0.001, máximo 0.33). Use ponto para decimais.
+- **Multa após o vencimento**: máximo 10%. Use ponto para decimais. A multa é registrada na cobrança e calculada pela Efí no pagamento, então o valor do boleto não muda depois do vencimento.
+- **Juros após o vencimento**: juros por dia (mínimo 0.001, máximo 0.33). Use ponto para decimais. Também são registrados na cobrança e calculados pela Efí no pagamento.
+- **Dias para baixa do Boleto vencido**: (opcional) de 0 a 120 dias, período em que o boleto vencido continua podendo ser pago. Em branco usa o padrão da Efí, que é 90 dias. Aplica-se apenas quando multa ou juros estão definidos no módulo.
 - **Exibir linha digitável**: exibe a linha digitável abaixo do botão "visualizar boleto".
 - **Exibir data de Vencimento**: exibe o vencimento na fatura.
 - **Exibir Desconto / Taxa na fatura**: informa desconto ou taxa na fatura.
@@ -134,6 +137,33 @@ As tags disponíveis aparecem abaixo do editor dos templates de email do WHMCS:
 - `{$ggnb_api_mode}`: `sandbox` ou `live`.
 - `{$ggnb_debug}`: informações de depuração no corpo do email.
 
+## Juros e multa
+
+Juros e multa nunca são somados ao valor do boleto pelo módulo. Eles são registrados na cobrança e calculados pela Efí e pela rede bancária no momento do pagamento, que é o funcionamento correto do boleto registrado. Por isso o boleto de uma fatura vencida mantém o mesmo código, o mesmo vencimento e o mesmo valor principal, independentemente de quantos dias se passem ou de quantos avisos de atraso o WHMCS envie.
+
+<img src="https://raw.githubusercontent.com/gofas/gofasgerencianetboleto/master/docs/img/tela-configuracoes-multa-juros-3.14.0.png" alt="Campos de multa, juros e dias para baixa do boleto vencido" width="640">
+
+### Onde configurar
+
+Existem dois lugares possíveis, e apenas um deles vale por vez:
+
+1. **Na sua conta Efí**, em Configurações de cobranças > Boletos bancários e carnês. Vale para todas as cobranças da conta, inclusive as emitidas fora do WHMCS.
+2. **No módulo**, nos campos "Multa após o vencimento" e "Juros após o vencimento". Vale apenas para os boletos emitidos por este módulo.
+
+A regra de prioridade é simples: **se a sua conta Efí já cobra juros ou multa, a configuração da conta vence e os campos do módulo são ignorados**. O módulo detecta isso automaticamente e mostra o aviso na tela de configuração, com os valores que a sua conta está aplicando. Para usar os valores do módulo, remova juros e multa na conta Efí.
+
+Essa prioridade existe porque a API da Efí trata juros e multa como um bloco único: quando o módulo envia esses valores, ele substitui por completo o que estiver configurado na conta. Enviar apenas a multa removeria os juros da conta, e enviar ambos zerados removeria os dois. Deixar a conta no comando evita esse efeito.
+
+### Limites
+
+- Multa: máximo 10%, e a Efí costuma recusar valores acima de 2% conforme a carteira de cobrança.
+- Juros: mínimo 0,001% e máximo 0,33% ao dia. O limite legal usual é 0,033% ao dia (1% ao mês).
+- Boleto vencido continua pagável por 90 dias após o vencimento, padrão da Efí. Use o campo "Dias para baixa do Boleto vencido" para definir de 0 a 120 dias.
+
+### Como conferir se está funcionando
+
+Após o vencimento, acesse a fatura e confira: o valor do boleto continua sendo o valor da fatura, sem juros somados, e a fatura informa os percentuais que o banco vai cobrar no pagamento. O código do boleto não muda. Quem calcula os encargos é o banco, no caixa ou no aplicativo, no momento em que o cliente paga.
+
 ## Informações importantes
 
 - A tarifa do boleto é paga separadamente à Efí (R$2,37 para usuários do módulo, sujeito a alteração pela Efí).
@@ -153,6 +183,8 @@ Além dos códigos de erro da API Efí, o módulo fornece mensagens específicas
 - "Falha ao gerar a transação na 2ª conexão com a API": verifique os campos "Descrição" e "Valor total" da fatura.
 - "Erro de comunicação na 2ª/3ª conexão com a API": ative o Debug do módulo para diagnóstico detalhado.
 - "CPF/Telefone/Nome incorretos": dados cadastrais do cliente precisam ser corrigidos.
+- "Não é possível antecipar o vencimento": a Efí só permite adiar o vencimento de um boleto, nunca antecipar.
+- Juros ou multa acima do permitido pela carteira de cobrança: ajuste os percentuais na sua conta Efí, em Configurações de cobranças.
 
 ## Licença
 

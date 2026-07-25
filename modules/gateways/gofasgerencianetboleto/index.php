@@ -6,7 +6,7 @@
  * @copyright	2016 -> 2025 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.13.0
+ * @version		3.14.0
  */
 use WHMCS\Application;
 use WHMCS\Database\Capsule;
@@ -32,6 +32,18 @@ function ggnb_verifyInstall(){
 		}
 		catch (\Exception $e){
     		$error = "Não foi possível criar a tabela do módulo no banco de dados: {$e->getMessage()}";
+		}
+	}
+	// v3.14.0: registra, por cobranca, se o modulo enviou o bloco configurations (multa e juros).
+	// E o que permite descobrir depois, sem criar cobranca de sondagem, se a conta Efi tem encargos proprios.
+	if( Capsule::schema()->hasTable('gofasgerencianetboleto') and !Capsule::schema()->hasColumn('gofasgerencianetboleto','sent_config') ){
+		try {
+			Capsule::schema()->table('gofasgerencianetboleto', function($table){
+				$table->tinyInteger('sent_config')->default(0);
+			});
+		}
+		catch (\Exception $e){
+			$error = "Não foi possível adicionar a coluna sent_config na tabela do módulo: {$e->getMessage()}";
 		}
 	}
 	if(!$error){
@@ -115,6 +127,89 @@ if(!function_exists('ggnb_detail_charge')){
 			$error = 'Erro: '.$json['error'].($json['error_description'] ? ' - '.$json['error_description'] : '');
 			return array('error'=> $error);
 		}
+	}
+}
+/**
+ *
+ * v3.14.0
+ * Configuracao de multa e juros aplicada pela Efi a uma cobranca ja existente.
+ * A API Cobrancas nao tem endpoint para ler as configuracoes da conta ou da carteira:
+ * o unico lugar onde esses valores aparecem e o detalhe da cobranca.
+ * @ggnb_efi_charge_config
+ *
+ */
+if(!function_exists('ggnb_efi_charge_config')){
+	function ggnb_efi_charge_config($charge){
+		$cfg = $charge['payment']['banking_billet']['configurations'];
+		if(!is_array($cfg)){
+			return array('fine'=>0,'interest'=>0,'interest_type'=>'daily');
+		}
+		$interest = $cfg['interest'];
+		if(is_array($interest)){ // formato novo da Efi: interest => array('value'=>..,'type'=>..)
+			$interest_type	= (string)$interest['type'] ?: 'daily';
+			$interest		= (int)$interest['value'];
+		}
+		else {
+			$interest_type	= (string)$cfg['interest_type'] ?: 'daily';
+			$interest		= (int)$interest;
+		}
+		return array(
+			'fine'			=> (int)$cfg['fine'],
+			'interest'		=> $interest,
+			'interest_type'	=> $interest_type,
+		);
+	}
+}
+/**
+ *
+ * v3.14.0
+ * Cache da configuracao de multa e juros da conta Efi, por ambiente (live/sandbox).
+ * Alimentado pela tarefa cron a partir de cobrancas em que o modulo NAO enviou configurations,
+ * portanto sem nenhuma cobranca de sondagem e sem alterar o comportamento de cobrancas reais.
+ * @ggnb_efi_account_config
+ *
+ */
+if(!function_exists('ggnb_efi_account_config')){
+	function ggnb_efi_account_config($api_mode){
+		$empty = array('fine'=>0,'interest'=>0,'interest_type'=>'daily','checked_at'=>0,'known'=>false);
+		try {
+			$row = Capsule::table('tbltransientdata')->where('name','=','EFI.Boleto.Account.Config.'.$api_mode)->first();
+		}
+		catch (\Exception $e){
+			return $empty;
+		}
+		if(!$row or !$row->data){
+			return $empty;
+		}
+		$data = json_decode($row->data,true);
+		if(!is_array($data)){
+			return $empty;
+		}
+		$data['known'] = true;
+		return $data;
+	}
+}
+if(!function_exists('ggnb_efi_account_config_store')){
+	function ggnb_efi_account_config_store($api_mode,$cfg){
+		$data = array(
+			'fine'			=> (int)$cfg['fine'],
+			'interest'		=> (int)$cfg['interest'],
+			'interest_type'	=> (string)$cfg['interest_type'] ?: 'daily',
+			'checked_at'	=> (int)date('YmdHi'),
+		);
+		try {
+			$exists = Capsule::table('tbltransientdata')->where('name','=','EFI.Boleto.Account.Config.'.$api_mode)->first();
+			if($exists){
+				Capsule::table('tbltransientdata')->where('name','=','EFI.Boleto.Account.Config.'.$api_mode)->update(array('data'=>json_encode($data)));
+			}
+			else {
+				Capsule::table('tbltransientdata')->insert(array('name'=>'EFI.Boleto.Account.Config.'.$api_mode,'data'=>json_encode($data),'expires'=>date('Y-m-d H:i:s',strtotime('+1 year'))));
+			}
+		}
+		catch (\Exception $e){
+			return array('error'=>$e->getMessage());
+		}
+		return array('success'=>true,'config'=>$data);
 	}
 }
 /**
@@ -554,7 +649,7 @@ if(!function_exists('ggnb_confirm_payment')){
  *
  */
 if(!function_exists('ggnb_new_charge')){
-	function ggnb_new_charge($api_url,$access_token,$body,$body2,$invoice_amount,$invoice_id,$api_mode){
+	function ggnb_new_charge($api_url,$access_token,$body,$body2,$invoice_amount,$invoice_id,$api_mode,$sent_config=0){
 		$create_charge	= ggnb_create_charge($api_url,$access_token,$body);
 		$charge_id		= $create_charge['result'];
 		if(!is_int($charge_id)){
@@ -565,7 +660,7 @@ if(!function_exists('ggnb_new_charge')){
 		if($pay_charge_['error'] or !is_array($pay_charge)){
 			return array('error'=>$pay_charge_['error']);
 		}
-		$store = ggnb_store_billet($pay_charge,$invoice_amount,$invoice_id,$api_mode);
+		$store = ggnb_store_billet($pay_charge,$invoice_amount,$invoice_id,$api_mode,$sent_config);
 		if($store['error']){
 			return array('error'=>$store['error']);
 		}
@@ -584,7 +679,7 @@ if(!function_exists('ggnb_new_charge')){
  *
  */
 if(!function_exists('ggnb_replace_charge')){
-	function ggnb_replace_charge($api_url,$access_token,$trans_id,$charge_status,$invoice_id,$api_mode,$body,$body2,$invoice_amount){
+	function ggnb_replace_charge($api_url,$access_token,$trans_id,$charge_status,$invoice_id,$api_mode,$body,$body2,$invoice_amount,$sent_config=0){
 		// O boleto anterior tem de estar cancelado na Efí antes de existir um novo: nunca dois boletos pagáveis na mesma fatura
 		$cancel = ggnb_cancel_charge_confirmed($api_url,$access_token,$trans_id,$api_mode);
 		if($cancel['paid']){
@@ -593,11 +688,11 @@ if(!function_exists('ggnb_replace_charge')){
 		if(!$cancel['canceled']){
 			return array('error'=>'Não foi possível cancelar o boleto anterior ('.$trans_id.'): '.$cancel['error'].' O novo boleto não foi gerado, para não deixar dois boletos pagáveis na mesma fatura.','keep_previous'=>true);
 		}
-		return ggnb_new_charge($api_url,$access_token,$body,$body2,$invoice_amount,$invoice_id,$api_mode);
+		return ggnb_new_charge($api_url,$access_token,$body,$body2,$invoice_amount,$invoice_id,$api_mode,$sent_config);
 	}
 }
 if( !function_exists('ggnb_store_billet') ){
-	function ggnb_store_billet($pay_charge,$invoice_amount,$invoice_id,$api_mode){
+	function ggnb_store_billet($pay_charge,$invoice_amount,$invoice_id,$api_mode,$sent_config=0){
 		$date = str_replace('/', '-', $pay_charge['data']['charges']['0']['dueDate']);
 		$dueDate = date("Y-m-d", strtotime($date));
 		$data = array(
@@ -610,6 +705,7 @@ if( !function_exists('ggnb_store_billet') ){
 			'barcode'=>$pay_charge['data']['barcode'],
 			'status'=>$pay_charge['data']['status'],
 			'api_mode'=>$api_mode,
+			'sent_config'=>(int)$sent_config, // v3.14.0: 1 = o modulo enviou multa e juros nesta cobranca
 		);
 		try{
 			$save_billet = Capsule::table('gofasgerencianetboleto') ->insert($data);
@@ -834,7 +930,7 @@ if(!function_exists('ggnb_setup_admin')){
 }}
 if(!function_exists('ggnb_update_stats') ){
 	function ggnb_module_version(){
-		return '3.13.0';
+		return '3.14.0';
 	}
 	function ggnb_update_stats(){
 		$params = getGatewayVariables('gofasgerencianetboleto');
@@ -975,6 +1071,40 @@ if(!function_exists('ggnb_reset_local_version')){
  */
  if(!function_exists('gofasgerencianetboleto_config')){
 	function gofasgerencianetboleto_config(){
+		// v3.14.0: aviso de precedencia. Se a conta Efi ja cobra multa ou juros, os campos do modulo
+		// sao ignorados: a Efi aplica a configuracao da conta e o modulo nao envia nada.
+		$cfg_params		= getGatewayVariables('gofasgerencianetboleto');
+		$cfg_api_mode	= $cfg_params['sandbox'] ? 'sandbox' : 'live';
+		$efi_account	= ggnb_efi_account_config($cfg_api_mode);
+		$efi_notice		= '';
+		if($efi_account['fine'] or $efi_account['interest']){
+			$efi_notice .= '<p style="color:#b35c00;border-left:3px solid #b35c00;padding:8px 12px;margin-top:8px;">';
+			$efi_notice .= '<b>Este campo está sendo ignorado.</b><br>';
+			$efi_notice .= 'Sua conta Efí já está configurada para cobrar ';
+			$notice_parts = array();
+			if($efi_account['fine']){
+				$notice_parts[] = 'multa de '.number_format($efi_account['fine']/100, 2, ',', '.').'%';
+			}
+			if($efi_account['interest']){
+				$notice_parts[] = 'juros de '.number_format($efi_account['interest']/1000, 3, ',', '.').'% ao dia';
+			}
+			$efi_notice .= implode(' e ', $notice_parts).'.<br>';
+			$efi_notice .= 'A configuração da conta tem prioridade, e o módulo não envia multa nem juros nas cobranças. ';
+			$efi_notice .= 'Para usar os valores definidos aqui, remova multa e juros na sua conta Efí, em Configurações de cobranças &gt; Boletos bancários e carnês.';
+			$efi_notice .= '</p>';
+		}
+		elseif($efi_account['known']){
+			$efi_notice .= '<p style="color:#31708f;border-left:3px solid #31708f;padding:8px 12px;margin-top:8px;">';
+			$efi_notice .= 'Sua conta Efí não tem multa nem juros configurados, então valem os valores definidos aqui.';
+			$efi_notice .= '</p>';
+		}
+		else {
+			$efi_notice .= '<p style="color:#31708f;border-left:3px solid #31708f;padding:8px 12px;margin-top:8px;">';
+			$efi_notice .= 'Ainda não foi possível verificar se sua conta Efí tem multa e juros configurados. ';
+			$efi_notice .= 'A verificação acontece automaticamente na tarefa cron. Enquanto este campo estiver preenchido, ';
+			$efi_notice .= 'o valor definido aqui substitui o da sua conta Efí.';
+			$efi_notice .= '</p>';
+		}
 		$module_version = ggnb_module_version();
 		$module_version_int = (int)preg_replace("/[^0-9]/", "", $module_version);
 		$module_page	= '7893';
@@ -1338,7 +1468,8 @@ if(!function_exists('ggnb_reset_local_version')){
 				'Type' => 'text',
 				'Size' => '10',
 				'Default' => '',
-				'Description' => '<span class="ggnb_optional_txt">(Opcional)</span> Multa cobrada após o vencimento (máximo 10%). Use ponto(.) para separar casas decimais, ex.: 1.5',
+				'Description' => '<span class="ggnb_optional_txt">(Opcional)</span> Multa cobrada após o vencimento (máximo 10%). Use ponto(.) para separar casas decimais, ex.: 1.5.<br>
+				A multa é registrada na cobrança e calculada pela Efí no momento do pagamento. O valor do Boleto não muda depois do vencimento.'.$efi_notice,
 			),
 			// Multa por atraso
 			'juros' => array(
@@ -1346,7 +1477,17 @@ if(!function_exists('ggnb_reset_local_version')){
 				'Type' => 'text',
 				'Size' => '10',
 				'Default' => '',
-				'Description' => '<span class="ggnb_optional_txt">(Opcional)</span> Juros por dia cobrados após o vencimento (Mínimo de 0.001 e máximo de 0.33). Use ponto(.) para separar casas decimais.',
+				'Description' => '<span class="ggnb_optional_txt">(Opcional)</span> Juros por dia cobrados após o vencimento (Mínimo de 0.001 e máximo de 0.33). Use ponto(.) para separar casas decimais.<br>
+				Os juros são registrados na cobrança e calculados pela Efí no momento do pagamento. O valor do Boleto não muda depois do vencimento.'.$efi_notice,
+			),
+			// Dias para baixa automatica do boleto vencido
+			'diasparabaixa' => array(
+				'FriendlyName' => $opt_num++.'- Dias para baixa do Boleto vencido',
+				'Type' => 'text',
+				'Size' => '10',
+				'Default' => '',
+				'Description' => '<span class="ggnb_optional_txt">(Opcional)</span> Número de dias, após o vencimento, em que o Boleto vencido continua podendo ser pago (de 0 a 120). Deixe em branco para usar o padrão da Efí, que é 90 dias. Insira 0 para impedir o pagamento a partir do dia seguinte ao vencimento.<br>
+				Aplica-se apenas quando multa ou juros estão definidos neste módulo.',
 			),
 			
 			/*
@@ -1519,6 +1660,16 @@ function gofasgerencianetboleto_link($params){
 	$customfCNPJ = $params['customfieldcnpj'];
 	$fine = (float)$params['multa'] * 100;
 	$interest = (float)$params['juros'] * 1000;
+	// v3.14.0: precedencia entre a configuracao da conta Efi e a do modulo.
+	// A Efi trata configurations como bloco unico: enviar um campo apaga o outro que estiver na conta,
+	// e enviar os dois zerados apaga a configuracao da conta inteira. Por isso a regra e tudo ou nada.
+	// Se a conta ja cobra multa ou juros, o modulo nao envia nada e nao calcula nada: a Efi aplica.
+	$efi_account		= ggnb_efi_account_config($api_mode);
+	$efi_account_has	= ($efi_account['fine'] or $efi_account['interest']) ? true : false;
+	if($efi_account_has){
+		$fine		= 0;
+		$interest	= 0;
+	}
 
 	// Dias adicionais à Data de vencimento
 	if( $params['diasparavencimento'] ){
@@ -1578,24 +1729,21 @@ function gofasgerencianetboleto_link($params){
 		(string)$instruction4,
 		);
 
-	if( $fine and $interest){
+	// v3.14.0: configurations e enviado sempre com os dois campos, ou nao e enviado.
+	// Envio parcial removia da cobranca o encargo configurado na conta Efi, sem nenhum aviso ao cliente.
+	if( $fine or $interest ){
 		$configurations = array(
-				'fine' => $fine,
-				'interest' => $interest,
+				'fine' => (int)$fine,
+				'interest' => (int)$interest,
 			);
-	} elseif( $fine and !$interest ){
-		$configurations = array(
-				'fine' => $fine,
-				//'interest' => $interest,
-			);
-	} elseif( !$fine and $interest ){
-		$configurations = array(
-				//'fine' => $fine,
-				'interest' => $interest,
-			);
-	} elseif( !$fine and !$interest ){
+		if( (int)$params['diasparabaixa'] or $params['diasparabaixa'] === '0' ){
+			$configurations['days_to_write_off'] = (int)$params['diasparabaixa'];
+		}
+	}
+	else {
 		$configurations = false;
 	}
+	$sent_config = $configurations ? 1 : 0;
 
 	// Parâmetros da fatura
 	$invoice_id = $params['invoiceid'];
@@ -2192,34 +2340,22 @@ function gofasgerencianetboleto_link($params){
 			$interest_values_arr[] = $fine_interest_values['interest_value'];
 		}
 	}
-	if($fine_interest_values['fine_value']){
-	$ItEm[] = array('name' => 'Multa por atraso', 'amount'=>1, 
-			'value' => (int)array_sum($fine_values_arr), );
+	// v3.14.0: multa e juros NAO entram mais como item da cobranca e nao alteram o vencimento do boleto.
+	// Quem calcula os encargos e a Efi, no momento do pagamento, a partir do bloco configurations
+	// registrado na cobranca ou da configuracao da conta. Somar os encargos ao valor fazia o total do
+	// boleto crescer a cada dia de atraso, e cada crescimento disparava o cancelamento e a recriacao
+	// da cobranca, trocando charge_id, vencimento e valor principal a cada execucao da cron (#203).
+	// Os valores abaixo sao apenas informativos, exibidos na fatura.
+	$invoice_amount = (int)$invoice_amount_;
+	$fine_show		= $efi_account_has ? (int)$efi_account['fine'] : (int)$fine;
+	$interest_show	= $efi_account_has ? (int)$efi_account['interest'] : (int)$interest;
+	if( $fine_show and $fine_interest_values['due_days'] ){
+		$discount_tax_visible_message	.= '<p>Multa de '.number_format($fine_show/100, 2, ',', '.').'% por atraso, calculada pelo banco no pagamento.</p>';
 	}
-	if($fine_interest_values['interest_value'] ){
-		$ItEm[] = array('name' => 'Juros por atraso','amount'=>1, 
-			'value' => (int)array_sum($interest_values_arr), );
+	if( $interest_show and $fine_interest_values['due_days'] ){
+		$discount_tax_visible_message	.= '<p>Juros de '.number_format($interest_show/1000, 3, ',', '.').'% ao dia, calculados pelo banco no pagamento.</p>';
 	}
-	if( $fine_interest_values['fine_value'] and !$fine_interest_values['interest_value'] ){
-		$invoice_amount = (int)($invoice_amount_ + (int)array_sum($fine_values_arr));
-		$discount_tax_visible_message	.= '<p>Multa por atraso: R$'.number_format((int)array_sum($fine_values_arr)/100,  2, ',', '.'). '</p>';
-		$billet_duedate = date('Y-m-d');
-	}
-	elseif( $fine_interest_values['fine_value'] and $fine_interest_values['interest_value']   ){
-		$invoice_amount = (int)($invoice_amount_ + (int)((int)array_sum($fine_values_arr) + (int)array_sum($interest_values_arr)));
-		$discount_tax_visible_message	.= '<p>Multa de '.$params['multa'].'% por atraso: R$'.number_format((int)array_sum($fine_values_arr)/100,  2, ',', '.'). '</p>';
-		$discount_tax_visible_message	.= '<p>Juros ('.$params['juros'].'% /dia X '.$fine_interest_values['due_days'].' dias): R$'.number_format((int)array_sum($interest_values_arr)/100,  2, ',', '.'). '</p>';
-		$billet_duedate = date('Y-m-d');
-	}
-	elseif( !$fine_interest_values['fine_value'] and $fine_interest_values['interest_value']   ){
-		$invoice_amount = (int)($invoice_amount_ + (int)array_sum($interest_values_arr));
-		$discount_tax_visible_message	.= '<p>Juros de '.$fine_interest_values['due_days'].' dias de atraso: R$'.number_format((int)array_sum($interest_values_arr)/100,  2, ',', '.'). '</p>';
-		$billet_duedate = date('Y-m-d');
-	}
-	else {
-		$invoice_amount = (int)$invoice_amount_;
-	}
-	$discount_tax_visible_message	.= '<p>Total do Boleto: R$'.number_format((int)($invoice_amount)/100,  2, ',', '.'). '</p>';
+	$discount_tax_visible_message	.= '<p>Total do Boleto: R$'.number_format((int)($invoice_amount)/100,  2, ',', '.').($fine_show or $interest_show ? ' (sem multa e juros)' : ''). '</p>';
 	if($ItEm_discount){
 		$ItEm = array_merge($ItEm, $ItEm_discount);
 	}
@@ -2392,8 +2528,18 @@ function gofasgerencianetboleto_link($params){
 				$expire_at	= $chargeExistDuedate;
 				$barcode	= $chargeExist['data']['payment']['banking_billet']['barcode'];
 			}
-			// 3) Boleto vencido, mas com o mesmo valor (sem multa/juros a acrescentar): altera o vencimento do próprio boleto
-			elseif(!$error and $chargeExistID === (int)$trans_id and $chargeExistStatus !== 'canceled' and $chargeExistDuedate < date('Y-m-d') and $chargeExistDuedate > date('Y-m-d',strtotime('-29 days')) and (int)$chargeExistTotal === (int)$billet_amount and !$configurations and !$cancelBillet){
+			// 3) Boleto vencido, mesmo valor, com multa ou juros ativos (no modulo ou na conta Efi):
+			//    reaproveita a cobranca intacta. Mesmo charge_id, mesmo vencimento, mesmo valor principal.
+			//    Multa e juros sao calculados pela Efi e pela rede bancaria no momento do pagamento,
+			//    conforme o bloco configurations registrado na cobranca. Enquanto o boleto nao for baixado
+			//    (days_to_write_off, padrao 90 dias) ele continua pagavel, entao nao ha nada a alterar.
+			elseif(!$error and $chargeExistID === (int)$trans_id and $chargeExistStatus !== 'canceled' and $chargeExistDuedate < date('Y-m-d') and (int)$chargeExistTotal === (int)$billet_amount and ($configurations or $efi_account_has) and !$cancelBillet){
+				$link		= $chargeExist['data']['payment']['banking_billet']['link'];
+				$expire_at	= $chargeExistDuedate;
+				$barcode	= $chargeExist['data']['payment']['banking_billet']['barcode'];
+			}
+			// 4) Boleto vencido, mesmo valor, sem multa nem juros em lugar nenhum: altera o vencimento do próprio boleto
+			elseif(!$error and $chargeExistID === (int)$trans_id and $chargeExistStatus !== 'canceled' and $chargeExistDuedate < date('Y-m-d') and $chargeExistDuedate > date('Y-m-d',strtotime('-29 days')) and (int)$chargeExistTotal === (int)$billet_amount and !$cancelBillet){
 				$updateBillet = ggnb_update_billet($api_url,$access_token,$trans_id,$billet_duedate);
 				if((string)$updateBillet['result'] === 'success'){
 					$link		= $chargeExist['data']['payment']['banking_billet']['link'];
@@ -2405,10 +2551,10 @@ function gofasgerencianetboleto_link($params){
 					$error .= $updateBillet['error'];
 				}
 			}
-			// 4) Valor mudou (multa, juros ou desconto), boleto cancelado, não pago ou fora do prazo de alteração:
+			// 5) Valor da fatura mudou, boleto cancelado, fora do prazo de alteração, ou "Cancelar Boleto Vencido" marcado:
 			//    substitui o boleto. O novo só é criado depois do anterior ser cancelado na Efí.
 			elseif(!$error){
-				$replace = ggnb_replace_charge($api_url,$access_token,$trans_id,$chargeExistStatus,$invoice_id,$api_mode,$body,$body2,$invoice_amount);
+				$replace = ggnb_replace_charge($api_url,$access_token,$trans_id,$chargeExistStatus,$invoice_id,$api_mode,$body,$body2,$invoice_amount,$sent_config);
 				if($replace['error'] and $replace['keep_previous'] and $chargeExist['data']['payment']['banking_billet']['barcode']){
 					// Boleto anterior não pôde ser cancelado: mantém o boleto existente para não deixar dois boletos pagáveis
 					$link		= $chargeExist['data']['payment']['banking_billet']['link'];
@@ -2452,7 +2598,7 @@ function gofasgerencianetboleto_link($params){
 						$expire_at	= $pay_charge['data']['expire_at'];
 						$barcode	= $pay_charge['data']['barcode'];
 						// Save billet on DB
-						$ggnb_store_billet = ggnb_store_billet($pay_charge,$invoice_amount,$invoice_id,$api_mode);
+						$ggnb_store_billet = ggnb_store_billet($pay_charge,$invoice_amount,$invoice_id,$api_mode,$sent_config);
 						if($ggnb_store_billet['error']){
 							$error = $ggnb_store_billet['error'];
 						}
@@ -2769,6 +2915,8 @@ if(!function_exists('ggnb_check_status_updates')){
 				  $error .= $access_token_['error'];
 			  }
 			  if($access_token){
+				  $account_config_read	= false; // v3.14.0: uma leitura da configuracao da conta por execucao
+				  $account_config		= false;
 				  // Faturas em aberto pagas por boleto
 				  foreach( Capsule::table('tblinvoices') -> where( 'status','=','Unpaid' )->where('paymentmethod','=','gofasgerencianetboleto')->get() as $tblinvoices){
 					  // Todos os boletos ainda nao confirmados da fatura, do mais novo para o mais antigo
@@ -2777,7 +2925,7 @@ if(!function_exists('ggnb_check_status_updates')){
 						  ->where('api_mode','=',$api_mode)
 						  ->whereNotIn('status',array('paid','canceled'))
 						  ->orderBy('id','desc')
-						  ->get(array('charge_id')) as $local_boleto ){
+						  ->get(array('charge_id','sent_config')) as $local_boleto ){
 							  $boleto			= ggnb_detail_charge($api_url,$access_token,$local_boleto->charge_id);
 							  $charge			= $boleto['result']['data'];
 							  $charge_status	= (string)$charge['status'];
@@ -2785,6 +2933,13 @@ if(!function_exists('ggnb_check_status_updates')){
 							  if($boleto['error'] or !$charge['charge_id']){
 								  $error .= 'Erro ao verificar o Boleto '.$local_boleto->charge_id.': '.$boleto['error'];
 								  continue;
+							  }
+							  // v3.14.0: cobranca criada sem o bloco configurations do modulo. O que a Efi
+							  // aplicou nela veio da conta, entao serve para descobrir a configuracao da conta
+							  // sem criar nenhuma cobranca de sondagem.
+							  if(!(int)$local_boleto->sent_config and !$account_config_read){
+								  $account_config_read = true;
+								  $account_config = ggnb_efi_account_config_store($api_mode,ggnb_efi_charge_config($charge));
 							  }
 							  if($charge_status === 'canceled'){
 								  ggnb_set_charge_status($local_boleto->charge_id,$api_mode,'canceled');
