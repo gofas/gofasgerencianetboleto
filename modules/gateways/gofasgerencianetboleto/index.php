@@ -6,7 +6,7 @@
  * @copyright	2016 -> 2025 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.14.0
+ * @version		3.14.1
  */
 use WHMCS\Application;
 use WHMCS\Database\Capsule;
