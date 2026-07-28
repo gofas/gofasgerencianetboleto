@@ -941,7 +941,7 @@ if(!function_exists('ggnb_setup_admin')){
 }}
 if(!function_exists('ggnb_update_stats') ){
 	function ggnb_module_version(){
-		return '3.14.0';
+		return '3.14.2';
 	}
 	function ggnb_update_stats(){
 		$params = getGatewayVariables('gofasgerencianetboleto');
