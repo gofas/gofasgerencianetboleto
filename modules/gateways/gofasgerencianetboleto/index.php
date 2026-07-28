@@ -6,7 +6,7 @@
  * @copyright	2016 -> 2025 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.14.0
+ * @version		3.14.1
  */
 use WHMCS\Application;
 use WHMCS\Database\Capsule;
@@ -1781,6 +1781,10 @@ function gofasgerencianetboleto_link($params){
 
 	// Parametros do Cliente
 	$user_id = $params['clientdetails']['id'];
+	// #204: a fatura identificada por invoiceid tem que pertencer ao cliente do contexto.
+	// Bloqueia criar, substituir ou alterar cobranca com custom_id de fatura de outro cliente.
+	$ggnb_invoice_owner = (int) Capsule::table('tblinvoices')->where('id','=',(int)$invoice_id)->value('userid');
+	$ggnb_owner_ok = ( $ggnb_invoice_owner > 0 and (int)$user_id > 0 and $ggnb_invoice_owner === (int)$user_id );
 	$firstname = $params['clientdetails']['firstname'];
 	$lastname = $params['clientdetails']['lastname'];
 	//$phone = preg_replace('/[^0-9]/', '', $params['clientdetails']['phonenumber']);
@@ -2490,7 +2494,13 @@ function gofasgerencianetboleto_link($params){
 	}
 	// End params
 	// Verify if generate billet
-	if((stripos($_SERVER['REQUEST_URI'],'viewinvoice')) or (!stripos($_SERVER['REQUEST_URI'], 'viewinvoice') and ($params['billetonemail']))){
+	if( !$ggnb_owner_ok ){
+		$error .= '#204: fatura '.$invoice_id.' nao pertence ao cliente '.$user_id.' (dono real: '.$ggnb_invoice_owner.'). Cobranca nao gerada.';
+		if($params['log']){
+			logModuleCall('gofasgerencianetboleto','owner_guard_204',array('invoice_id'=>$invoice_id,'context_user'=>$user_id,'invoice_owner'=>$ggnb_invoice_owner),'',$error);
+		}
+	}
+	if( $ggnb_owner_ok and ((stripos($_SERVER['REQUEST_URI'],'viewinvoice')) or (!stripos($_SERVER['REQUEST_URI'], 'viewinvoice') and ($params['billetonemail'])))){
 		$access_token_ = ggnb_get_token($api_url,$client_id,$client_secret);
 		if($access_token_['access_token']){
 			$access_token = $access_token_['access_token'];
