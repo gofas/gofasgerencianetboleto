@@ -1,5 +1,14 @@
 # Changelog
 
+## [Próxima atualização](https://github.com/gofas/gofasgerencianetboleto/tree/HEAD)
+
+
+**Melhorias:**
+
+- Migração da coluna sent_config só roda na tela de configurações do gateway - [#207](https://github.com/gofas/gofasgerencianetboleto/issues/207)
+
+[Comparar versões](https://github.com/gofas/gofasgerencianetboleto/compare/v3.14.1...HEAD)
+
 ## [v3.14.1 - 28/07/2026](https://github.com/gofas/gofasgerencianetboleto/releases/tag/v3.14.1)
 
 
