@@ -6,13 +6,21 @@
  * @copyright	2016 -> 2025 Gofas Software
  * @license		https://gofas.net?p=9340
  * @support		https://gofas.net/?p=7856
- * @version		3.14.1
+ * @version		3.14.2
  */
 use WHMCS\Application;
 use WHMCS\Database\Capsule;
 
 if(!function_exists('ggnb_verifyInstall')){
 function ggnb_verifyInstall(){
+	// v3.14.2: a funcao passou a ser chamada tambem fora da tela de configuracoes
+	// (gravacao de boleto e tarefa cron). O resultado positivo fica em cache estatico
+	// para nao repetir as consultas de schema na mesma requisicao. Erro nao e cacheado.
+	static $result = NULL;
+	if( is_array($result) ){
+		return $result;
+	}
+	$error = NULL;
 	if( !Capsule::schema()->hasTable('gofasgerencianetboleto') ){
     	try {
 			Capsule::schema()->create('gofasgerencianetboleto', function($table){
@@ -47,7 +55,8 @@ function ggnb_verifyInstall(){
 		}
 	}
 	if(!$error){
-		return array('success'=>1);
+		$result = array('success'=>1);
+		return $result;
 	}
 	if($error){
 		return array('error'=>$error);
@@ -693,6 +702,8 @@ if(!function_exists('ggnb_replace_charge')){
 }
 if( !function_exists('ggnb_store_billet') ){
 	function ggnb_store_billet($pay_charge,$invoice_amount,$invoice_id,$api_mode,$sent_config=0){
+		ggnb_verifyInstall(); // v3.14.2: garante o schema antes do insert, sem depender da tela de configuracoes
+		$error = NULL;
 		$date = str_replace('/', '-', $pay_charge['data']['charges']['0']['dueDate']);
 		$dueDate = date("Y-m-d", strtotime($date));
 		$data = array(
@@ -2889,6 +2900,7 @@ function gofasgerencianetboleto_link($params){
 }
 if(!function_exists('ggnb_check_status_updates')){
 	function ggnb_check_status_updates($vars){
+		ggnb_verifyInstall(); // v3.14.2: garante o schema antes de ler sent_config na tarefa cron
 		$params = getGatewayVariables('gofasgerencianetboleto');
 		if(!$params['maxinvoicespercheck'] || $params['maxinvoicespercheck'] < 1 || empty($params['maxinvoicespercheck'])){
         	return;
