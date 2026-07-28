@@ -1,13 +1,13 @@
 # Changelog
 
-## [Próxima atualização](https://github.com/gofas/gofasgerencianetboleto/tree/HEAD)
+## [v3.14.1 - 28/07/2026](https://github.com/gofas/gofasgerencianetboleto/releases/tag/v3.14.1)
 
 
 **Melhorias:**
 
 - custom_id deslocado e cobranças duplicadas no lote de faturas do cron - [#204](https://github.com/gofas/gofasgerencianetboleto/issues/204)
 
-[Comparar versões](https://github.com/gofas/gofasgerencianetboleto/compare/v3.14.0...HEAD)
+[Comparar versões](https://github.com/gofas/gofasgerencianetboleto/compare/v3.14.0...v3.14.1)
 
 ## [v3.14.0 - 25/07/2026](https://github.com/gofas/gofasgerencianetboleto/releases/tag/v3.14.0)
 
