@@ -188,4 +188,4 @@ Além dos códigos de erro da API Efí, o módulo fornece mensagens específicas
 
 ## Licença
 
-[Contrato de licença de uso](https://gofas.net/contrato-de-venda-de-licenca-de-uso-de-software/)
+[Contrato de licença de uso](https://gofas.net/?p=9340)
